@@ -43,7 +43,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 First, navigate to the backend directory, then run:
 
 ```bash
-./pocketbase serve "http://127.0.0.1:8091"
+./pocketbase serve --http "127.0.0.1:8091"
 ```
 This will start a local instance of the database, accessible on the 8091 port. 
 This will log the admin UI url in your terminal, use this to create, update, and modify existing collections and records. 
