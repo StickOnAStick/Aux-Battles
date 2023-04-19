@@ -12,6 +12,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   
+  //This is just for cookie testing. Current PB that's being imported everywhere is located in ./api/pocketbase/index.ts
   try{
     const cookie = await fetch('http://localhost:3000/api');
     console.log(cookie.headers.get('token'));
