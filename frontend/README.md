@@ -48,6 +48,11 @@ First, navigate to the backend directory, then run:
 This will start a local instance of the database, accessible on the 8091 port. 
 This will log the admin UI url in your terminal, use this to create, update, and modify existing collections and records. 
 
+## Learn more
+
+Checkout PocketBase.io docs and the admin ui's dashboard for more information:
+ 
+  - [Pocketbase Documentation](https://pocketbase.io/docs)
 
 #
 
