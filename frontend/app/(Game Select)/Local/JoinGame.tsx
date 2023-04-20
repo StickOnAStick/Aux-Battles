@@ -1,14 +1,13 @@
 'use client';
-
 import { ChangeEvent, useEffect, useState } from 'react';
 import { pb } from '@/app/api/pocketbase';
 import { LobbyData, LobbyPayloadData } from '@/global/types/LobbyData';
-import { Users } from '@/global/types/Users';
 import { useRouter } from 'next/navigation';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
-import { Record } from 'pocketbase';
 import { store } from '@/global/store/store';
 import { setGuest } from '@/global/store/guestSlice';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export default function JoinGame () {
     
@@ -21,8 +20,8 @@ export default function JoinGame () {
     });
 
     useEffect(()=>{
-        return setError(null);
-    }, [])
+        return setError(null); //clean up error state on deconstruct
+    }, []);
     
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
         const {name, value} = event.target;
@@ -37,26 +36,25 @@ export default function JoinGame () {
                 return;
             }
 
-        const model = await pb.authStore.model;
+        const model = pb.authStore.model;
 
         if(!model){
+
+            const token = await NextResponse.next();
+            console.log(token);
+
             try{
                 const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
-                console.log(lobby);
 
                 if(!lobby.id) return;
 
                 const guestData: GuestsPayload = {
                     username: joinData.name,
                     currentGame: '',
-                    currentLobby: lobby.id
+                    currentLobby: lobby.id,
+                    token: "temp"
                 };
                 const createGuest: Guests = await pb.collection('guests').create(guestData);
-                lobby.guests.push(createGuest.id);
-                store.dispatch(setGuest(
-                    createGuest
-                ));
-                console.log(store.getState())
 
                 //@ts-ignore
                 const addGuestToLobby = await pb.collection('lobbys').update(lobby.id, lobby)

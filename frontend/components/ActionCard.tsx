@@ -35,7 +35,12 @@ export default function ActionCard ({
                 <div className='flex justify-center gap-3'>
                     {!host &&
                         <button className="btn btn-sm xs:btn-md btn-primary font-bold text-accent ">Kick</button>
-                    }  
+                    }
+                     {/* Ready state will be for Final launch, and only on competitive gamemode  */}
+                    {/* {!isGame &&
+                        <button className="btn btn-sm xs:btn-md btn-accent font-bold text-primary">Ready</button>
+                    }  */}
+
                 </div>
             }
         </li>

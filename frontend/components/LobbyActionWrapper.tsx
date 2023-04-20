@@ -18,12 +18,14 @@ export default function LobbyActionWrapper({
 
     const [lobbyData, setLobbyData] = useState<LobbyData>(data);
     const [userCount, setUserCount] = useState<number>(1);
-    const [readyCount, setReadyCount] = useState<number>(0);
+    const [screenWidth, setScreenWidth] = useState<number>(0);
 
     useEffect(() => {
+        setScreenWidth(window.innerWidth);
+
         setLobbyData(data);
         setUserCount(lobbyData?.players.length + lobbyData?.guests.length);
-    }, [lobbyId, data, lobbyData]);
+    }, [lobbyId, data, lobbyData, screenWidth]);
 
     return (
         <div className={className + " flex justify-center mt-5 text-primary h-full flex-grow"}>
@@ -31,16 +33,15 @@ export default function LobbyActionWrapper({
                 <div>
                     <div className=" flex justify-between border-b-2 border-primary-content pb-4 border-opacity-50">
                         <div className="flex gap-3">
-                            <div className=' '>
+                            
                                 <Image src={`http://127.0.0.1:8091/api/files/packs/${lobbyData?.expand.packs.at(0).id as string}/${lobbyData?.expand.packs.at(0).image as string}`} 
-                                        width={100} height={100} alt="Pack Image" 
+                                        width={screenWidth >= 500 ? 100 : 60} height={screenWidth >= 500 ? 100 : 60} alt="Pack Image" 
                                         className='rounded-md' style={{width: 'auto', height: '100%'}} />
-                            </div>
-                            <h1 className='font-bold xs:text-3xl text-xl '>{lobbyData?.expand.packs.at(0).name}</h1>
+                            
+                            <h1 className='font-bold xs:text-3xl text-xl'>{lobbyData?.expand.packs.at(0).name}</h1>
                         </div>
-                        <div className='flex flex-col font-bold text-lg text-center gap-2'>
-                            <span className=' tracking-widest'>{readyCount}/{userCount}</span>
-                            <button className='btn btn-sm btn-disabled bg-success bg-opacity-70 xs:btn-md rounded-md my-1  btn-success text-white font-bold tracking-wide hover:bg-opacity-90 hover:scale-105'>Start</button>
+                        <div className='flex flex-col font-bold text-lg text-center justify-center'>
+                            <button className='btn btn-md btn-success btn-disabled bg-success bg-opacity-70 xs:btn-lg rounded-md my-1 text-white font-bold tracking-wide'>Start</button>
                         </div>
                     </div>
                     

@@ -54,7 +54,6 @@ Checkout PocketBase.io docs and the admin ui's dashboard for more information:
  
   - [Pocketbase Documentation](https://pocketbase.io/docs)
 
-#
 
 # Working with cookies
 
@@ -64,6 +63,7 @@ Helpful resources:
  - [NextJS 13 Cookie setting](https://beta.nextjs.org/docs/api-reference/response#cookies)
  - [Video for NextJS 13 Cookies](https://www.youtube.com/watch?v=vsEKmufzT6M&t=476s)
 
+#
 
 ## Deploy on Vercel
 
