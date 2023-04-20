@@ -70,6 +70,7 @@ export default function LobbyActionWrapper({
                         <span className=" font-semibold tracking-wide text-2xl">Code: <span className='text-2xl xs:text-4xl font-bold'>{lobbyData?.pass}</span></span>
                         <span className='mb-3 text-sm text-center'>Share this with your friends!</span>
                         <div className='w-full text-center'>
+                            {/* Todo: For beta launch, have sharing feature complete  */}
                             <button className='btn btn-accent text-white font-extrabold tracking-wider text-3xl'>Share</button>
                         </div>
                     </div>

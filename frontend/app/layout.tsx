@@ -1,5 +1,5 @@
-import '../styles/dist.css'
-import Providers from './providers'
+import '../styles/dist.css';
+import Providers from './providers'; //Redux provider
 
 export const metadata = {
   title: 'Create Next App',
@@ -11,19 +11,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  
-  //This is just for cookie testing. Current PB that's being imported everywhere is located in ./api/pocketbase/index.ts
-  try{
-    const cookie = await fetch('http://localhost:3000/api');
-    console.log(cookie.headers.get('token'));
-    if(cookie.ok){
-        console.log(cookie);
-    }else{
-        console.log("warning")
-    }
-  }catch (e){
-    console.log(e)
-  }
   
   return (
     <html lang="en" data-theme="mytheme">

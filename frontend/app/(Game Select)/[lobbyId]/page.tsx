@@ -8,8 +8,6 @@ import Link from 'next/link';
 
 async function getLobbyData (lobbyId: string): Promise<LobbyData> {
    
-    
-   
     const record = await fetch(`http://127.0.0.1:8091/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
         cache: 'no-store',
         next: {
