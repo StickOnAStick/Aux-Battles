@@ -36,21 +36,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
         };
         console.log(data);
 
-        const localLobby = await pb.collection('lobbys').create(data)
-        .then((response)=> {
-            store.dispatch(setGuest({
-                id: guest.id,
-                username: userName,
-                currentGame: '',
-                currentLobby: response.id
-            }))
-            console.log(store.getState())
-            console.log(response);
-            router.push(`/${response.id}`)
-        })
-        .catch((error)=> console.error(error));
-
-        console.log(localLobby);
+        const localLobby = await pb.collection('lobbys').create(data);
         
     }else{
         try {

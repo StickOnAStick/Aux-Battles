@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 function _interopDefault (ex: any) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
@@ -63,7 +64,7 @@ export default function WheelSpinner(
         // }, 0);
 
         
-    }, []);
+    }, [wheelInit]);
 
     function wheelInit() {
         initCanvas();

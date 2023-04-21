@@ -11,10 +11,6 @@ export default function SpotifySearch(
 ){
     const [search, setSearch] = useState<string>('');
 
-    useEffect(()=>{
-        
-    },[])
-
 
     return (
         <div className="p-3 rounded-md border border-primary border-opacity-50 bg-base-300 w-full md:w-1/2 lg:w-1/3">

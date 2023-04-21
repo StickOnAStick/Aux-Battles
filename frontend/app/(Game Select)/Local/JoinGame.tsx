@@ -1,16 +1,14 @@
 'use client';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { pb } from '@/app/api/pocketbase';
-import { LobbyData, LobbyPayloadData } from '@/global/types/LobbyData';
+import { LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
-import { store } from '@/global/store/store';
-import { setGuest } from '@/global/store/guestSlice';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import PocketBase from 'pocketbase';
 
 export default function JoinGame () {
     
+
+    const pb = new PocketBase('http://127.0.0.1:8091'); 
     const router = useRouter();
 
     const [error, setError] = useState<Error | null>(null);
@@ -40,8 +38,8 @@ export default function JoinGame () {
 
         if(!model){
 
-            const token = await NextResponse.next();
-            console.log(token);
+            const token = await fetch('http://localhost:3000/api/GetToken');
+            console.log(token.headers);
 
             try{
                 const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);

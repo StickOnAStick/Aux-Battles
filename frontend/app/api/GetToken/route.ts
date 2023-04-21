@@ -3,10 +3,11 @@ import { cookies } from 'next/headers';
 
 export async function GET(req: NextRequest, res: NextResponse){
 
-    const cookieStore = cookies();
-    const token = cookieStore.get('token');
-    console.log("token: ", token);
-
-    return NextResponse.json(token?.value);
-
+    console.log("token:" , req.cookies.get('token'));
+    
+    const data = req.cookies.get('token');
+    
+    if(data?.value){
+    return NextResponse.next()
+    }
 }

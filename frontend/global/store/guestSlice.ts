@@ -5,7 +5,8 @@ import { RootState } from './store';
 const initialState: GuestsPayload = {
     username: '',
     currentLobby: '',
-    currentGame: ''
+    currentGame: '',
+    token: ''
 }
 
 export const guestSlice = createSlice({
