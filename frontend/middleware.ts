@@ -6,9 +6,7 @@ export function middleware(req: NextRequest, res: NextResponse) {
     const response = NextResponse.next();
 
     const token = generateToken(40);
-
     response.cookies.set('token', token);
-    console.log("response: ", response.cookies);
 
     return response;
 }

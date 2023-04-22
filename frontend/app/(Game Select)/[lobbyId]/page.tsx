@@ -3,7 +3,7 @@ import LobbyActionWrapper from "@/components/LobbyActionWrapper";
 import { LobbyData, LobbyPayloadData } from "@/global/types/LobbyData";
 import { Packs } from "@/global/types/Packs";
 import Link from 'next/link';
-
+import { cookies } from "next/headers";
 
 
 async function getLobbyData (lobbyId: string): Promise<LobbyData> {
@@ -31,7 +31,11 @@ export default async function Lobby({
         lobbyId: string
     }
 }){
-    
+
+    const cookieStore = cookies();
+    const token = cookieStore.get('token');
+    console.log(token);
+
     let data = await getLobbyData(params.lobbyId);
     
 

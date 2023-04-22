@@ -2,46 +2,69 @@
 
 import { RxKeyboard } from 'react-icons/rx';
 
-import { pb } from '@/app/api/pocketbase';
+import PocketBase from 'pocketbase';
 import generateLocalPassword from '@/global/functions/generateLocalPass';
-import { LobbyData, LobbyPayloadData } from '@/global/types/LobbyData';
+import { LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useState } from 'react';
-import { Guests } from '@/global/types/Guests';
-import { store } from '@/global/store/store';
-import { setGuest } from '@/global/store/guestSlice';
+import { Guests, GuestsPayload } from '@/global/types/Guests';
 
                                 //Not good type
-async function createLocalLobby(router: typeof useRouter.prototype, userName: string) {
+async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
     //Call from store when login feature is complete
+    const pb = new PocketBase('http://127.0.0.1:8091');
     const model = pb.authStore.model;
     const pass = generateLocalPassword();
 
     if(userName == "") return new Error("Please enter a username");
-    console.log(model);
+    if(!token) return new Error("Please enable cookies to continue");
+
     if(!model){
-        //FetchLobbyBot() needs to be implimented later under API
-        console.log("hit " + userName) 
+        try{
+            //Check existing guest
+            try{
+                const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
+            
+                if(existingGuest?.id) {
+                    if(existingGuest?.currentGame) router.push(`/Game/${existingGuest.currentGame}`)
+                    else router.push(`/${existingGuest.currentLobby}`)
+                }
+            }
+            catch(e){
+                console.log(e);
+            }
+            //Create new Guest
+            const guest: Guests = await pb.collection('guests').create({username: userName, token: token});
+            console.log(guest);
+            const data: LobbyPayloadData = {
+                "chatroom": null,
+                "pass": pass,
+                "players": [],
+                "gameType": false,
+                "packs": ["w4oudqe45it58g9"], //Update when more packs are available
+                "host": guest.id,
+                "guests": [guest.id]
+            };
 
-        const guest: Guests = await pb.collection('guests').create({username: userName});
-        console.log(guest);
-        const data: LobbyPayloadData = {
-            "chatroom": null,
-            "pass": pass,
-            "players": [],
-            "gameType": false,
-            "packs": ["w4oudqe45it58g9"],
-            "host": guest.id,
-            "guests": [guest.id]
-        };
-        console.log(data);
+            const localLobby = await pb.collection('lobbys').create(data)
+            .then(async (res)=>{
+                const data: GuestsPayload = {
+                    username: userName,
+                    token: token,
+                    currentLobby: res.id,
+                }
+                await pb.collection('guests').update(guest.id, data); //Update guests current lobby
+                router.push(`/${res.id}`)
+            })
+            .catch((e)=> console.error(e));
+            
+        } catch(e){
+            console.error(e);
+        }
 
-        const localLobby = await pb.collection('lobbys').create(data);
-        
     }else{
         try {
             const user = await pb.collection('users').getOne(model.id);
-            console.log("User " + user);
             
             const data: LobbyPayloadData = {
                 "chatroom": null,
@@ -71,7 +94,12 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
     }
 }
 
-export default function HostGame () {
+export default function HostGame ({
+    localToken
+}: {
+    localToken: string | undefined
+}) {
+    
     const router = useRouter();
 
     const [userName, setUserName] = useState<string>('');
@@ -97,7 +125,7 @@ export default function HostGame () {
                     <h3 className="font-bold text-lg">Enter your username!</h3>
                     <input className="py-4 px-4 rounded-lg mt-2 font-bold text-xl" type="text" name="name" placeholder='Username' onChange={handleInputChange} value={userName}></input>
                     <div className="modal-action">
-                        <button className="btn btn-error font-semibold" onClick={()=> createLocalLobby(router, userName)}>Create Lobby</button>
+                        <button className="btn btn-error font-semibold" onClick={()=> createLocalLobby(router, userName, localToken)}>Create Lobby</button>
                     </div>
                 </label>
             </label>
