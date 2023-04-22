@@ -26,8 +26,13 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
             
                 if(existingGuest?.id) {
-                    if(existingGuest?.currentGame) router.push(`/Game/${existingGuest.currentGame}`)
-                    else router.push(`/${existingGuest.currentLobby}`)
+                    if(existingGuest?.currentGame){
+                        router.push(`/Game/${existingGuest.currentGame}`)
+                        return;
+                    }else{
+                        router.push(`/${existingGuest.currentLobby}`)
+                        return;
+                    }
                 }
             }
             catch(e){
@@ -35,7 +40,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             }
             //Create new Guest
             const guest: Guests = await pb.collection('guests').create({username: userName, token: token});
-            console.log(guest);
+            
             const data: LobbyPayloadData = {
                 "chatroom": null,
                 "pass": pass,

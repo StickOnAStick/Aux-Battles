@@ -1,5 +1,5 @@
 'use client';
-import { Guests } from "@/global/types/Guests";
+import { Guests, GuestsPayload } from "@/global/types/Guests";
 import { LobbyData, LobbyPayloadData } from "@/global/types/LobbyData";
 import { useRouter } from "next/navigation";
 import PocketBase from 'pocketbase';
@@ -16,9 +16,18 @@ async function leaveLobby(
     try{
     if(!pb.authStore.model){
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
-        
 
+        const data: GuestsPayload = {
+            id: localUser.id,
+            username: localUser.username,
+            currentGame: null,
+            currentLobby: null,
+            token: localUser.token
+        }
+        
+        await pb.collection('guests').update(localUser.id, data);
         if(localUser.id == host) { //Delete lobby if host
+            
             await pb.collection('lobby').delete(lobbyId);
             router.push('/');
         }else{ //Remove user is guest player

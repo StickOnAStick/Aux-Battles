@@ -38,7 +38,7 @@ export default async function Lobby({
 
     return (
         <div className="flex flex-col min-h-screen">
-            <LeaveLobby token={token?.value} host={data.host}/>     
+            <LeaveLobby token={token?.value} host={data.host} lobbyId={params.lobbyId}/>     
             <div className="flex flex-col justify-center grow min-w-full z-0 lg:p-4">
                 <LobbyActionWrapper lobbyId={params.lobbyId} data={data} className=""/>
             </div>
