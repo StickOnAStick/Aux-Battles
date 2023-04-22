@@ -32,7 +32,6 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             }
             catch(e){
                 console.log(e);
-                
             }
             //Create new Guest
             const guest: Guests = await pb.collection('guests').create({username: userName, token: token});
