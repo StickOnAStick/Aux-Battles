@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
 import PocketBase from 'pocketbase';
 
-export default function JoinGame () {
+export default function JoinGame ({
+    localToken
+}:{
+    localToken: string | undefined
+}) {
     
-
     const pb = new PocketBase('http://127.0.0.1:8091'); 
     const router = useRouter();
 
@@ -26,20 +29,35 @@ export default function JoinGame () {
         setJoinData((prev)=> ({...prev, [name]: value}))
     }
 
-    const handleJoinGame = async (): Promise<void> => {
+    const handleJoinGame = async (): Promise<Error | void> => {
         //Check for valid input
         if(joinData.name == "" || joinData.code == "") 
-            {
-                setError(new Error("Please enter username or game code!"));
-                return;
-            }
-
+        {
+            setError(new Error("Please enter username or game code!"));
+            return;
+        }
+        
+        if(!localToken) return new Error("Please enable cookies to continue");
         const model = pb.authStore.model;
-
+    
         if(!model){
 
-            const token = await fetch('http://localhost:3000/api/GetToken');
-            console.log(token.headers);
+            //Check if existing lobby 
+            try{
+                const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
+            
+                if(existingGuest?.id) {
+                    if(existingGuest?.currentGame){
+                        router.push(`/Game/${existingGuest.currentGame}`);
+                        return;
+                    }else{
+                        router.push(`/${existingGuest.currentLobby}`);
+                        return;
+                    }
+                }
+            }catch(e){
+                console.log(e);
+            }
 
             try{
                 const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
@@ -50,7 +68,7 @@ export default function JoinGame () {
                     username: joinData.name,
                     currentGame: '',
                     currentLobby: lobby.id,
-                    token: "temp"
+                    token: localToken
                 };
                 const createGuest: Guests = await pb.collection('guests').create(guestData);
 

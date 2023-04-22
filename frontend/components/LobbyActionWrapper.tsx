@@ -9,11 +9,13 @@ import ActionCard from './ActionCard';
 export default function LobbyActionWrapper({
     lobbyId,
     data,
-    className
+    className,
+    localToken
 }:{
     lobbyId: string,
     data: LobbyData,
     className?: string,
+    localToken?: string,
 }){
 
     const [lobbyData, setLobbyData] = useState<LobbyData>(data);
@@ -65,7 +67,7 @@ export default function LobbyActionWrapper({
                         </ul>
                     </div>
                 </div>
-
+                {/* Sharing */}
                 <div className="flex justify-center">
                     <div className='flex flex-col gap-3'>
                         <span className=" font-semibold tracking-wide text-2xl">Code: <span className='text-2xl xs:text-4xl font-bold'>{lobbyData?.pass}</span></span>

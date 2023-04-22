@@ -1,8 +1,6 @@
 'use client';
 import { useRouter, usePathname } from 'next/navigation'
-import Image from 'next/image';
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 
 const DashBoardSwitch = ({className }: {className?: string}) => {
