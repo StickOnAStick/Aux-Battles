@@ -38,9 +38,8 @@ export default function JoinGame ({
         }
         
         if(!localToken) return new Error("Please enable cookies to continue");
-
         const model = pb.authStore.model;
-        console.log("hit");
+    
         if(!model){
 
             //Check if existing lobby 
@@ -48,8 +47,13 @@ export default function JoinGame ({
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
             
                 if(existingGuest?.id) {
-                    if(existingGuest?.currentGame) router.push(`/Game/${existingGuest.currentGame}`)
-                    else router.push(`/${existingGuest.currentLobby}`)
+                    if(existingGuest?.currentGame){
+                        router.push(`/Game/${existingGuest.currentGame}`);
+                        return;
+                    }else{
+                        router.push(`/${existingGuest.currentLobby}`);
+                        return;
+                    }
                 }
             }catch(e){
                 console.log(e);
