@@ -30,7 +30,7 @@ async function leaveLobby(
             
             await pb.collection('lobby').delete(lobbyId);
             router.push('/');
-        }else{ //Remove user is guest player
+        }else{ //Remove user if guest player
             
             const lobby: LobbyPayloadData = await pb.collection('lobbys').getOne(lobbyId);
             
@@ -44,7 +44,6 @@ async function leaveLobby(
                 router.push('/');
             }catch(e){
                 console.error(e);
-                 
             }
         }
     }else{
