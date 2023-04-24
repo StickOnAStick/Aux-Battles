@@ -3,8 +3,12 @@ import { Guests } from "./Guests";
 import { Packs } from "./Packs";
 import { Users } from "./Users";
 
+interface gameType {
+    
+}
+
 export interface GameData extends Record {
-    type: boolean,
+    type: string,
     pack: Packs,
     chatroom?: string,
     spotApiKey: string,
@@ -15,7 +19,7 @@ export interface GameData extends Record {
 
 export interface GameDataPayload {
     id: string,
-    type: boolean,
+    type: string,
     pack: string,
     chatroom?: string,
     spotApiKey: string,

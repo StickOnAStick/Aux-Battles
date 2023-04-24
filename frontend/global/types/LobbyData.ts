@@ -6,11 +6,11 @@ import { Users } from "./Users";
 export interface LobbyData extends Record {
         chatroom: string | null,
         pass: string,
-        players: Users[],
+        players: string[],
         gameType: boolean,
         packs: Packs[],
         host: string,
-        guests: Guests[]
+        guests: string[]
 }
 
 export interface LobbyPayloadData {

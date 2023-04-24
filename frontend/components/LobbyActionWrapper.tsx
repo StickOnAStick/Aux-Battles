@@ -15,7 +15,7 @@ export default function LobbyActionWrapper({
     lobbyId: string,
     data: LobbyData,
     className?: string,
-    localToken?: string,
+    localToken: string | undefined,
 }){
     
     const pb = new PocketBase('http://127.0.0.1:8091');

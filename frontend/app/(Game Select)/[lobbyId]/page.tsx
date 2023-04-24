@@ -15,6 +15,7 @@ async function getLobbyData (lobbyId: string): Promise<LobbyData> {
     if(!record.ok) { throw new Error("Could not find record!")}
     
     const data: LobbyData = await record.json();
+
     if(!data){
         throw new Error(`Error loading lobby ${lobbyId}`);
     }
@@ -40,7 +41,7 @@ export default async function Lobby({
         <div className="flex flex-col min-h-screen">
             <LeaveLobby token={token?.value} host={data.host} lobbyId={params.lobbyId}/>     
             <div className="flex flex-col justify-center grow min-w-full z-0 lg:p-4">
-                <LobbyActionWrapper lobbyId={params.lobbyId} data={data} className=""/>
+                <LobbyActionWrapper lobbyId={params.lobbyId} data={data} className="" localToken={token?.value}/>
             </div>
         </div>
     );
