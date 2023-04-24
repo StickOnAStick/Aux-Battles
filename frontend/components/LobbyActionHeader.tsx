@@ -3,19 +3,66 @@
 import { Packs } from "@/global/types/Packs";
 import Image from 'next/image';
 import { useEffect, useState } from "react";
+import PocketBase, { LocalAuthStore } from 'pocketbase';
+import { GameData, GameDataPayload } from "@/global/types/GameData";
+import { Guests } from "@/global/types/Guests";
+import { useRouter } from "next/navigation";
+import { LobbyData } from "@/global/types/LobbyData";
+import { Users } from "@/global/types/Users";
+
+async function createGame(
+    data: LobbyData,
+    token: string | undefined, 
+    setError: React.Dispatch<React.SetStateAction<Error | null>>,
+    router: typeof useRouter.prototype,    
+)
+{
+    if(!token) return setError(new Error("Please Enable cookies to continue"));
+
+    const pb = new PocketBase("http://127.0.0.1:8091");
+    const model = pb.authStore.model;
+
+    if(!model){ //guest
+
+        const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
+        if(!localUser) return router.push('/');
+        if(localUser.id !== data.host) return setError(new Error("Only host can start!"));
+        
+        const users: string[] = data.players.map(user => user.id);
+        const guests: string[] = data.guests.map(guest => guest.id);
+
+        const gameData: GameDataPayload = {
+            id: data.id,
+            type: false,
+            pack: "w4oudqe45it58g9", //Change to selected pack when feature is added
+            spotApiKey: 'c8c748a25aeb4392bf458167ae5deccb',
+            round: 0,
+            players: users,
+            guests: guests,
+        }
+
+        await pb.collection('games').create(gameData)
+        .then((response)=> router.push(`/Game/${response.id}`))
+        .catch((e)=> setError(new Error(e)));
+
+    }else{ //user
+        if(model.id === data.host){
+            await pb.collection('game').create()
+        }
+    }
+}
+
 
 export default function LobbyActionHeader({
-    lobbyId,
-    localToken,
-    hostId,
-    packs
+    data,
+    localToken
 }:{
-    lobbyId: string,
+    data: LobbyData
     localToken: string | undefined,
-    hostId: string,
-    packs: Packs
 }){
+    const router = useRouter();
 
+    const [error, setError] = useState<Error | null>(null);
     const [screenWidth, setScreenWidth] = useState<number>(0);
 
     useEffect(()=>{
@@ -24,22 +71,20 @@ export default function LobbyActionHeader({
 
 
     return (
-        <div className=" flex justify-between border-b-2 border-primary-content pb-4 border-opacity-50">
+        <div className=" flex flex-col gap-4 justify-between border-b-2 border-primary-content pb-4 border-opacity-50">
             <div className="flex gap-3">
-                
-                    <Image src={`http://127.0.0.1:8091/api/files/packs/${packs.id}/${packs.image}`} 
+                    <Image src={`http://127.0.0.1:8091/api/files/packs/${data?.expand.packs.at(0).id as string}/${data?.expand.packs.at(0).image as string}`} 
                             width={screenWidth >= 500 ? 100 : 60} height={screenWidth >= 500 ? 100 : 60} alt="Pack Image" 
                             className='rounded-md' style={{width: 'auto', height: '100%'}} />
-                
-                <h1 className='font-bold xs:text-3xl text-xl'>{packs.name}</h1>
+                <h1 className='font-bold xs:text-3xl text-xl'>{data.expand.packs.at(0).name}</h1>
             </div>
-            <div className='flex flex-col font-bold text-lg text-center justify-center'>
-                <button className='btn btn-md btn-success btn-disabled bg-success bg-opacity-70 xs:btn-lg rounded-md my-1 text-white font-bold tracking-wide'
-                    onClick={()=>console.log("bing")}>
-                    
-                    Start
-                </button>
-            </div>
+            <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 rounded-md my-1 text-white font-bold tracking-wide'
+                onClick={()=> createGame(data, localToken, setError, router) }>
+                Start
+            </button>
+            { error && 
+                <div>{error.message}</div>
+            }
         </div>
     );
 }

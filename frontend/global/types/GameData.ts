@@ -12,3 +12,14 @@ export interface GameData extends Record {
     players: Users[],
     guests: Guests[],
 }
+
+export interface GameDataPayload {
+    id: string,
+    type: boolean,
+    pack: string,
+    chatroom?: string,
+    spotApiKey: string,
+    round: number,
+    players: string[],
+    guests: string[]
+}

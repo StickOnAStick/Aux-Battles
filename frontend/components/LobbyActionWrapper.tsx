@@ -3,10 +3,12 @@ import { Users } from '@/global/types/Users';
 import { Guests } from '@/global/types/Guests';
 import ActionCard from './ActionCard';
 import LobbyActionHeader from './LobbyActionHeader';
+import PocketBase from 'pocketbase';
+
 
 export default function LobbyActionWrapper({
     lobbyId,
-    data,
+    data, //inital state
     className,
     localToken
 }:{
@@ -16,12 +18,15 @@ export default function LobbyActionWrapper({
     localToken?: string,
 }){
     
+    const pb = new PocketBase('http://127.0.0.1:8091');
+
+
     return (
         <div className={className + " flex justify-center mt-5 text-primary h-full flex-grow"}>
             <div className=" bg-base-300 border-2 border-primary-content rounded-lg w-full sm:w-10/12 md:w-2/3 p-5 flex flex-col justify-between">
                 <div>
                     {/* Game Info */}
-                    <LobbyActionHeader lobbyId={lobbyId} localToken={localToken} hostId={data.host} packs={data?.expand.packs.at(0)}/>
+                    <LobbyActionHeader data={data} localToken={localToken}/>
                     {/* User List */}
                     <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
                         Players

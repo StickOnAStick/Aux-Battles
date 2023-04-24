@@ -10,14 +10,14 @@ async function leaveLobby(
     host: string, 
     lobbyId: string,
     ){
-    if(!token) router.push('/');
+    if(!token) return router.push('/');
 
     const pb = new PocketBase('http://127.0.0.1:8091');
     try{
     if(!pb.authStore.model){
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
-
-        const data: GuestsPayload = {
+        console.log(localUser.username)
+        const guestData: GuestsPayload = {
             id: localUser.id,
             username: localUser.username,
             currentGame: null,
@@ -25,10 +25,11 @@ async function leaveLobby(
             token: localUser.token
         }
         
-        await pb.collection('guests').update(localUser.id, data);
+        await pb.collection('guests').update(localUser.id, guestData);
+        
         if(localUser.id == host) { //Delete lobby if host
             
-            await pb.collection('lobby').delete(lobbyId);
+            await pb.collection('lobbys').delete(lobbyId);
             router.push('/');
         }else{ //Remove user if guest player
             
