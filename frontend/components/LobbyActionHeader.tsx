@@ -1,14 +1,11 @@
 'use client';
-
-import { Packs } from "@/global/types/Packs";
 import Image from 'next/image';
 import { useEffect, useState } from "react";
-import PocketBase, { LocalAuthStore } from 'pocketbase';
-import { GameData, GameDataPayload } from "@/global/types/GameData";
+import PocketBase from 'pocketbase';
+import {  GameDataPayload } from "@/global/types/GameData";
 import { Guests } from "@/global/types/Guests";
 import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
-import { Users } from "@/global/types/Users";
 
 async function createGame(
     data: LobbyData,
@@ -37,10 +34,15 @@ async function createGame(
             players: data.players,
             guests: data.guests,
         }
+        console.log(gameData.id);
+        for(const playerId in data.players) await pb.collection('users').update(playerId, { currentLobby: null, currentGame: gameData.id });
+        for(const guestId in data.players) await pb.collection('guests').update(guestId, { currentLobby: null, currentGame: gameData.id });
 
         await pb.collection('games').create(gameData)
-        .then((response)=> router.push(`/Game/${response.id}`))
         .catch((e)=> setError(new Error("Failed to create game")));
+        await pb.collection('lobbys').delete(data.id);
+
+        router.replace(`/Game/${gameData.id}`);
 
     }else{ //user
         if(model.id === data.host){
