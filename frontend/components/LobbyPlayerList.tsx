@@ -14,11 +14,11 @@ export default function LobbyPlayerList({
 }:{
     initalState: ExpandedLobbyData
 }){
-    const pb = new PocketBase('http://127.0.0.1:8091');
+    
     const [playerList, setPlayerList] = useState<UsersOrGuests[] | undefined>(undefined);
 
     useEffect( ()=>{
-        
+        const pb = new PocketBase('http://127.0.0.1:8091');
         async function update(data: ExpandedLobbyData){
             const combined = [...data?.expand.players, ...data?.expand.guests]
             console.log(combined);
@@ -34,7 +34,7 @@ export default function LobbyPlayerList({
             pb.collection('lobbys').unsubscribe(initalState.id);
         }
         
-    }, [playerList, initalState.id, pb])
+    }, [playerList, initalState.id])
 
     return(
         <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
