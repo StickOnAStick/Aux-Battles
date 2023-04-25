@@ -35,8 +35,8 @@ async function createGame(
             guests: data.guests,
         }
         console.log(gameData.id);
-        for(const playerId in data.players) await pb.collection('users').update(playerId, { currentLobby: null, currentGame: gameData.id });
-        for(const guestId in data.players) await pb.collection('guests').update(guestId, { currentLobby: null, currentGame: gameData.id });
+        for(const playerId in data.players) await pb.collection('users').update(playerId, { currentGame: gameData.id, currentLobby: null  });
+        for(const guestId in data.players) await pb.collection('guests').update(guestId, { currentGame: gameData.id, currentLobby: null  });
 
         await pb.collection('games').create(gameData)
         .catch((e)=> setError(new Error("Failed to create game")));

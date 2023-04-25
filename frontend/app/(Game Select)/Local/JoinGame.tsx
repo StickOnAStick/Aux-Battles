@@ -71,6 +71,7 @@ export default function JoinGame ({
                     token: localToken
                 };
                 const createGuest: Guests = await pb.collection('guests').create(guestData);
+                lobby.guests.push(createGuest.id);
 
                 //@ts-ignore
                 const addGuestToLobby = await pb.collection('lobbys').update(lobby.id, lobby)

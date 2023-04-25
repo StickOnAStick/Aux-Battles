@@ -2,19 +2,17 @@ import LobbyActionWrapper from "@/components/LobbyActionWrapper";
 import { LobbyData, LobbyPayloadData } from "@/global/types/LobbyData";
 import LeaveLobby from "./LeaveLobby";
 import { cookies } from "next/headers";
+import { ExpandedLobbyData } from "@/global/types/Unions";
 
 
-async function getLobbyData (lobbyId: string): Promise<LobbyData> {
+async function getLobbyData (lobbyId: string): Promise<ExpandedLobbyData> {
    
     const record = await fetch(`http://127.0.0.1:8091/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
         cache: 'no-store',
-        next: {
-            revalidate: 10
-        }
     });
     if(!record.ok) { throw new Error("Could not find record!")}
     
-    const data: LobbyData = await record.json();
+    const data: ExpandedLobbyData = await record.json();
 
     if(!data){
         throw new Error(`Error loading lobby ${lobbyId}`);
@@ -34,7 +32,7 @@ export default async function Lobby({
     const cookieStore = cookies();
     const token = cookieStore.get('token');
 
-    let data = await getLobbyData(params.lobbyId);
+    const data = await getLobbyData(params.lobbyId);
     
 
     return (

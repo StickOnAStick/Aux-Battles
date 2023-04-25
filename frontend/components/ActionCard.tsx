@@ -1,10 +1,7 @@
 'use client';
-
 import { Guests } from "@/global/types/Guests";
 import { Users } from "@/global/types/Users";
-import { useState } from "react";
 import Image from 'next/image';
-export const revalidate = 10;
 
 export default function ActionCard ({
     typeData,
@@ -31,7 +28,8 @@ export default function ActionCard ({
                 }
                 {typeData.username}
             </div>
-            {!isGame &&
+            {/* lobby functionality */}
+            {!isGame && 
                 <div className='flex justify-center gap-3'>
                     {!host &&
                         <button className="btn btn-sm xs:btn-md btn-primary font-bold text-accent ">Kick</button>

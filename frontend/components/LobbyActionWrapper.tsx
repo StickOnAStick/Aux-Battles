@@ -4,6 +4,8 @@ import { Guests } from '@/global/types/Guests';
 import ActionCard from './ActionCard';
 import LobbyActionHeader from './LobbyActionHeader';
 import PocketBase from 'pocketbase';
+import LobbyPlayerList from './LobbyPlayerList';
+import { ExpandedLobbyData } from '@/global/types/Unions';
 
 
 export default function LobbyActionWrapper({
@@ -13,13 +15,10 @@ export default function LobbyActionWrapper({
     localToken
 }:{
     lobbyId: string,
-    data: LobbyData,
+    data: ExpandedLobbyData,
     className?: string,
     localToken: string | undefined,
 }){
-    
-    const pb = new PocketBase('http://127.0.0.1:8091');
-
 
     return (
         <div className={className + " flex justify-center mt-5 text-primary h-full flex-grow"}>
@@ -28,23 +27,7 @@ export default function LobbyActionWrapper({
                     {/* Game Info */}
                     <LobbyActionHeader data={data} localToken={localToken}/>
                     {/* User List */}
-                    <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
-                        Players
-                        <ul className=' font-medium rounded-md p-3 text-xl flex flex-col gap-5'>
-                            {/**Signed users */}
-                            {data?.expand.players?.map((user: Users) => {
-                                return (
-                                    <ActionCard typeData={user} key={user.id} host={ user.id === data.host }/>
-                                );
-                            })}
-                            {/**Guests */}
-                            {data?.expand.guests?.map((guest: Guests) => {
-                                return (
-                                   <ActionCard typeData={guest} key={guest.id} host={ guest.id === data.host }/>
-                                );
-                            })}  
-                        </ul>
-                    </div>
+                    <LobbyPlayerList initalState={data} />
                 </div>
                 {/* Sharing */}
                 <div className="flex justify-center">
