@@ -31,79 +31,71 @@ export default function JoinGame ({
 
     const handleJoinGame = async (): Promise<Error | void> => {
         //Check for valid input
-        if(joinData.name == "" || joinData.code == "") 
-        {
-            setError(new Error("Please enter username or game code!"));
-            return;
+        if(joinData.name == "" || joinData.code == "") return setError(new Error("Please enter username or game code!"));
+        if(!localToken) return setError(new Error("Please enable cookies to continue"));
+        
+        try{
+            
+            const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
+            if(!lobby.id) return new Error("Could not find lobby");
+
+            const model = pb.authStore.model;
+        
+            if(!model){
+                //Check if existing lobby 
+                const existingGuest = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
+                .catch((e)=> console.log("Guest not found ", e));
+
+                if(!existingGuest) {
+                    const guestData: GuestsPayload = {
+                        username: joinData.name,
+                        currentGame: '',
+                        currentLobby: lobby.id,
+                        token: localToken
+                    };
+                    const createGuest: Guests = await pb.collection('guests').create(guestData);
+                    lobby.guests.push(createGuest.id);
+
+                    await pb.collection('lobbys').update(lobby.id, lobby)
+                    .then(async (response) => {
+                        router.push(`/${response.id}`);
+                        
+                    })
+                    .catch((error)=>console.error(error));
+                    return;
+                }
+                
+                if(existingGuest?.currentGame != ""){
+                    router.push(`/Game/${existingGuest.currentGame}`);
+                    return;
+                }else if(existingGuest?.currentLobby != ""){ 
+                    router.push(`/${existingGuest.currentLobby}`);
+                    return;
+                } //Cookie hasn't expired, needs to join new lobby... Continue with process. 
+                else{
+                    const updatedGuest = await pb.collection('guests').update(existingGuest.id, {
+                        username: joinData.name,
+                        currentLobby: lobby.id
+                    })
+                    //@ts-ignore
+                    lobby.guests.push(updatedGuest.id);
+                    const updateLobby = await pb.collection('lobbys').update(lobby.id, lobby)
+                    .then((res)=>{
+                        router.push(`/${res.id}`)
+                    });
+                    return;
+                }
+            }
+            else{
+                //user join
+                console.log("TBD feature")
+            }
+        }catch(e){
+            //@ts-ignore
+            let _e: Error = e;
+            return setError(new Error(_e.message));
         }
         
-        if(!localToken) return new Error("Please enable cookies to continue");
-        const model = pb.authStore.model;
-    
-        if(!model){
-            //Check if existing lobby 
-            try{
-                const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
-            
-                if(existingGuest?.id) {
-                    if(existingGuest?.currentGame){
-                        router.push(`/Game/${existingGuest.currentGame}`);
-                        return;
-                    }else if(existingGuest?.currentLobby){ 
-                        router.push(`/${existingGuest.currentLobby}`);
-                        return;
-                    } //Cookie hasn't expired, needs to join new lobby... Continue with process. 
-                    else{
-                        const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`)
-                        if(!lobby.id) return;
-                        const updatedGuest = await pb.collection('guests').update(existingGuest.id, {
-                            username: joinData.name,
-                            currentLobby: lobby.id
-                        })
-                        //@ts-ignore
-                        lobby.guests.push(updatedGuest.id);
-                        const updateLobby = await pb.collection('lobbys').update(lobby.id, lobby)
-                        .then((res)=>{
-                            router.push(`/${res.id}`)
-                        });
-                        return;
-                    }
-                }
-            }catch(e){
-                console.error(e);
-            }
-
-            try{
-                const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
-
-                if(!lobby.id) return;
-
-                const guestData: GuestsPayload = {
-                    username: joinData.name,
-                    currentGame: '',
-                    currentLobby: lobby.id,
-                    token: localToken
-                };
-                const createGuest: Guests = await pb.collection('guests').create(guestData);
-                lobby.guests.push(createGuest.id);
-
-                //@ts-ignore
-                const addGuestToLobby = await pb.collection('lobbys').update(lobby.id, lobby)
-                .then(async (response) => {
-                    //console.log(response);
-                    router.push(`/${response.id}`);
-                })
-                .catch((error)=>console.error(error));
-            }catch(e) {
-                //@ts-ignore
-                let _e: Error = e;
-                setError(new Error(_e.message));
-                return;
-            }
-        }
-        else{
-            console.log("TBD feature")
-        }
     }
 
     

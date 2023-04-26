@@ -20,7 +20,6 @@ async function createGame(
     const model = pb.authStore.model;
 
     if(!model){ //guest
-
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         if(!localUser) return router.push('/');
         if(localUser.id !== data.host) return setError(new Error("Only host can start!"));

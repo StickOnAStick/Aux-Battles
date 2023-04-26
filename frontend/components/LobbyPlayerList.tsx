@@ -18,7 +18,7 @@ export default function LobbyPlayerList({
     const router = useRouter();
     const [playerList, setPlayerList] = useState<(Users | Guests)[]>();
 
-    useEffect( ()=>{
+    useEffect( () => {
         const pb = new PocketBase('http://127.0.0.1:8091');
 
         async function update(data: LobbyData){
@@ -30,19 +30,15 @@ export default function LobbyPlayerList({
         }
 
         async function closeConnections(unsubscribe: Promise<UnsubscribeFunc | void>){
-
             const unsub = await unsubscribe;
             if(!unsub) return router.push("/");
-            unsub().then((res)=> console.log("Response: ", res))
-            .catch((e)=>console.log("unsubError", e));
+            unsub()
         }
         //init & subscribe
         const unsubscribe = pb.collection('lobbys').subscribe(initalState.id, 
             async function (e: RecordSubscription<ExpandedLobbyData>) {
-                console.log("Subscription: ", e.record)
-                if(!e.record) { //Handle client side leaving on lobby close as well as game start
-                    router.push("/");//Add game start logic
-                }
+                if(!e.record) router.push("/"); //Handle client side leaving on lobby close as well as game start
+                //Add game start logic
                 update(e.record);
         })
         .catch((e)=>{
@@ -58,7 +54,6 @@ export default function LobbyPlayerList({
         <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
             Players
             <ul className=' font-medium rounded-md p-3 text-xl flex flex-col gap-5'>
-                
                     {
                         playerList?.map((user: Users | Guests) => {
                             if(user.avatar){

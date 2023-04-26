@@ -27,7 +27,6 @@ export default async function Lobby({
         lobbyId: string
     }
 }){
-
     const cookieStore = cookies();
     const token = cookieStore.get('token');
 
