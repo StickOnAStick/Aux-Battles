@@ -41,7 +41,6 @@ export default function JoinGame ({
         const model = pb.authStore.model;
     
         if(!model){
-
             //Check if existing lobby 
             try{
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
@@ -50,13 +49,28 @@ export default function JoinGame ({
                     if(existingGuest?.currentGame){
                         router.push(`/Game/${existingGuest.currentGame}`);
                         return;
-                    }else{
+                    }else if(existingGuest?.currentLobby){ 
                         router.push(`/${existingGuest.currentLobby}`);
+                        return;
+                    } //Cookie hasn't expired, needs to join new lobby... Continue with process. 
+                    else{
+                        const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`)
+                        if(!lobby.id) return;
+                        const updatedGuest = await pb.collection('guests').update(existingGuest.id, {
+                            username: joinData.name,
+                            currentLobby: lobby.id
+                        })
+                        //@ts-ignore
+                        lobby.guests.push(updatedGuest.id);
+                        const updateLobby = await pb.collection('lobbys').update(lobby.id, lobby)
+                        .then((res)=>{
+                            router.push(`/${res.id}`)
+                        });
                         return;
                     }
                 }
             }catch(e){
-                console.log(e);
+                console.error(e);
             }
 
             try{

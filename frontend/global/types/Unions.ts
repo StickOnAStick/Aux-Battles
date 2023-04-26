@@ -6,9 +6,9 @@ import { Packs } from "./Packs";
 export type UsersOrGuests = Users | Guests;
 
 interface ExpandedPlayers {
-    expand: {
-        players: Users[],
-        guests: Guests[],
+    expand?: {
+        players?: Users[],
+        guests?: Guests[],
         pakcs: Packs[],
     }
 }

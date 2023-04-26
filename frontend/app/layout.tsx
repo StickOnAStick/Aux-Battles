@@ -1,5 +1,6 @@
 import '../styles/dist.css';
 import Providers from './providers'; //Redux provider
+import eventsource from 'eventsource';
 
 export const metadata = {
   title: 'Aux-Battles',

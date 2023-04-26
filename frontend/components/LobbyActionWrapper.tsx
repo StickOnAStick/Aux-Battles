@@ -32,7 +32,7 @@ export default function LobbyActionWrapper({
                 {/* Sharing */}
                 <div className="flex justify-center">
                     <div className='flex flex-col gap-3'>
-                        <span className=" font-semibold tracking-wide text-2xl">Code: <span className='text-2xl xs:text-4xl font-bold'>{data?.pass}</span></span>
+                        <span className='text-2xl xs:text-4xl font-bold tracking-wider'>{data?.pass}</span>
                         <span className='mb-3 text-sm text-center'>Share this with your friends!</span>
                         <div className='w-full text-center'>
                             {/* Todo: For beta launch, have sharing feature complete  */}

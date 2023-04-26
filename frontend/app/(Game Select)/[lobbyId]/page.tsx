@@ -1,16 +1,15 @@
 import LobbyActionWrapper from "@/components/LobbyActionWrapper";
-import { LobbyData, LobbyPayloadData } from "@/global/types/LobbyData";
 import LeaveLobby from "./LeaveLobby";
 import { cookies } from "next/headers";
 import { ExpandedLobbyData } from "@/global/types/Unions";
-
+import { redirect } from "next/navigation";
 
 async function getLobbyData (lobbyId: string): Promise<ExpandedLobbyData> {
    
     const record = await fetch(`http://127.0.0.1:8091/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
         cache: 'no-store',
     });
-    if(!record.ok) { throw new Error("Could not find record!")}
+    if(!record.ok) redirect("/")
     
     const data: ExpandedLobbyData = await record.json();
 

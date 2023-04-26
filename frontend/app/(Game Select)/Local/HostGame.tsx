@@ -24,7 +24,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             //Check existing guest
             try{
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
-            
+                console.log("Existing Guest: ", existingGuest)
                 if(existingGuest?.id) {
                     if(existingGuest?.currentGame){
                         router.push(`/Game/${existingGuest.currentGame}`)
@@ -53,15 +53,17 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
 
             const localLobby = await pb.collection('lobbys').create(data)
             .then(async (res)=>{
+                console.log("Response id: ", res.id)
                 const data: GuestsPayload = {
                     username: userName,
                     token: token,
                     currentLobby: res.id,
                 }
-                await pb.collection('guests').update(guest.id, data); //Update guests current lobby
-                router.push(`/${res.id}`)
+                await pb.collection('guests').update(guest.id, data)
+                .catch((e)=>console.log("Error updating guest... ", e)); //Update guests current lobby
+                return router.push(`/${res.id}`)
             })
-            .catch((e)=> console.error(e));
+            .catch((e)=> console.log("Error creating guest lobby... \n", e));
             
         } catch(e){
             console.error(e);
@@ -89,7 +91,9 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                     currentLobby: response.id
                 }
 
-                await pb.collection('users').update(user.id, payload).then((response)=>console.log(response)).catch((error)=>console.log(error));
+                await pb.collection('users').update(user.id, payload)
+                .then((response)=>console.log("Updated user: ", response))
+                .catch((error)=>console.error("Error updating user: ", error));
                 router.push(`/${response.id}`)
             })
             .catch((error)=>console.error(error));
@@ -117,7 +121,7 @@ export default function HostGame ({
     return (
         <>
             <label htmlFor="HostBtn"
-            className="btn text-base-content pb-1 bg-base-300 rounded-lg border-2 border-primary-content min-w-full h-full hover:bg-accent hover:border-primary-focus hover:border-opacity-5 hover:shadow-md hover:shadow-base-300 hover:text-white hover:-translate-y-1">
+            className="btn text-base-content pb-1 bg-base-300 rounded-lg border-2 border-primary-content min-w-full h-full hover:btn-accent hover:border-primary-focus hover:border-opacity-5 hover:shadow-md hover:shadow-base-300 hover:text-white hover:-translate-y-1">
                 <div className="flex flex-col min-h-full gap-[0.125rem] font-extrabold tracking-wide text-xl justify-center ">
                     <RxKeyboard size={64} className="w-full"/>
                     <h1 >Host</h1>
