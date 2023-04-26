@@ -62,27 +62,33 @@ export default function LobbyActionHeader({
 
     const [error, setError] = useState<Error | null>(null);
     const [screenWidth, setScreenWidth] = useState<number>(0);
+    const [playerCount, setPlayerCount] = useState<number>(0);
 
     useEffect(()=>{
+        setPlayerCount(data.players.length + data.guests.length);
         setScreenWidth(window.innerWidth);
-    },[]);
+    },[data.players.length, data.guests.length]);
 
 
     return (
-        <div className=" flex flex-col gap-2 justify-between border-b-2 border-primary-content pb-4 border-opacity-50">
-            <div className="flex">
+        <div className=" flex gap-2 justify-between border-b-2 border-primary-content pb-4 border-opacity-50">
+            <div className="flex gap-3">
                     <Image src={`http://127.0.0.1:8091/api/files/packs/${data?.expand.packs.at(0).id as string}/${data?.expand.packs.at(0).image as string}`} 
                             width={screenWidth >= 500 ? 100 : 60} height={screenWidth >= 500 ? 100 : 60} alt="Pack Image" 
                             className='rounded-md' style={{width: 'auto', height: '100%'}} />
                 <h1 className='font-bold xs:text-3xl text-xl'>{data.expand.packs.at(0).name}</h1>
             </div>
-            <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 rounded-md my-1 text-white font-bold tracking-wide'
-                onClick={()=> createGame(data, localToken, setError, router) }>
-                Start
-            </button>
-            { error && 
-                <div className="btn btn-warning font-bold tracking-wide text-md xs:text-lg" onClick={()=>setError(null)}>{error.message}</div>
-            }
+            <div className='flex flex-col items-center'>
+                
+                <h1 className=' font-bold  text-lg'>{playerCount}/20</h1>
+                <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 rounded-md my-1 text-white font-bold tracking-wide'
+                    onClick={()=> createGame(data, localToken, setError, router) }>
+                    Start
+                </button>
+                { error && 
+                    <div className="btn btn-warning font-bold tracking-wide text-md xs:text-lg" onClick={()=>setError(null)}>{error.message}</div>
+                }
+            </div>
         </div>
     );
 }

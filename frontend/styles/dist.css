@@ -3658,8 +3658,16 @@ html {
   flex-shrink: 0;
 }
 
+.flex-shrink {
+  flex-shrink: 1;
+}
+
 .flex-grow {
   flex-grow: 1;
+}
+
+.flex-grow-0 {
+  flex-grow: 0;
 }
 
 .grow {
@@ -3819,6 +3827,11 @@ html {
   background-color: hsl(var(--wa) / var(--tw-bg-opacity));
 }
 
+.bg-red-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-0 {
   --tw-bg-opacity: 0;
 }
@@ -3906,6 +3919,10 @@ html {
 
 .text-center {
   text-align: center;
+}
+
+.align-middle {
+  vertical-align: middle;
 }
 
 .text-2xl {

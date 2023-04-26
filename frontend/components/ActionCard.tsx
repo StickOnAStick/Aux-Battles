@@ -30,9 +30,9 @@ export default function ActionCard ({
             </div>
             {/* lobby functionality */}
             {!isGame && 
-                <div className='flex justify-center gap-3'>
+                <div className='flex flex-col justify-center gap-3'>
                     {!host &&
-                        <button className="btn btn-sm xs:btn-md btn-primary font-bold text-accent ">Kick</button>
+                        <button className="btn btn-md btn-primary font-bold text-accent ">Kick</button>
                     }
                      {/* Ready state will be for Final launch, and only on competitive gamemode  */}
                     {/* {!isGame &&
