@@ -14,10 +14,9 @@ async function createGame(
     token: string | undefined, 
     setError: React.Dispatch<React.SetStateAction<Error | null>>,
     router: typeof useRouter.prototype,  
-    playerCount: number 
 )
 {
-    if(playerCount < 2) return setError(new Error("Invite players to play"));
+    if((data.guests.length + data.players.length) < 2) return setError(new Error("Invite players to play"));
     if(!token) return setError(new Error("Please Enable cookies to continue"));
 
     const pb = new PocketBase("http://127.0.0.1:8091");
@@ -88,7 +87,6 @@ export default function LobbyActionHeader({
 
     const [error, setError] = useState<Error | null>(null);
     const [screenWidth, setScreenWidth] = useState<number>(0);
-    const [playerCount, setPlayerCount] = useState<number>(1);
 
     useEffect(()=>{
         
@@ -97,11 +95,9 @@ export default function LobbyActionHeader({
         const unsub = pb.collection('lobbys').subscribe(data.id,
             function (e: RecordSubscription<LobbyData>){
                 if(!e.record) router.push('/'); //Add checks for if active game with id, if lobby closed(this case)
-                update(e.record);
+                
             }
         );
-
-        function update(data: LobbyData){ setPlayerCount(data.players.length + data.guests.length); }
 
         async function closeConnections(unsubPromise: Promise<UnsubscribeFunc | void>){
             const unsub = await unsubPromise;
@@ -110,7 +106,7 @@ export default function LobbyActionHeader({
         }
 
         setScreenWidth(window.innerWidth);
-        setPlayerCount(data.players.length + data.guests.length);
+        
         return () => { closeConnections(unsub); }
         
     },[router, data]);
@@ -125,9 +121,8 @@ export default function LobbyActionHeader({
                 <h1 className='font-bold xs:text-3xl text-3xl text-center'>{data.expand.packs.at(0).name}</h1>
             </div>
             <div className='flex flex-col items-center'>
-                <h1 className=' font-bold  text-lg'>{playerCount}/20</h1>
-                <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 w-full rounded-md my-1 text-white font-bold tracking-wide'
-                    onClick={()=> createGame(data, localToken, setError, router, playerCount) }>
+                <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 w-f rounded-md my-1 text-white font-bold tracking-wide'
+                    onClick={()=> createGame(data, localToken, setError, router) }>
                     Start
                 </button>
                 { error && 

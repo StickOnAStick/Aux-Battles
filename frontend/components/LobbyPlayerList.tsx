@@ -17,13 +17,13 @@ export default function LobbyPlayerList({
 }){
     const router = useRouter();
     const [playerList, setPlayerList] = useState<(Users | Guests)[]>();
+    const [playerCount, setPlayerCount] = useState<number>(1);
 
     useEffect( () => {
         const pb = new PocketBase('http://127.0.0.1:8091');
 
         async function update(data: LobbyData){
-            console.log("Lobby Data: ", data);
-            
+            setPlayerCount(data.players.length + data.guests.length);
             await pb.collection('lobbys').getOne(data.id, {
                 expand: "guests,players,packs"
             }).then( async (res) => {
@@ -45,11 +45,7 @@ export default function LobbyPlayerList({
             .catch((e)=> {
                 router.replace('/');
                 return;
-            })
-            
-            
-            
-            
+            })  
         }
 
         async function closeConnections(unsubscribe: Promise<UnsubscribeFunc | void>){
@@ -65,14 +61,18 @@ export default function LobbyPlayerList({
                 update(e.record);
         });
 
+        setPlayerCount(initalState.players.length + initalState.guests.length)
         return () => {
             closeConnections(unsubscribe);
         }
-    }, [playerList, initalState.id, router])
+    }, [playerList, initalState, router])
 
     return(
         <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
-            Players
+            <span className="flex justify-between">
+                Players
+                <h1>{playerCount}/20</h1>
+            </span>
             <ul className=' font-medium rounded-md p-3 text-xl flex flex-col gap-5'>
                     {
                         playerList?.map((user: Users | Guests) => {
