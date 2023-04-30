@@ -15,9 +15,7 @@ async function leaveLobby(
     const pb = new PocketBase('http://127.0.0.1:8091');
     try{
     if(!pb.authStore.model){
-        console.log("Leave Lobby\nToken: ", token)
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
-        console.log("Local User: ", localUser);
         const guestData: GuestsPayload = {
             id: localUser.id,
             username: localUser.username,

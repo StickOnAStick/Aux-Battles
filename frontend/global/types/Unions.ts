@@ -2,6 +2,7 @@ import { Guests } from "./Guests";
 import { LobbyData } from "./LobbyData";
 import { Users } from "./Users";
 import { Packs } from "./Packs";
+import { Record } from "pocketbase";
 
 export type UsersOrGuests = Users | Guests;
 

@@ -6,7 +6,6 @@ export function middleware(req: NextRequest, res: NextResponse) {
     //Beta: Add cookie token to signed users as well to prevent unnecessary re-login
     const response = NextResponse.next();
     const existingCookie: ResponseCookie | undefined = req.cookies.get('token');
-    console.log("Existing cookie: ", existingCookie?.value);
     if(!existingCookie?.value) {
         const token: string = generateToken(40);
         const expiry = new Date();

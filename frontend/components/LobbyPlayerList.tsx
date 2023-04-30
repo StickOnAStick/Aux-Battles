@@ -22,11 +22,34 @@ export default function LobbyPlayerList({
         const pb = new PocketBase('http://127.0.0.1:8091');
 
         async function update(data: LobbyData){
-            const userData: ExpandedLobbyData = await pb.collection('lobbys').getOne(data.id, {
+            console.log("Lobby Data: ", data);
+            
+            await pb.collection('lobbys').getOne(data.id, {
                 expand: "guests,players,packs"
+            }).then( async (res) => {
+                
+                if(res.gameStart){
+                    const checkIfGame = await pb.collection('games').getOne(res.id);
+                    if(!checkIfGame) {
+                        router.replace('/');
+                        return;
+                    }
+                    router.replace(`/Game/${checkIfGame.id}`);
+                    return;
+                }
+                //@ts-ignore
+                const combined: UsersOrGuests[] = [...(res.expand?.players ?? []), ...(res.expand?.guests ?? [])]
+                setPlayerList(combined);
+                return;
             })
-            const combined: UsersOrGuests[] = [...(userData.expand?.players ?? []), ...(userData.expand?.guests ?? [])]
-            setPlayerList(combined);
+            .catch((e)=> {
+                router.replace('/');
+                return;
+            })
+            
+            
+            
+            
         }
 
         async function closeConnections(unsubscribe: Promise<UnsubscribeFunc | void>){
@@ -36,14 +59,11 @@ export default function LobbyPlayerList({
         }
         //init & subscribe
         const unsubscribe = pb.collection('lobbys').subscribe(initalState.id, 
-            async function (e: RecordSubscription<ExpandedLobbyData>) {
+            function (e: RecordSubscription<ExpandedLobbyData>) {
                 if(!e.record) router.push("/"); //Handle client side leaving on lobby close as well as game start
                 //Add game start logic
                 update(e.record);
-        })
-        .catch((e)=>{
-            console.log(e);
-        })
+        });
 
         return () => {
             closeConnections(unsubscribe);

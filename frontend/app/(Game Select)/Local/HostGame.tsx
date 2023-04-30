@@ -29,9 +29,35 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                     if(existingGuest?.currentGame){
                         router.push(`/Game/${existingGuest.currentGame}`)
                         return;
-                    }else{
+                    }else if(existingGuest?.currentLobby){
                         router.push(`/${existingGuest.currentLobby}`)
                         return;
+                    }
+                    else{   
+                        const data: LobbyPayloadData = {
+                            "chatroom": null,
+                            "pass": pass,
+                            "players": [],
+                            "gameType": false,
+                            "packs": ["w4oudqe45it58g9"], //Update when more packs are available
+                            "host": existingGuest.id,
+                            "guests": [existingGuest.id],
+                            gameStart: false,
+                        };
+
+                        await pb.collection('lobbys').create(data)
+                        .then(async (res)=>{
+                            const updateGuest: GuestsPayload = {
+                                username: userName,
+                                token: token,
+                                currentLobby: res.id
+                            }
+                            await pb.collection('guests').update(existingGuest.id, updateGuest);
+                            return router.push(`/${res.id}`);
+                        })
+                        .catch((e)=>{
+                            return new Error(`Could not create lobby: ${e}`);
+                        })
                     }
                 }
             }
@@ -48,12 +74,12 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 "gameType": false,
                 "packs": ["w4oudqe45it58g9"], //Update when more packs are available
                 "host": guest.id,
-                "guests": [guest.id]
+                "guests": [guest.id],
+                gameStart: false,
             };
 
             const localLobby = await pb.collection('lobbys').create(data)
             .then(async (res)=>{
-                console.log("Response id: ", res.id)
                 const data: GuestsPayload = {
                     username: userName,
                     token: token,
@@ -82,7 +108,8 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 "gameType": false,
                 "packs": user.packs,
                 "host": user.id,
-                guests: []
+                guests: [],
+                gameStart: false,
             };
 
             const localLobby = await pb.collection('lobbys').create(data)
@@ -96,7 +123,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 .catch((error)=>console.error("Error updating user: ", error));
                 router.push(`/${response.id}`)
             })
-            .catch((error)=>console.error(error));
+            .catch((error)=>console.error("Error creating lobby: ",error));
         }catch(error){
             console.log(error);
         }        
@@ -108,18 +135,16 @@ export default function HostGame ({
 }: {
     localToken: string | undefined
 }) {
-    
     const router = useRouter();
-
     const [userName, setUserName] = useState<string>('');
     
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setUserName(event.target.value);
     }
 
-
     return (
         <>
+        {/* Button */}
             <label htmlFor="HostBtn"
             className="btn text-base-content pb-1 bg-base-300 rounded-lg border-2 border-primary-content min-w-full h-full hover:btn-accent hover:border-primary-focus hover:border-opacity-5 hover:shadow-md hover:shadow-base-300 hover:text-white hover:-translate-y-1">
                 <div className="flex flex-col min-h-full gap-[0.125rem] font-extrabold tracking-wide text-xl justify-center ">
@@ -127,7 +152,7 @@ export default function HostGame ({
                     <h1 >Host</h1>
                 </div>
             </label>
-
+        {/* Modal */}
             <input type="checkbox" id="HostBtn" className='modal-toggle'/>
             <label className="modal bg-base-300 bg-opacity-5" htmlFor='HostBtn'>
                 <label className="modal-box relative modal-bottom sm:modal-middle bg-base-300 border-primary-content border ">
