@@ -23,10 +23,7 @@ async function createGame(
     if((updatedLobby.guests.length + updatedLobby.players.length) < 2) return setError(new Error("Invite players to play"));
     
     const model = pb.authStore.model;
-    //Update game select 
-
-    
-    if(!model){ //guest -> Move to api to prevent API Key leaking
+    if(!model){ //guest -> Move to api route to prevent API Key leaking
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         
         if(!localUser) return router.push('/');
@@ -41,31 +38,14 @@ async function createGame(
             players: updatedLobby.players,
             guests: updatedLobby.guests,
         }
-        let promiseArray: Promise<Guests | Users | undefined>[] = []; //parallel requests
-        
-        console.log("Game Creation data: " , updatedLobby);
-        
-        for(const playerId of updatedLobby.players) {
-            console.log("Player id: ", playerId);
-            const localRequest = new PocketBase('http://127.0.0.1:8091');
-            promiseArray.push(pb.collection('users').update(playerId, { currentGame: gameData.id, currentLobby: ""  }));
-        }
-        for(const guestId of updatedLobby.guests) {
-            console.log("Guest Id: ", guestId)
-            promiseArray.push(pb.collection('guests').update(guestId, { currentGame: gameData.id, currentLobby: ""  }));
-        }
-
-        await Promise.all(promiseArray)
-        .catch((e)=>{console.log("Promise array: ", e);});
 
         await pb.collection('games').create(gameData)
-        .then(async (e)=> {
+        .then(async (game)=> {
             await pb.collection('lobbys').update(data.id, {gameStart: true});
-            router.replace(`/Game/${gameData.id}`);
+            router.replace(`/Game/${game.id}`);
         })
         .catch((e)=> setError(new Error("Failed to create game")));
-        
-        console.log("Hit after navigation")
+
         pb.collection('lobbys').delete(data.id);
     }else{ //user
         if(model.id === data.host){
