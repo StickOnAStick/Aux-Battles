@@ -29,6 +29,7 @@ export default async function Lobby({
 }){
     const cookieStore = cookies();
     const token = cookieStore.get('token');
+    if(!token) return redirect("/");
 
     const data = await getLobbyData(params.lobbyId);
     

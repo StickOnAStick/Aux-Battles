@@ -1,13 +1,13 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useState } from "react";
-import PocketBase, { RecordSubscription, UnsubscribeFunc } from 'pocketbase';
+import PocketBase from 'pocketbase';
 import {  GameDataPayload } from "@/global/types/GameData";
 import { Guests } from "@/global/types/Guests";
 import { useRouter } from "next/navigation";
-import { LobbyData, LobbyPayloadData } from "@/global/types/LobbyData";
-import { ExpandedLobbyData } from '@/global/types/Unions';
+import { LobbyData } from "@/global/types/LobbyData";
 import { Users } from '@/global/types/Users';
+import { update } from 'react-spring';
 
 async function createGame(
     data: LobbyData,
@@ -16,13 +16,16 @@ async function createGame(
     router: typeof useRouter.prototype,  
 )
 {
-    if((data.guests.length + data.players.length) < 2) return setError(new Error("Invite players to play"));
     if(!token) return setError(new Error("Please Enable cookies to continue"));
 
     const pb = new PocketBase("http://127.0.0.1:8091");
+    const updatedLobby: LobbyData = await pb.collection('lobbys').getOne(data.id);
+    if((updatedLobby.guests.length + updatedLobby.players.length) < 2) return setError(new Error("Invite players to play"));
+    
     const model = pb.authStore.model;
     //Update game select 
 
+    
     if(!model){ //guest -> Move to api to prevent API Key leaking
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         
@@ -35,19 +38,19 @@ async function createGame(
             pack: "w4oudqe45it58g9", //Change to selected pack when feature is added
             spotApiKey: 'c8c748a25aeb4392bf458167ae5deccb', //
             round: 1,
-            players: data.players,
-            guests: data.guests,
+            players: updatedLobby.players,
+            guests: updatedLobby.guests,
         }
         let promiseArray: Promise<Guests | Users | undefined>[] = []; //parallel requests
         
-        console.log("Game Creation data: " , data);
+        console.log("Game Creation data: " , updatedLobby);
         
-        for(const playerId of data.players) {
+        for(const playerId of updatedLobby.players) {
             console.log("Player id: ", playerId);
             const localRequest = new PocketBase('http://127.0.0.1:8091');
             promiseArray.push(pb.collection('users').update(playerId, { currentGame: gameData.id, currentLobby: ""  }));
         }
-        for(const guestId of data.guests) {
+        for(const guestId of updatedLobby.guests) {
             console.log("Guest Id: ", guestId)
             promiseArray.push(pb.collection('guests').update(guestId, { currentGame: gameData.id, currentLobby: ""  }));
         }
@@ -61,19 +64,15 @@ async function createGame(
             router.replace(`/Game/${gameData.id}`);
         })
         .catch((e)=> setError(new Error("Failed to create game")));
+        
         console.log("Hit after navigation")
         pb.collection('lobbys').delete(data.id);
-
-        
-
     }else{ //user
         if(model.id === data.host){
-            await pb.collection('game').create()
+            //await pb.collection('game').create()
         }
     }
 }
-
-
 
 export default function LobbyActionHeader({
     data,
@@ -89,26 +88,8 @@ export default function LobbyActionHeader({
     const [screenWidth, setScreenWidth] = useState<number>(0);
 
     useEffect(()=>{
-        
-        const pb = new PocketBase('http://127.0.0.1:8091');
-        
-        const unsub = pb.collection('lobbys').subscribe(data.id,
-            function (e: RecordSubscription<LobbyData>){
-                if(!e.record) router.push('/'); //Add checks for if active game with id, if lobby closed(this case)
-                
-            }
-        );
-
-        async function closeConnections(unsubPromise: Promise<UnsubscribeFunc | void>){
-            const unsub = await unsubPromise;
-            if(!unsub) return router.push('/');
-            unsub();
-        }
-
         setScreenWidth(window.innerWidth);
-        
-        return () => { closeConnections(unsub); }
-        
+        return () => { setError(null) }
     },[router, data]);
 
 

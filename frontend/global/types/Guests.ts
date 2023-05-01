@@ -9,9 +9,9 @@ export interface Guests extends Record {
 
 export interface GuestsPayload {
     id?: string,
-    username: string,
+    username?: string,
     currentLobby?: string,
     currentGame?: string,
-    token: string
+    token?: string
 }
 

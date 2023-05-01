@@ -11,7 +11,7 @@ export default function LobbyActionWrapper({
     lobbyId: string,
     data: ExpandedLobbyData,
     className?: string,
-    localToken: string | undefined,
+    localToken: string,
 }){
 
     return (
@@ -21,7 +21,7 @@ export default function LobbyActionWrapper({
                     {/* Game Info */}
                     <LobbyActionHeader data={data} localToken={localToken}/>
                     {/* User List */}
-                    <LobbyPlayerList initalState={data} />
+                    <LobbyPlayerList initalState={data} localToken={localToken}/>
                 </div>
                 {/* Sharing */}
                 <div className="flex justify-center text-center">

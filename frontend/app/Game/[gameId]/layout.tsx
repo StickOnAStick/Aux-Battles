@@ -1,14 +1,14 @@
-import { pb } from "@/app/api/pocketbase"
 import LobbyActionCard from "@/components/ActionCard";
 import ActionCardSuspense from "@/components/ActionCardSuspense";
 import { GameData } from "@/global/types/GameData"
 import { Guests } from "@/global/types/Guests"
 import { Users } from "@/global/types/Users";
 import { Suspense } from "react"
+import PocketBase from 'pocketbase';
 
 
 async function fetchGameData(gameId: string): Promise<GameData> {
-
+    const pb = new PocketBase('http://127.0.0.1:8091');
     const res: GameData = await pb.collection('games').getOne(gameId, {
         expand: "guests,players"
     });
@@ -26,7 +26,6 @@ export default async function GameLayout({
         gameId: string,
     }
 }){
-
     const gameData = await fetchGameData(params.gameId);
 
     return (
