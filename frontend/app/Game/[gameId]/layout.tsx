@@ -3,17 +3,17 @@ import { redirect } from 'next/navigation';
 import { ExapandedGameData } from "@/global/types/Unions";
 import PocketBase from 'pocketbase';
 import GameSideNav from '@/components/GameSideNav';
-import { scores } from '@/global/types/GameData';
+import { UsersOrGuests } from '@/global/types/Unions';
 
-async function fetchGameData(gameId: string): Promise<ExapandedGameData> {
+async function fetchPlayerList(gameId: string): Promise<UsersOrGuests[]> {
     const pb = new PocketBase('http://127.0.0.1:8091');
     await pb.collection('games').update(gameId, )
     const data: ExapandedGameData = await pb.collection('games').getOne(gameId, {
         expand: 'guests,players'
     })
-
     if(!data.id) return redirect('/');
-    return data;
+    const combined: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
+    return combined;
 }
 
 export default async function GameLayout({
@@ -25,7 +25,7 @@ export default async function GameLayout({
         gameId: string,
     }
 }){
-    const gameData: ExapandedGameData = await fetchGameData(params.gameId);
+    const playerList: UsersOrGuests[] = await fetchPlayerList(params.gameId);
     return (
         <div className=" min-h-screen ">
             {/* Player Drawer */}
@@ -42,7 +42,7 @@ export default async function GameLayout({
                 </div>
                 
                 {/* Side Nav */}
-                <GameSideNav gameData={gameData}/>
+                <GameSideNav playerList={playerList}/>
             </div>
             
         </div>

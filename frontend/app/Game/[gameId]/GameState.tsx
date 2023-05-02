@@ -22,6 +22,7 @@ export default function GameState({
             <div className="bg-red-400 rounded-lg w-3/12 md:w-1/6 text-center">h</div>
             <div className="w-1/2 md:w-4/6 flex justify-center">
                 <span className="countdown font-mono text-4xl">
+                    {/* @ts-ignore */}
                     <span style={{"--value":60}}></span>
                 </span>
             </div>
