@@ -6,9 +6,11 @@ import { Users } from "@/global/types/Users";
 import { Suspense } from "react"
 
 export default function GameSideNav({
-    playerList
+    playerList,
+    gameId
 }:{
-    playerList: UsersOrGuests[]
+    playerList: UsersOrGuests[],
+    gameId: string
 }){
     return (
         <div className="drawer-side flex flex-col">

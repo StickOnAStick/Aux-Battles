@@ -47,7 +47,7 @@ async function createGame(
         }
 
         const game = await pb.collection('games').create(gameData);
-        if(!game.id) return new Error("Could not create game..");
+        if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
 
         pb.collection('lobbys').delete(data.id);

@@ -4,6 +4,8 @@ import { ExapandedGameData } from "@/global/types/Unions";
 import PocketBase from 'pocketbase';
 import GameSideNav from '@/components/GameSideNav';
 import { UsersOrGuests } from '@/global/types/Unions';
+import { selectTwoIds } from '@/global/functions/game';
+import { GameData } from '@/global/types/GameData';
 
 async function fetchPlayerList(gameId: string): Promise<UsersOrGuests[]> {
     const pb = new PocketBase('http://127.0.0.1:8091');
@@ -16,6 +18,15 @@ async function fetchPlayerList(gameId: string): Promise<UsersOrGuests[]> {
     return combined;
 }
 
+async function initGame(gameId: string, playerList: UsersOrGuests[]){
+    const pb = new PocketBase('http://127.0.0.1:8091');
+    const game: GameData = await pb.collection('games').getOne(gameId);
+    if(!game.id) return new Error('Could not find game');
+    const ids: string[] = playerList.map((player) => player.id);
+    const activePlayers = selectTwoIds(ids);
+    
+}
+
 export default async function GameLayout({
     children,
     params
@@ -26,6 +37,7 @@ export default async function GameLayout({
     }
 }){
     const playerList: UsersOrGuests[] = await fetchPlayerList(params.gameId);
+    initGame(params.gameId, playerList);
     return (
         <div className=" min-h-screen ">
             {/* Player Drawer */}
@@ -42,7 +54,7 @@ export default async function GameLayout({
                 </div>
                 
                 {/* Side Nav */}
-                <GameSideNav playerList={playerList}/>
+                <GameSideNav playerList={playerList} gameId={params.gameId}/>
             </div>
             
         </div>
