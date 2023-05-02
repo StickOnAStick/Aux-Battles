@@ -1,20 +1,21 @@
 import { Record } from "pocketbase";
-import { Guests } from "./Guests";
-import { Packs } from "./Packs";
-import { Users } from "./Users";
 
-interface gameType {
-    
+export interface scores {
+    ids: string[],
+    scores: number[]
 }
 
 export interface GameData extends Record {
     type: string,
-    pack: Packs,
+    pack: string,
     chatroom?: string,
     spotApiKey: string,
     round: number,
-    players: Users[],
-    guests: Guests[],
+    players: string[],
+    guests: string[],
+    activePlayers: string[],
+    activeGuests: string[],
+    scores: scores
 }
 
 export interface GameDataPayload {
@@ -24,6 +25,9 @@ export interface GameDataPayload {
     chatroom?: string,
     spotApiKey: string,
     round: number,
-    players: string[],
-    guests: string[]
+    players?: string[],
+    guests?: string[],
+    activePlayers?: string[],
+    activeGuests?: string[],
+    scores: scores,
 }

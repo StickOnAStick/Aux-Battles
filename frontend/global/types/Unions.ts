@@ -2,15 +2,24 @@ import { Guests } from "./Guests";
 import { LobbyData } from "./LobbyData";
 import { Users } from "./Users";
 import { Packs } from "./Packs";
-import { Record } from "pocketbase";
+import { GameData } from "./GameData";
 
 export type UsersOrGuests = Users | Guests;
 
-interface ExpandedPlayers {
+interface ExpandedPlayersPacks {
     expand?: {
         players?: Users[],
         guests?: Guests[],
         pakcs: Packs[],
     }
 }
-export type ExpandedLobbyData = LobbyData & ExpandedPlayers;
+
+interface ExpandedPlayers {
+    expand?: {
+        players?: Users[],
+        guests?: Guests[],
+    }
+}
+
+export type ExapandedGameData = GameData & ExpandedPlayers;
+export type ExpandedLobbyData = LobbyData & ExpandedPlayersPacks;

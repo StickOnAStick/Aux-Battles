@@ -37,14 +37,18 @@ async function createGame(
             round: 1,
             players: updatedLobby.players,
             guests: updatedLobby.guests,
+            activeGuests: [],
+            activePlayers: [],
+            scores: 
+                {
+                    ids: updatedLobby.players.concat(updatedLobby.guests),
+                    scores: new Array<number>(updatedLobby.guests.length + updatedLobby.players.length)
+                }
         }
 
-        await pb.collection('games').create(gameData)
-        .then(async (game)=> {
-            await pb.collection('lobbys').update(data.id, {gameStart: true});
-            router.replace(`/Game/${game.id}`);
-        })
-        .catch((e)=> setError(new Error("Failed to create game")));
+        const game = await pb.collection('games').create(gameData);
+        if(!game.id) return new Error("Could not create game..");
+        await pb.collection('lobbys').update(game.id, {gameStart: true});
 
         pb.collection('lobbys').delete(data.id);
     }else{ //user

@@ -11,6 +11,6 @@ export interface Users extends Record{
     topArtist: string,
     currentLobby: string,
     currentGame: string,
-    packs: Packs[],
+    packs: string[],
     username: string,
 }
