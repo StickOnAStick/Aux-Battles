@@ -1,30 +1,45 @@
 
 import { redirect } from 'next/navigation';
-import { ExapandedGameData } from "@/global/types/Unions";
+import { ExapandedGameData, ExpandedLobbyData } from "@/global/types/Unions";
 import PocketBase from 'pocketbase';
 import GameSideNav from '@/components/GameSideNav';
 import { UsersOrGuests } from '@/global/types/Unions';
 import { selectTwoIds } from '@/global/functions/game';
 import { GameData } from '@/global/types/GameData';
+import { cookies } from 'next/headers';
+import { Guests } from '@/global/types/Guests';
 
-async function fetchPlayerList(gameId: string): Promise<UsersOrGuests[]> {
+async function fetchGameData(gameId: string): Promise<ExapandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
     await pb.collection('games').update(gameId, )
     const data: ExapandedGameData = await pb.collection('games').getOne(gameId, {
         expand: 'guests,players'
     })
     if(!data.id) return redirect('/');
-    const combined: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
-    return combined;
+    return data;
 }
 
-async function initGame(gameId: string, playerList: UsersOrGuests[]){
+async function initGame(gameData: ExapandedGameData, token: string | undefined, playerList: UsersOrGuests[])
+{
+    if(!token) redirect('/');
+    if(!gameData.id) return new Error('Could not find game');
+
     const pb = new PocketBase('http://127.0.0.1:8091');
-    const game: GameData = await pb.collection('games').getOne(gameId);
-    if(!game.id) return new Error('Could not find game');
-    const ids: string[] = playerList.map((player) => player.id);
-    const activePlayers = selectTwoIds(ids);
     
+    if(!pb.authStore.model){
+        const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
+        if(!localUser) return redirect('/');
+        const host: Guests = await pb.collection('guests').getOne(gameData.host);
+        if(localUser.token != host.token) return; //Only host initalizes & runs game
+        
+        const playerIds: string[] = playerList.map((player)=> player.id);
+        const activePlayers = selectTwoIds(playerIds);
+
+        await pb.collection('games').update(gameData.id, { activeGuests: activePlayers})
+
+    }else if(pb.authStore.model.id === gameData.host){
+        
+    }
 }
 
 export default async function GameLayout({
@@ -36,8 +51,12 @@ export default async function GameLayout({
         gameId: string,
     }
 }){
-    const playerList: UsersOrGuests[] = await fetchPlayerList(params.gameId);
-    initGame(params.gameId, playerList);
+    const data: ExapandedGameData = await fetchGameData(params.gameId);
+    const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
+    const cookieStore = cookies();
+    const localToken = cookieStore.get('token');
+    await initGame(data, localToken?.value, playerList);
+
     return (
         <div className=" min-h-screen ">
             {/* Player Drawer */}

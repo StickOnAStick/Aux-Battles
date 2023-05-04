@@ -5,7 +5,6 @@ export interface Guests extends Record {
     currentLobby?: string,
     currentGame?: string,
     token: string,
-    score?: number
 }
 
 export interface GuestsPayload {
@@ -14,6 +13,5 @@ export interface GuestsPayload {
     currentLobby?: string,
     currentGame?: string,
     token?: string,
-    score?: number
 }
 

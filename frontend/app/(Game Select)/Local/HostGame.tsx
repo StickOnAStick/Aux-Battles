@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation';
 import { ChangeEvent, useState } from 'react';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
 
-                                //Not good type
+                                
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
-    //Call from store when login feature is complete
+    
     const pb = new PocketBase('http://127.0.0.1:8091');
     const model = pb.authStore.model;
     const pass = generateLocalPassword();
@@ -24,7 +24,6 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             //Check existing guest
             try{
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
-                console.log("Existing Guest: ", existingGuest)
                 if(existingGuest?.id) {
                     if(existingGuest?.currentGame){
                         router.push(`/Game/${existingGuest.currentGame}`)

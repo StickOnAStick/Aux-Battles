@@ -26,7 +26,7 @@ async function createGame(
     if(!model){ //guest -> Move to api route to prevent API Key leaking
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         
-        if(!localUser) return router.push('/');
+        if(!localUser.id) return router.push('/');
         if(localUser.id !== data.host) return setError(new Error("Only host can start!"));
         
         const gameData: GameDataPayload = { 
@@ -37,13 +37,12 @@ async function createGame(
             round: 1,
             players: updatedLobby.players,
             guests: updatedLobby.guests,
-            activeGuests: [],
-            activePlayers: [],
             scores: 
                 {
                     ids: updatedLobby.players.concat(updatedLobby.guests),
                     scores: new Array<number>(updatedLobby.guests.length + updatedLobby.players.length)
-                }
+                },
+            host: localUser.id,
         }
 
         const game = await pb.collection('games').create(gameData);

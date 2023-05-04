@@ -13,8 +13,7 @@ export default function GameState({
 }){
 
     useEffect(()=> {
-        const pb = new PocketBase('http://127.0.0.1:8091');
-        const unsubscribe = pb
+        
     },[])
 
     return(

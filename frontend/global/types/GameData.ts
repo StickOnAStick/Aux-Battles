@@ -5,6 +5,10 @@ export interface scores {
     scores: number[]
 }
 
+export interface ActivePlayers {
+    ids: string[]
+}
+
 export interface GameData extends Record {
     type: string,
     pack: string,
@@ -13,9 +17,9 @@ export interface GameData extends Record {
     round: number,
     players: string[],
     guests: string[],
-    activePlayers: string[],
-    activeGuests: string[],
-    scores: scores
+    scores: scores,
+    host: string,
+    activeGuests?: string[]
 }
 
 export interface GameDataPayload {
@@ -27,7 +31,7 @@ export interface GameDataPayload {
     round: number,
     players?: string[],
     guests?: string[],
-    activePlayers?: string[],
-    activeGuests?: string[],
     scores: scores,
+    host: string,
+    activeGuests?: string[]
 }
