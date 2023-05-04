@@ -20,7 +20,7 @@ export default function ActionCard ({
         return <></>;
     }
     return (
-    <li key={typeData.username} className={" justify-between mx-2 "  + (isGame ? " rounded-lg border-2 border-opacity-10`0 bg-base-300 border-primary lg:w-80 hover:bg-opacity-60 text-xl " : " border border-primary p-3 rounded-lg border-opacity-20 ") +  (active ? " bg-success border-success border-2 border-opacity-100 text-white font-bold text-2xl tracking-wide bg-opacity-40" : " ")}>
+    <li key={typeData.username} className={" justify-between mx-2 "  + (isGame ? " rounded-lg border-2 border-opacity-10`0 bg-base-300 border-primary lg:w-80 hover:bg-opacity-60 text-xl " : " border border-primary p-3 rounded-lg border-opacity-20 ") +  (active ? "border-accent border-2 border-opacity-100 text-white font-bold text-2xl tracking-wide bg-opacity-40" : " ")}>
         <div className="flex justify-between">
             <div className='flex gap-4 mx-3 my-2 font-extrabold tracking-wide'>
                 {typeData?.avatar && 

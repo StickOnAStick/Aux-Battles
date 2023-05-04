@@ -13,8 +13,8 @@ async function fetchGameData(gameId: string): Promise<ExapandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
     await pb.collection('games').update(gameId, )
     const data: ExapandedGameData = await pb.collection('games').getOne(gameId, {
-        expand: 'guests,players'
-    })
+        expand: "guests,players"
+    });
     if(!data.id) return redirect('/');
     return data;
 }
@@ -51,11 +51,10 @@ export default async function GameLayout({
         gameId: string,
     }
 }){
+    
     const data: ExapandedGameData = await fetchGameData(params.gameId);
     const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
-    const cookieStore = cookies();
-    const localToken = cookieStore.get('token');
-    await initGame(data, localToken?.value, playerList);
+    const activePlayers: string[] = data.activeGuests;
 
     return (
         <div className=" min-h-screen ">
@@ -73,7 +72,7 @@ export default async function GameLayout({
                 </div>
                 
                 {/* Side Nav */}
-                <GameSideNav playerList={playerList} gameId={params.gameId}/>
+                <GameSideNav playerList={playerList} gameId={params.gameId} activePlayers={activePlayers}/>
             </div>
             
         </div>

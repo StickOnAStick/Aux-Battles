@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
 import { Users } from '@/global/types/Users';
 import { update } from 'react-spring';
+import { selectTwoIds } from '@/global/functions/game';
 
 async function createGame(
     data: LobbyData,
@@ -28,7 +29,8 @@ async function createGame(
         
         if(!localUser.id) return router.push('/');
         if(localUser.id !== data.host) return setError(new Error("Only host can start!"));
-        
+        const activeGuests = selectTwoIds(updatedLobby.guests);
+
         const gameData: GameDataPayload = { 
             id: data.id,
             type: "Local",
@@ -43,6 +45,7 @@ async function createGame(
                     scores: new Array<number>(updatedLobby.guests.length + updatedLobby.players.length)
                 },
             host: localUser.id,
+            activeGuests: activeGuests
         }
 
         const game = await pb.collection('games').create(gameData);
