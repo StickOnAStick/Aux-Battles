@@ -8,6 +8,8 @@ import PocketBase from 'pocketbase';
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
 import { selectTwoIds } from "@/global/functions/game";
+import Spinner from "./Spinner";
+import SpinnerSearchWrapper from "./SpinnerSearchWrapper";
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
@@ -19,12 +21,11 @@ async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     return data;
 }
 
-function setActivePlayers(gameData: ExpandedGameData, activeIds: string[]): UsersOrGuests[]{
+function getActivePlayers(gameData: ExpandedGameData, activeIds: string[]): UsersOrGuests[]{
 
     let activePlayers: UsersOrGuests[] = [];
     gameData.expand.guests?.map((guest: Guests) => {
-        if(guest.id !== activeIds[0] || guest.id !== activeIds[1]) return;
-        activePlayers.push(guest);
+        if(guest.id === activeIds[0] || guest.id === activeIds[1]) activePlayers.push(guest);
     })  
     return activePlayers;
 }
@@ -40,7 +41,7 @@ export default async function Game({
 
     const data: ExpandedGameData = await fetchGameData(params.gameId);
     const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
-    const activePlayers: UsersOrGuests[] = setActivePlayers(data, data.activeGuests);
+    const activePlayers: UsersOrGuests[] = getActivePlayers(data, data.activeGuests);
     const cookieStore = cookies();
     const token = cookieStore.get('token');
     if(!token){
@@ -58,10 +59,7 @@ export default async function Game({
                 {/* Game content */}
                 <div className="w-full h-full flex flex-col items-center">
                     <LeaveGame/>
-                    <div className='absolute top-20 w-full flex justify-center'>
-                        <SpotifySearch isActive={true}/>
-                    </div>
-                    <div className="flex w-full text-6xl font-extrabold justify-center items-center h-full">Spinner</div>
+                    <SpinnerSearchWrapper/>
                     <GameState gameId={params.gameId} initialData={data} activePlayers={activePlayers}/>
                 </div>
                 {/* Side Nav */}
