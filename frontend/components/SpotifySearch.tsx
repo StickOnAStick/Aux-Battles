@@ -26,7 +26,7 @@ export default function SpotifySearch({
                 {/* Search */}
                 <div className='flex gap-2 items-center m-0 border-b pb-2'>
                     <input type='text' placeholder='Search...' className='rounded-lg px-2 py-2 text-xl lg:py-3 w-full font-extrabold lg:text-2xl'/>
-                    <button className='btn btn-ghost p-1' onClick={() => setActive(!active)}>
+                    <button className='btn btn-ghost p-1'>
                         <IoSearch size={32}/>
                     </button>
                 </div>
