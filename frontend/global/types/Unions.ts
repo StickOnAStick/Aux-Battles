@@ -21,5 +21,5 @@ interface ExpandedPlayers {
     }
 }
 
-export type ExapandedGameData = GameData & ExpandedPlayers;
+export type ExpandedGameData = GameData & ExpandedPlayers;
 export type ExpandedLobbyData = LobbyData & ExpandedPlayersPacks;
