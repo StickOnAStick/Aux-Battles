@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     appDir: true,
+    serverActions: true,
   },
   images: {
     remotePatterns: [
@@ -11,6 +12,12 @@ const nextConfig = {
         port: '8091',
         pathname: '/api/files/**'
       },
+      {
+        protocol: 'https',
+        hostname: 'i.scdn.co',
+        port: '',
+        pathname: '/image/**'
+      }
     ]
   },
 }

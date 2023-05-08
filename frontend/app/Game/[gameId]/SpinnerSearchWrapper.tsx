@@ -1,16 +1,18 @@
-'use client';
 import SpotifySearch from "@/components/SpotifySearch";
 import Spinner from "./Spinner";
-import {useState} from 'react';
+import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 
 
-export default function SpinnerSearchWrapper(){
+export default function SpinnerSearchWrapper({
+    accessToken
+}:{
+    accessToken: SpotifyAccessTokenResponse,
+}){
 
-    const [displaySpotify, setDisplaySpotify] = useState<boolean>(true);
 
     return (
         <>
-            <SpotifySearch isActive={displaySpotify}/>
+            <SpotifySearch isActive={true} accessToken={accessToken}/>
             <Spinner />
         </>
     )

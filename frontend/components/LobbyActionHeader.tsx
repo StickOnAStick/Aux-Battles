@@ -35,7 +35,6 @@ async function createGame(
             id: data.id,
             type: "Local",
             pack: "w4oudqe45it58g9", //Change to selected pack when feature is added
-            spotApiKey: 'c8c748a25aeb4392bf458167ae5deccb', //
             round: 1,
             players: updatedLobby.players,
             guests: updatedLobby.guests,

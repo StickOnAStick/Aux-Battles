@@ -1,5 +1,4 @@
 import GameState from "./GameState";
-import SpotifySearch from '@/components/SpotifySearch';
 import LeaveGame from "./LeaveGame";
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -7,9 +6,8 @@ import GameSideNav from "@/components/GameSideNav";
 import PocketBase from 'pocketbase';
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
-import { selectTwoIds } from "@/global/functions/game";
-import Spinner from "./Spinner";
 import SpinnerSearchWrapper from "./SpinnerSearchWrapper";
+import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
@@ -30,6 +28,14 @@ function getActivePlayers(gameData: ExpandedGameData, activeIds: string[]): User
     return activePlayers;
 }
 
+async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
+    const res = await fetch("http://localhost:3000/api/Spotify/accessToken", {
+        cache: 'no-cache',
+    });
+    return res.json();
+}
+
+
 
 export default async function Game({
     params
@@ -48,6 +54,7 @@ export default async function Game({
         new Error('Please enable cookies to continue');
         return redirect('/');
     }
+    const spotifyAccessToken = await getSpotifyAccessToken();
 
     return (
 
@@ -59,7 +66,7 @@ export default async function Game({
                 {/* Game content */}
                 <div className="w-full h-full flex flex-col items-center">
                     <LeaveGame/>
-                    <SpinnerSearchWrapper/>
+                    <SpinnerSearchWrapper accessToken={spotifyAccessToken}/>
                     <GameState gameId={params.gameId} initialData={data} activePlayers={activePlayers}/>
                 </div>
                 {/* Side Nav */}
