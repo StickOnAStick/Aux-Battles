@@ -6,14 +6,13 @@ import GameSideNav from "@/components/GameSideNav";
 import PocketBase from 'pocketbase';
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
-import SpinnerSearchWrapper from "./SpinnerSearchWrapper";
 import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
+import GameWrapper from "./GameWrapper";
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
-    await pb.collection('games').update(gameId, )
     const data: ExpandedGameData = await pb.collection('games').getOne(gameId, {
-        expand: "guests,players"
+        expand: "guests,players,pack"
     });
     if(!data.id) return redirect('/');
     return data;
@@ -35,8 +34,6 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
     return res.json();
 }
 
-
-
 export default async function Game({
     params
 }:{
@@ -44,8 +41,10 @@ export default async function Game({
         gameId: string,
     }
 }){
-
-    const data: ExpandedGameData = await fetchGameData(params.gameId);
+    const [data, spotifyAccessToken] = await Promise.all([
+        fetchGameData(params.gameId),
+        getSpotifyAccessToken()
+    ]);
     const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
     const activePlayers: UsersOrGuests[] = getActivePlayers(data, data.activeGuests);
     const cookieStore = cookies();
@@ -54,8 +53,7 @@ export default async function Game({
         new Error('Please enable cookies to continue');
         return redirect('/');
     }
-    const spotifyAccessToken = await getSpotifyAccessToken();
-
+    
     return (
 
         <div className=" min-h-screen ">
@@ -66,8 +64,7 @@ export default async function Game({
                 {/* Game content */}
                 <div className="w-full h-full flex flex-col items-center">
                     <LeaveGame/>
-                    <SpinnerSearchWrapper accessToken={spotifyAccessToken}/>
-                    <GameState gameId={params.gameId} initialData={data} activePlayers={activePlayers}/>
+                    <GameWrapper accessToken={spotifyAccessToken} gameId={params.gameId} initData={data} initActivePlayers={activePlayers} userToken={token.value}/>
                 </div>
                 {/* Side Nav */}
                 <label htmlFor="RHSDrawer" className="lg:hidden btn btn-square btn-accent text-primary border-primary border-opacity-20 drawer-button swap swap-rotate absolute top-2 right-2 ">

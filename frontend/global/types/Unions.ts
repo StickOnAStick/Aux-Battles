@@ -10,7 +10,7 @@ interface ExpandedPlayersPacks {
     expand?: {
         players?: Users[],
         guests?: Guests[],
-        pakcs: Packs[],
+        packs: Packs[],
     }
 }
 
@@ -18,6 +18,7 @@ interface ExpandedPlayers {
     expand?: {
         players?: Users[],
         guests?: Guests[],
+        pack?: Packs
     }
 }
 
