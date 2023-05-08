@@ -14,6 +14,7 @@ interface SpotifyModal {
 
 async function gameLoop(gameData: ExpandedGameData, spotfiyModal: SpotifyModal){
     const pb = new PocketBase('http://127.0.0.1:8091');
+
     
 
 
@@ -32,15 +33,17 @@ export default function GameWrapper({
     initActivePlayers: UsersOrGuests[],
     userToken: string
 }){
-
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
+    const [timer, setTimer] = useState<number>();
+
+
 
 
     return (
         <>
             <SpotifySearch isActive={spotifyModal} accessToken={accessToken}/>
             <Spinner />
-            <GameState gameId={gameId} initialData={initData} activePlayers={initActivePlayers}/>
+            <GameState gameId={gameId} initialData={initData} activePlayers={initActivePlayers} timer={12}/>
         </>
     )
 }
