@@ -1,9 +1,9 @@
 import DashboardHeader from "@/components/DashboardHeader";
 import DashBoardSwitch from "@/components/DashboardSwitch";
-import { Record, Admin } from "pocketbase";
-import { pb } from "../api/pocketbase";
+import PocketBase, { Record, Admin } from "pocketbase";
 
 async function getUserData():Promise<Record | Admin | null> {
+    const pb = new PocketBase('http://127.0.0.1:8091');
     return pb.authStore.model;
 }
 

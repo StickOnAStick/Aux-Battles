@@ -8,14 +8,22 @@ import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
 import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 import GameWrapper from "./GameWrapper";
+import { PackData, Packs } from "@/global/types/Packs";
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
     const data: ExpandedGameData = await pb.collection('games').getOne(gameId, {
-        expand: "guests,players,pack"
+        expand: "guests,players",
     });
     if(!data.id) return redirect('/');
     return data;
+}
+
+async function fetchPackData(gameData: ExpandedGameData): Promise<PackData>{
+    const pb = new PocketBase('http://127.0.0.1:8091');
+    const pack: Packs = await pb.collection('packs').getOne(gameData.pack);
+    if(!pack.id) return redirect('/');
+    return pack.packData;
 }
 
 function getActivePlayers(gameData: ExpandedGameData, activeIds: string[]): UsersOrGuests[]{
@@ -34,6 +42,12 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
     return res.json();
 }
 
+async function getUserInfo(gameData: ExpandedGameData, token: string): Promise<{isHost: boolean, localUser: Guests}> {
+    const pb = new PocketBase('http://127.0.0.1:8091');
+    const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
+    return {isHost: (localUser.id == gameData.host), localUser: localUser}
+}
+
 export default async function Game({
     params
 }:{
@@ -45,6 +59,8 @@ export default async function Game({
         fetchGameData(params.gameId),
         getSpotifyAccessToken()
     ]);
+    
+    
     const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
     const activePlayers: UsersOrGuests[] = getActivePlayers(data, data.activeGuests);
     const cookieStore = cookies();
@@ -53,6 +69,10 @@ export default async function Game({
         new Error('Please enable cookies to continue');
         return redirect('/');
     }
+    const [packData, {isHost, localUser}] = await Promise.all([
+        fetchPackData(data),
+        getUserInfo(data, token.value)
+    ])
     
     return (
 
@@ -64,7 +84,7 @@ export default async function Game({
                 {/* Game content */}
                 <div className="w-full h-full flex flex-col items-center">
                     <LeaveGame/>
-                    <GameWrapper accessToken={spotifyAccessToken} gameId={params.gameId} initData={data} initActivePlayers={activePlayers} userToken={token.value}/>
+                    <GameWrapper accessToken={spotifyAccessToken} gameId={params.gameId} initData={data} initActivePlayers={activePlayers} userToken={token.value} packData={packData} isHost={isHost} localUser={localUser}/>
                 </div>
                 {/* Side Nav */}
                 <label htmlFor="RHSDrawer" className="lg:hidden btn btn-square btn-accent text-primary border-primary border-opacity-20 drawer-button swap swap-rotate absolute top-2 right-2 ">

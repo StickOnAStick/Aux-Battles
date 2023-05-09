@@ -3364,14 +3364,6 @@ html {
   background-color: hsl(var(--b3, var(--b2)) / var(--tw-bg-opacity));
 }
 
-.table tr.hover:hover th,
-    .table tr.hover:hover td,
-    .table tr.hover:nth-child(even):hover th,
-    .table tr.hover:nth-child(even):hover td {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--b3, var(--b2)) / var(--tw-bg-opacity));
-}
-
 @keyframes toast-pop {
   0% {
     transform: scale(0.9);
@@ -3736,30 +3728,8 @@ html {
   height: 100%;
 }
 
-.h-fit {
-  height: -moz-fit-content;
-  height: fit-content;
-}
-
-.h-max {
-  height: -moz-max-content;
-  height: max-content;
-}
-
 .max-h-\[70\%\] {
   max-height: 70%;
-}
-
-.max-h-\[90\%\] {
-  max-height: 90%;
-}
-
-.max-h-\[80\%\] {
-  max-height: 80%;
-}
-
-.max-h-\[85\%\] {
-  max-height: 85%;
 }
 
 .max-h-\[88\%\] {
@@ -3852,10 +3822,6 @@ html {
 
 .items-center {
   align-items: center;
-}
-
-.items-stretch {
-  align-items: stretch;
 }
 
 .justify-end {
@@ -3961,10 +3927,6 @@ html {
   --tw-border-opacity: 0.1;
 }
 
-.border-opacity-100 {
-  --tw-border-opacity: 1;
-}
-
 .border-opacity-20 {
   --tw-border-opacity: 0.2;
 }
@@ -3979,14 +3941,6 @@ html {
 
 .border-opacity-80 {
   --tw-border-opacity: 0.8;
-}
-
-.border-opacity-5 {
-  --tw-border-opacity: 0.05;
-}
-
-.border-opacity-40 {
-  --tw-border-opacity: 0.4;
 }
 
 .bg-accent {
@@ -4111,10 +4065,6 @@ html {
 
 .pt-2 {
   padding-top: 0.5rem;
-}
-
-.pt-3 {
-  padding-top: 0.75rem;
 }
 
 .text-center {
@@ -4472,26 +4422,17 @@ a {
   background-color: hsl(var(--a) / var(--tw-bg-opacity));
 }
 
-.hover\:bg-base-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--b1) / var(--tw-bg-opacity));
-}
-
 .hover\:bg-primary:hover {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--p) / var(--tw-bg-opacity));
 }
 
-.hover\:bg-opacity-60:hover {
-  --tw-bg-opacity: 0.6;
-}
-
-.hover\:bg-opacity-20:hover {
-  --tw-bg-opacity: 0.2;
-}
-
 .hover\:bg-opacity-10:hover {
   --tw-bg-opacity: 0.1;
+}
+
+.hover\:bg-opacity-60:hover {
+  --tw-bg-opacity: 0.6;
 }
 
 .hover\:text-primary:hover {
@@ -4527,10 +4468,6 @@ a {
 }
 
 @media (min-width: 400px) {
-  .xs\:max-h-\[80\%\] {
-    max-height: 80%;
-  }
-
   .xs\:w-1\/2 {
     width: 50%;
   }

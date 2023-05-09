@@ -6,6 +6,10 @@ export interface Packs extends Record{
     price: number,
     rating?: number,
     reviews?: string[], //Add relation type
-    packData: JSON,
+    packData: PackData,
     image: string,
+}
+
+export interface PackData {
+    prompts: string[]
 }

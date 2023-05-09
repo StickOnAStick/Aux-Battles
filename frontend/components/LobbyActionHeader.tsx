@@ -50,7 +50,7 @@ async function createGame(
         const game = await pb.collection('games').create(gameData);
         if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
-
+        router.replace(`/Game/${game.id}`);
         pb.collection('lobbys').delete(data.id);
     }else{ //user
         if(model.id === data.host){
