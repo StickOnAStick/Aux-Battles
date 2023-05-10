@@ -17,8 +17,9 @@ export default async function Dashboard(){
                 <div className="min-w-full flex justify-center">
                     <DashBoardSwitch className="w-full sm:w-10/12 md:w-8/12 mb-1 font-bold tracking-wide"/>
                 </div>
-                <div className="flex flex-col xs:flex-row justify-center sm:flex-none h-full">
+                <div className="flex flex-col items-center h-full">
                     <DashboardHeader userModel={data}/>
+                    <div>Dash content</div>
                 </div>
                 
             </div>

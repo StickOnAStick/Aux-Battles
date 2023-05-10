@@ -19,16 +19,17 @@ export default function DashboardHeader({
                 }
                 
 
-                <div className="flex flex-col gap-4 xs:flex-row xs:justify-between justify-center w-full border border-primary rounded border-opacity-10 py-2 px-2">
-                    <SignIn/>
-                    <div className="flex flex-col justify-center xs:justify-start w-full xs:w-1/2">
-                        <h2 className="font-bold text-xl">And Gain Access To: </h2>
+                <div className="flex flex-col sm:flex-row gap-4 w-full border border-primary rounded border-opacity-10 py-2 px-2 ">
+                    
+                    <div className="flex flex-col w-full sm:w-1/3">
+                        <h2 className="font-bold text-xl">To Gain Access To: </h2>
                         <ul className="ml-20 text-xl tracking-tight">
                             <li>Your Spotify Libraries</li>
                             <li>Game Stats</li>
-                            <li>And More custom packs</li>
+                            <li>Custom packs</li>
                         </ul>
                     </div>
+                    <SignIn/>
                 </div>
             </div>
         </div>
