@@ -53,6 +53,7 @@ export default function GameWrapper({
     isHost: boolean,
     localUser: Guests
 }){
+
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(localUser.id == initActivePlayers[0].id || localUser.id == initActivePlayers[1].id);
     const [timer, setTimer] = useState<number | undefined>(undefined);
 
