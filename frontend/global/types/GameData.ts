@@ -18,7 +18,7 @@ export interface GameData extends Record {
     guests: string[],
     scores: scores,
     host: string,
-    activeGuests: string[]
+    
 }
 
 export interface GameDataPayload {
@@ -31,5 +31,4 @@ export interface GameDataPayload {
     guests?: string[],
     scores: scores,
     host: string,
-    activeGuests: string[]
 }
