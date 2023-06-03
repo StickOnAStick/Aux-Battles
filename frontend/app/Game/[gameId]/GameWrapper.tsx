@@ -5,65 +5,63 @@ import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 import GameState from "./GameState";
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { useState, useEffect } from 'react';
-import PocketBase from 'pocketbase';
-import { PackData, Packs } from "@/global/types/Packs";
 import { Guests } from "@/global/types/Guests";
+import { socket } from "./page";
 
 interface SpotifyModal {
     spotifyModal: boolean,
     setSpotifyModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-async function gameLoop(gameData: ExpandedGameData, spotfiyModal: SpotifyModal, userToken: string, packData: PackData, setTimer: React.Dispatch<React.SetStateAction<number | undefined>>){
-    const pb = new PocketBase('http://127.0.0.1:8091');
-
-    function spin(): string {
-        const rand = Math.random();
-        const selectedPrompt = packData.prompts[Math.floor(rand * packData.prompts.length)]
-        return selectedPrompt;
-    }
-
-    async function selectionPhase(){
-        const localUser = await pb.collection('guests').getFirstListItem(`token="${userToken}"`);
-        if(localUser.id == gameData.activeGuests[0] || localUser.id == gameData.activeGuests[1]){
-            spotfiyModal.setSpotifyModal(true);
-            setTimer(60);
-        }
-    }
-    await selectionPhase();
-    
-}
 
 export default function GameWrapper({
     accessToken,
     gameId,
+    /**
+     * Initial game data. Contains expanded users, guests, and pack info.
+     */
     initData,
-    initActivePlayers,
     userToken,
-    packData,
-    isHost,
     localUser
 }:{
     accessToken: SpotifyAccessTokenResponse,
     gameId: string,
     initData: ExpandedGameData,
-    initActivePlayers: UsersOrGuests[],
     userToken: string,
-    packData: PackData,
-    isHost: boolean,
     localUser: Guests
 }){
 
-    const [spotifyModal, setSpotifyMdoal] = useState<boolean>(localUser.id == initActivePlayers[0].id || localUser.id == initActivePlayers[1].id);
-    const [timer, setTimer] = useState<number | undefined>(undefined);
+    useEffect(()=>{
+        socket.on("Display-Pack", ()=>{
+            setPackAnimation(true); 
+            setTimeout(()=>{setPackAnimation(false)}, 1000);
+        });
 
-    if(isHost) gameLoop(initData, {spotifyModal: spotifyModal, setSpotifyModal: setSpotifyMdoal}, userToken, packData, setTimer);
+        socket.on("Active-Players", async ([ids, prompt]: [[string, string], number]) => {
+            const user1 = initData.expand.guests.find(guest => guest.id === ids[0]);
+            const user2 = initData.expand.guests.find(guest => guest.id === ids[1]);
+            setActivePlayers([user1 == undefined ? null : user1, user2 == undefined ? null : user2])
+            setSelectedPrompt(prompt);
+        });
+
+        socket.on("Round-Timer", (timer: number) => {
+            setTimer(timer);
+        });
+
+        
+    },[initData.expand.guests])
+
+    const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
+    const [packAnimation, setPackAnimation] = useState<boolean>(false);
+    const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
+    const [timer, setTimer] = useState<number | undefined>(undefined);
+    const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | null, UsersOrGuests | null]>([null, null]);
 
     return (
         <>
             <SpotifySearch isActive={spotifyModal} accessToken={accessToken}/>
-            <Spinner />
-            <GameState gameId={gameId} initialData={initData} activePlayers={initActivePlayers} timer={timer}/>
+            <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt}/>
+            <GameState gameId={gameId} activePlayers={activePlayers} timer={timer}/>
         </>
     )
 }

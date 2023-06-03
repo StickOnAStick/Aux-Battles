@@ -8,22 +8,34 @@ import { Suspense, useEffect, useState } from "react"
 import PocketBase, { RecordSubscription, UnsubscribeFunc } from 'pocketbase';
 import { GameData } from "@/global/types/GameData";
 import { useRouter } from "next/navigation";
+import { socket } from "@/app/Game/[gameId]/page";
 
 export default function GameSideNav({
     playerList,
-    activePlayers,
-    gameId
+    gameId,
 }:{
     playerList: UsersOrGuests[],
-    activePlayers: string[],
-    gameId: string
+    gameId: string,
 }){
-
+    
     const [players, setPlayers] = useState<UsersOrGuests[]>(playerList);
-    const [active, setActive] = useState<string[]>(activePlayers);
+    const [active, setActive] = useState<string[]>([]);
     const router = useRouter();
 
     useEffect(() => {
+
+
+
+
+
+
+
+
+
+
+
+
+
         const pb = new PocketBase('http://127.0.0.1:8091');
 
         const unsub = pb.collection('games').subscribe(gameId, 

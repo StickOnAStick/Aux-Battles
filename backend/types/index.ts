@@ -9,7 +9,7 @@ export type GameState = {
     /**
      * Pocketbase ID of game. **NOT** the local hash's id.
      */
-    id: string[],
+    id: string,
     /**
      * Initial client list from game creation
      */
@@ -17,8 +17,8 @@ export type GameState = {
     /**
      * PB id's of all `currently` connected clients
      */
-    connectedClients?: string[],
-    activePlayers?: [string, string],
+    connectedClients: string[],
+    activePlayers: [string, string],
     /**
      * Songs recieved from client for playback
      */

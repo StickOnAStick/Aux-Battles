@@ -21,7 +21,17 @@ const games: Map<string, GameState> = new Map;
 
 io.on('connection', (socket) => {
 
-    socket.on('client-ready', (data: Client)=> {
+    socket.on("Create-Game", (data: GameState) => {
+        games.set(data.id, data);
+        data.clients.map((client: string) => {
+            clients.set(client, {
+                id: client,
+                currentGame: data.id
+            } as Client)
+        })
+    })
+
+    socket.on('Client-Ready', (data: Client)=> {
         if(!data || !data.currentGame || !data.id) return;
         
         const game = games.get(data.currentGame);
@@ -30,29 +40,39 @@ io.on('connection', (socket) => {
         //Kick if not allowed in game. 
         if(!game.clients.includes(data.id)) socket.emit('Navigate-To-Home')
 
-
-        const newClient: Client = {
-            id: data.id,
-            currentGame: data.currentGame,
+        const client = clients.get(data.id);
+        if(client !== undefined){
+            client.currentGame = data.currentGame;
+            return;
         }
-        clients.set(newClient.id, newClient); //Add new client
+
+        if(game.connectedClients.includes(data.id)) return;
+        else{ 
+            const newClient: Client = {
+                id: data.id,
+                currentGame: data.currentGame,
+            }
+            clients.set(newClient.id, newClient); //Add new client
+        }
 
         socket.join(game.id); //Join local game room
 
         //Push if others already connected, create string[] if not
         if (game.connectedClients) game.connectedClients.push(data.id);
         else game.connectedClients = [data.id];
-        
+
+
         if(game.connectedClients.length == game.clients.length)  //Display Pack, Select active players & Begin Round, Send Timer
         {
             io.in(game.id).emit("Display-Pack");
 
             const ids: [string, string] = selectTwoIds(game.clients);
+            const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
 
-            setTimeout(()=>null, 1200);//Wait for client pack animations
-            io.to(game.id).emit("Active-Players", ids);
-            setTimeout(()=>null, 1600) //Wait for spin animation to complete
-            io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
+            //Wait for client pack animations
+            io.to(game.id).timeout(1200).emit("Active-Players", [ids, prompt]);
+            //Wait for spin animation to complete
+            io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
         }
     });
 
@@ -68,13 +88,8 @@ io.on('connection', (socket) => {
         if(!game) return;
         if(!game.activePlayers) return;
 
-        if(client.id !== game.activePlayers[1] || game.activePlayers[0]){
-
-        }
-
-        if(!game.queuedSongs){
-            
-        }
+        if(client.id !== game.activePlayers[1] || game.activePlayers[0]) return;
+        client.id === game.activePlayers[0] ? game.queuedSongs[0] = track : game.queuedSongs[1] = track;
     })
 
     socket.on("Expired-Select-Timer", ({
@@ -94,8 +109,8 @@ io.on('connection', (socket) => {
             return;
         }else if (game.roundTimerExpiry == 2){
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
-            io.to(game.id).timeout(33000).emit("Song-PlayBack", game.queuedSongs[1]);
-            io.to(game.id).timeout(33000).emit("Round-Timer", 30); //30 Seconds to vote
+            io.to(game.id).timeout(31000).emit("Song-PlayBack", game.queuedSongs[1]);
+            io.to(game.id).timeout(31000).emit("Round-Timer", 30); //30 Seconds to vote
             return;
         }
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
@@ -112,13 +127,13 @@ io.on('connection', (socket) => {
         if(!client.currentGame) return;
         const game = games.get(client.currentGame);
         if(!game) return; 
-        
+
         if(game.playerVotes[0].includes(client.id) && vote == 0) return;
         else if(game.playerVotes[1].includes(client.id) && vote == 1) return;
-        else {
-            game.playerVotes[vote].push(client.id);
-            io.to(game.id).emit("Vote-Count", [game.playerVotes.length, game.playerVotes.length] as [number, number]);
-        };
+    
+        game.playerVotes[vote].push(client.id);
+        io.to(game.id).emit("Vote-Count", [game.playerVotes.length, game.playerVotes.length] as [number, number]);
+        
     })
 
 
@@ -145,7 +160,7 @@ io.on('connection', (socket) => {
 
 })
 
-server.listen(8080, "Aux-Battles Game Server" ,()=> {
+server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
 })
 

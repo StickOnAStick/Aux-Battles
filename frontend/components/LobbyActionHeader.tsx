@@ -6,9 +6,8 @@ import {  GameDataPayload } from "@/global/types/GameData";
 import { Guests } from "@/global/types/Guests";
 import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
-import { Users } from '@/global/types/Users';
-import { update } from 'react-spring';
-import { selectTwoIds } from '@/global/functions/game';
+import { io } from 'socket.io-client';
+import { GameState } from '@/global/types/GameSocket';
 
 async function createGame(
     data: LobbyData,
@@ -29,7 +28,8 @@ async function createGame(
         
         if(!localUser.id) return router.push('/');
         if(localUser.id !== data.host) return setError(new Error("Only host can start!"));
-        const activeGuests = selectTwoIds(updatedLobby.guests);
+
+        const clientIdList = updatedLobby.players.concat(updatedLobby.guests);
 
         const gameData: GameDataPayload = { 
             id: data.id,
@@ -40,18 +40,46 @@ async function createGame(
             guests: updatedLobby.guests,
             scores: 
                 {
-                    ids: updatedLobby.players.concat(updatedLobby.guests),
+                    ids: clientIdList,
                     scores: new Array<number>(updatedLobby.guests.length + updatedLobby.players.length)
                 },
-            host: localUser.id,
-            activeGuests: activeGuests
+            host: localUser.id
         }
 
         const game = await pb.collection('games').create(gameData);
         if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
+
+        const socket = io("http://localhost:8080");
+        
+        socket.emit("Create-Game", {
+            id: game.id,
+            clients: clientIdList,
+            connectedClients: [],
+            activePlayers: ["", ""],
+            queuedSongs: [null, null],
+            pack: {
+                id: data.expand.packs.at(0).id,
+                name: data.expand.packs.at(0).name,
+                data: data.expand.packs.at(0).packData
+            },
+            playerVotes: [[] as string[], [] as string[]],
+            scores: {
+                ids: clientIdList,
+                scores: new Array<number>(clientIdList.length)
+            },
+            roundTimerExpiry: 0,
+            voteTimerExpiry: 0,
+            currentRound: 1,
+            maxRounds: 15,
+        } as GameState);
+
         router.replace(`/Game/${game.id}`);
-        pb.collection('lobbys').delete(data.id);
+        setTimeout(()=>{
+            pb.collection('lobbys').delete(data.id);
+        },1500);
+        return;
+        
     }else{ //user
         if(model.id === data.host){
             //await pb.collection('game').create()
