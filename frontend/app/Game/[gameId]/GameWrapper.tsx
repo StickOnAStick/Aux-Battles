@@ -6,13 +6,12 @@ import GameState from "./GameState";
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { useState, useEffect } from 'react';
 import { Guests } from "@/global/types/Guests";
-import { socket } from "./page";
+import { socket } from "@/global/functions/utils";
 
 interface SpotifyModal {
     spotifyModal: boolean,
     setSpotifyModal: React.Dispatch<React.SetStateAction<boolean>>
 }
-
 
 export default function GameWrapper({
     accessToken,
@@ -33,6 +32,7 @@ export default function GameWrapper({
 
     useEffect(()=>{
         socket.on("Display-Pack", ()=>{
+            console.log("Display Pack animation")
             setPackAnimation(true); 
             setTimeout(()=>{setPackAnimation(false)}, 1000);
         });
@@ -42,13 +42,16 @@ export default function GameWrapper({
             const user2 = initData.expand.guests.find(guest => guest.id === ids[1]);
             setActivePlayers([user1 == undefined ? null : user1, user2 == undefined ? null : user2])
             setSelectedPrompt(prompt);
+
+            console.log("Acitve-Players Signal Recieved. \tActive clients: ", + activePlayers);
         });
 
         socket.on("Round-Timer", (timer: number) => {
             setTimer(timer);
+            console.log("Round timer signal recieved.\tRound timer: ", timer);
         });
 
-        
+
     },[initData.expand.guests])
 
     const [selectedPrompt, setSelectedPrompt] = useState<number>(0);

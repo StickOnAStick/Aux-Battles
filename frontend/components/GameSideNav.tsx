@@ -8,7 +8,6 @@ import { Suspense, useEffect, useState } from "react"
 import PocketBase, { RecordSubscription, UnsubscribeFunc } from 'pocketbase';
 import { GameData } from "@/global/types/GameData";
 import { useRouter } from "next/navigation";
-import { socket } from "@/app/Game/[gameId]/page";
 
 export default function GameSideNav({
     playerList,

@@ -1,4 +1,3 @@
-import GameState from "./GameState";
 import LeaveGame from "./LeaveGame";
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -8,9 +7,8 @@ import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
 import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 import GameWrapper from "./GameWrapper";
-import { io } from 'socket.io-client';
+import { socket } from '@/global/functions/utils';
 
-export const socket = io('http://localhost:8080');
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
     const pb = new PocketBase('http://127.0.0.1:8091');
