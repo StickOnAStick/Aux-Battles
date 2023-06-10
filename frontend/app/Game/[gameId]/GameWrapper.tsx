@@ -6,7 +6,7 @@ import GameState from "./GameState";
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { useState, useEffect } from 'react';
 import { Guests } from "@/global/types/Guests";
-import { socket } from "@/global/functions/utils";
+import { socket } from "@/global/functions/socket";
 
 interface SpotifyModal {
     spotifyModal: boolean,
@@ -30,14 +30,25 @@ export default function GameWrapper({
     localUser: Guests
 }){
 
+    const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
+    const [packAnimation, setPackAnimation] = useState<boolean>(false);
+    const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
+    const [timer, setTimer] = useState<number | undefined>(undefined);
+    const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | null, UsersOrGuests | null]>([null, null]);
+
     useEffect(()=>{
+        socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
+        socket.on("Navigate-To-Home", () => {
+            console.log("Nav home")
+        }) 
         socket.on("Display-Pack", ()=>{
             console.log("Display Pack animation")
             setPackAnimation(true); 
             setTimeout(()=>{setPackAnimation(false)}, 1000);
         });
 
-        socket.on("Active-Players", async ([ids, prompt]: [[string, string], number]) => {
+        socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
+            console.log("Active Id's recieved: ", ids, "\nCurrent PlayerID list: ", initData.guests);
             const user1 = initData.expand.guests.find(guest => guest.id === ids[0]);
             const user2 = initData.expand.guests.find(guest => guest.id === ids[1]);
             setActivePlayers([user1 == undefined ? null : user1, user2 == undefined ? null : user2])
@@ -52,13 +63,8 @@ export default function GameWrapper({
         });
 
 
-    },[initData.expand.guests])
+    },[initData.expand.guests, activePlayers, timer, selectedPrompt])
 
-    const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
-    const [packAnimation, setPackAnimation] = useState<boolean>(false);
-    const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
-    const [timer, setTimer] = useState<number | undefined>(undefined);
-    const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | null, UsersOrGuests | null]>([null, null]);
 
     return (
         <>

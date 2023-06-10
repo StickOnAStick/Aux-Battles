@@ -40,20 +40,32 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 # Backend
 
-First, navigate to the backend directory, then run:
+
+### __Pocketbase DB__
+
+Navigate to the backend directory, then run:
 
 ```bash
 ./pocketbase serve --http "127.0.0.1:8091"
 ```
-This will start a local instance of the database, accessible on the 8091 port. 
-This will log the admin UI url in your terminal, use this to create, update, and modify existing collections and records. 
+This will start a local instance of the database and log the **database control panel** url in your terminal, sign in and use this to create, update, and modify existing collections and records.  
+
+
+### __WebSocket Game server__
+
+Navigate to: ```./backend/gameServer``` and enter the following command:
+```bash
+ts-node index.ts
+``` 
+
+This will startup the game server for your development enviornment. 
 
 ## Learn more
 
 Checkout PocketBase.io docs and the admin ui's dashboard for more information:
  
   - [Pocketbase Documentation](https://pocketbase.io/docs)
-
+  - [Game Server Info](TODO:ADD_THIS)
 
 # Working with cookies
 

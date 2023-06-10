@@ -20,7 +20,7 @@ const clients: Map<string, Client> = new Map;
 const games: Map<string, GameState> = new Map;
 
 io.on('connection', (socket) => {
-
+    
     socket.on("Create-Game", (data: GameState) => {
         games.set(data.id, data);
         data.clients.map((client: string) => {
@@ -31,48 +31,52 @@ io.on('connection', (socket) => {
         })
     })
 
-    socket.on('Client-Ready', (data: Client)=> {
-        if(!data || !data.currentGame || !data.id) return;
-        
+    socket.on('Client-Ready', async (data: Client)=> {
+
+        if(!data || !data.currentGame || !data.id) return socket.emit("Navigate-To-Home");
         const game = games.get(data.currentGame);
-        if(!game) return;
+        if(!game) return socket.emit("Navigate-To-Home");
+        if(!game.clients.includes(data.id)) return socket.emit('Navigate-To-Home') //Kick if not allowed in game. 
+        
 
-        //Kick if not allowed in game. 
-        if(!game.clients.includes(data.id)) socket.emit('Navigate-To-Home')
-
-        const client = clients.get(data.id);
+        //Join Game room
+        await socket.join(game.id);
+        const sockets = await io.in(game.id).fetchSockets();
+        console.log(sockets)
+        //Client already existed in database; potentially switching games. 
+        const client: Client | undefined = clients.get(data.id);
+        if(game.connectedClients.includes(data.id)) return;
+        
         if(client !== undefined){
             client.currentGame = data.currentGame;
-            return;
-        }
-
-        if(game.connectedClients.includes(data.id)) return;
-        else{ 
+        }else{
             const newClient: Client = {
                 id: data.id,
                 currentGame: data.currentGame,
             }
             clients.set(newClient.id, newClient); //Add new client
         }
-
-        socket.join(game.id); //Join local game room
-
-        //Push if others already connected, create string[] if not
-        if (game.connectedClients) game.connectedClients.push(data.id);
-        else game.connectedClients = [data.id];
-
-
-        if(game.connectedClients.length == game.clients.length)  //Display Pack, Select active players & Begin Round, Send Timer
+        // Push Client to game room connected
+        game.connectedClients.push(data.id);
+        console.log("Client ready from: ", data.id, " Current game: ", game);
+        //Display Pack, Select active players & start first round w/timer
+        if(game.connectedClients.length == game.clients.length && game.currentRound == 0)  
         {
-            io.in(game.id).emit("Display-Pack");
+            console.log("Emitting game start signals to game id: ", game.id);
+            io.of("/").in(game.id).emit("Display-Pack");
 
             const ids: [string, string] = selectTwoIds(game.clients);
             const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
 
-            //Wait for client pack animations
-            io.to(game.id).timeout(1200).emit("Active-Players", [ids, prompt]);
-            //Wait for spin animation to complete
-            io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
+            //Wait for client pack animations (5s)
+            setTimeout(()=> {
+                io.of("/").in(game.id).emit("Active-Players", [ids, prompt]);
+            }, 5000)
+            //Wait for spin animation to complete (1.6s)
+            setTimeout(()=>{
+                io.of("/").in(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
+            }, 6600)
+            
         }
     });
 
@@ -162,6 +166,9 @@ io.on('connection', (socket) => {
 
 server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
+    clients.forEach((client: Client) => {
+        console.log("Client: ", client);
+    })
 })
 
 
@@ -170,4 +177,19 @@ function newRound(game: GameState){
 
     io.to(game.id).timeout(1200).emit("Active-Players", ids);//Wait for client round winner animation
     io.to(game.id).timeout(100).emit("Round-Timer", 60); //1 Minute timer for song requests
+}
+
+
+function DisplayPack(game: GameState){
+    if(game.currentRound == 1 && (game.connectedClients.length == game.clients.length)){
+        io.in(game.id).emit("Display-Pack");
+
+        const ids: [string, string] = selectTwoIds(game.clients);
+        const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
+
+        //Wait for client pack animations
+        io.to(game.id).timeout(1200).emit("Active-Players", [ids, prompt]);
+        //Wait for spin animation to complete
+        io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
+    }
 }

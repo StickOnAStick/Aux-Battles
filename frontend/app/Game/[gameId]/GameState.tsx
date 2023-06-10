@@ -21,7 +21,7 @@ export default function GameState({
 }){
     const [active, setActivePlayers] = useState<[UsersOrGuests | null, UsersOrGuests | null]>([null, null]);
     const [time, setTime] = useState<number | undefined>(timer);
-
+    
     useEffect(() => {
         
         if(time != undefined){

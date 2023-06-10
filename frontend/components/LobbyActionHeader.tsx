@@ -70,7 +70,7 @@ async function createGame(
             },
             roundTimerExpiry: 0,
             voteTimerExpiry: 0,
-            currentRound: 1,
+            currentRound: 0, // Start at round 0 for display pack to work
             maxRounds: 15,
         } as GameState);
 

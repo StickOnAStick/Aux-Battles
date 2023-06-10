@@ -7,7 +7,6 @@ import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
 import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 import GameWrapper from "./GameWrapper";
-import { socket } from '@/global/functions/utils';
 
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
@@ -28,9 +27,13 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
 
 async function getUserInfo(token: string): Promise<Guests> {
     const pb = new PocketBase('http://127.0.0.1:8091');
+    try{
     const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
-    if(!localUser.id) throw new Error("Could not find guest");
+    if(!localUser.id) redirect("/");
     return localUser;
+    }catch{
+        return redirect("/");
+    }
 }
 
 export default async function Game({
@@ -53,11 +56,6 @@ export default async function Game({
         return redirect('/');
     }
     const localUser = await getUserInfo(token.value);
-    
-    socket.emit("Client-Ready", {id: localUser.id, currentGame: data.id});
-    socket.on("Navigate-To-Home", () => {
-        redirect("/");
-    })
     
     return (
 

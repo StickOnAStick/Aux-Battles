@@ -33,7 +33,6 @@ export default async function Lobby({
 
     const data = await getLobbyData(params.lobbyId);
     
-
     return (
         <div className="flex flex-col min-h-screen">
             <LeaveLobby token={token?.value} host={data.host} lobbyId={params.lobbyId}/>     

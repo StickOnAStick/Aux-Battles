@@ -1,7 +1,7 @@
 'use client';
 
 async function leaveGame(){
-    return "";
+    return;
 }
 
 export default function LeaveGame(){

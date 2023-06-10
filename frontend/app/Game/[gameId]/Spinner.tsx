@@ -5,15 +5,11 @@ export default function Spinner({
   prompts: string[],
   selected: number  
 }){
-   
     return (
-        
         <button className="flex w-full text-6xl font-extrabold justify-center items-center h-full">
-            Spinner
             <br/>
-            {prompts}
+            {prompts[selected]}
             <br/>
-            {selected}
         </button>
     );
 }
