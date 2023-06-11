@@ -1,10 +1,25 @@
 'use client';
+import { socket } from "@/global/functions/socket";
+import { Guests } from "@/global/types/Guests";
+import { useRouter } from 'next/navigation'
 
-async function leaveGame(){
-    return;
+async function leaveGame(
+    localUser: Guests,
+    gameId: string,
+    router: (typeof useRouter.prototype)
+){
+    socket.emit(("Client-Disconnect"), [localUser.id, gameId]);
+    router.replace('/');
 }
 
-export default function LeaveGame(){
+export default function LeaveGame({
+    localUser,
+    gameId
+}:{
+    localUser: Guests,
+    gameId: string
+}){
+    const router = useRouter();
     return (
         <div className="flex justify-center py-2">
             <label htmlFor="AuxButton" className="btn btn-ghost z-10 text-4xl font-bold">
@@ -17,7 +32,7 @@ export default function LeaveGame(){
                     <h2 className="text-3xl font-bold">Are you sure you want to leave?</h2>
                     <div className="modal-action flex justify-between">
                         <label className="btn btn-accent font-bold text-xl " htmlFor="AuxButton">Go back</label>
-                        <button className="btn btn-primary text-accent font-bold text-xl" onClick={()=> leaveGame()}>Leave Lobby</button>
+                        <button className="btn btn-primary text-accent font-bold text-xl" onClick={()=> leaveGame(localUser, gameId, router)}>Leave Lobby</button>
                     </div>
                 </label>
             </label>

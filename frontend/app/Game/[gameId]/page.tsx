@@ -66,7 +66,7 @@ export default async function Game({
                 <div className="drawer-content flex flex-col items-center justify-center">
                     {/* Game content */}
                     <div className="w-full h-full flex flex-col items-center">
-                        <LeaveGame/>
+                        <LeaveGame localUser={localUser} gameId={params.gameId}/>
                         <GameWrapper accessToken={spotifyAccessToken} gameId={params.gameId} initData={data} userToken={token.value} localUser={localUser}/>
                     </div>
                     {/* Side Nav */}

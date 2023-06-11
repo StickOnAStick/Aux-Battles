@@ -31,6 +31,16 @@ io.on('connection', (socket) => {
         })
     })
 
+    socket.on("Client-Disconnect", ([userId, gameId]: [string, string]) => {
+        const game = games.get(gameId);
+        const client = clients.get(userId);
+        if(!client) return;
+        if(!game) return;
+        game.connectedClients = removeIdFromArray(game.connectedClients, userId);
+        client.currentGame = null;
+        return;
+    })
+
     socket.on('Client-Ready', async (data: Client)=> {
 
         if(!data || !data.currentGame || !data.id) return socket.emit("Navigate-To-Home");
@@ -192,4 +202,8 @@ function DisplayPack(game: GameState){
         //Wait for spin animation to complete
         io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
     }
+}
+
+function removeIdFromArray(arr: string[], id: string): string[] {
+    return arr.filter(item => item != id);
 }
