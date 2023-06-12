@@ -34,7 +34,7 @@ export default function GameWrapper({
     const [packAnimation, setPackAnimation] = useState<boolean>(false);
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
     const [timer, setTimer] = useState<number | undefined>(undefined);
-    const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | null, UsersOrGuests | null]>([null, null]);
+    const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
 
     useEffect(()=>{
         socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
@@ -48,13 +48,11 @@ export default function GameWrapper({
         });
 
         socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
-            console.log("Active Id's recieved: ", ids, "\nCurrent PlayerID list: ", initData.guests);
-            const user1 = initData.expand.guests.find(guest => guest.id === ids[0]);
-            const user2 = initData.expand.guests.find(guest => guest.id === ids[1]);
-            setActivePlayers([user1 == undefined ? null : user1, user2 == undefined ? null : user2])
+            console.log("Active Id's recieved: ", ids[0], "\t" ,ids[1], "\nCurrent PlayerID list: ", initData);
+            const user1 = initData.expand.guests.find(g => g.id === ids[0] as string);
+            const user2 = initData.expand.guests.find(g => g.id === ids[1] as string);
+            setActivePlayers([user1, user2]);
             setSelectedPrompt(prompt);
-
-            console.log("Acitve-Players Signal Recieved. \tActive clients: ", + activePlayers);
         });
 
         socket.on("Round-Timer", (timer: number) => {
@@ -63,7 +61,7 @@ export default function GameWrapper({
         });
 
 
-    },[initData.expand.guests, activePlayers, timer, selectedPrompt])
+    },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id])
 
 
     return (

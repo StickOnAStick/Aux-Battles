@@ -9,7 +9,7 @@ async function leaveGame(
     router: (typeof useRouter.prototype)
 ){
     socket.emit(("Client-Disconnect"), [localUser.id, gameId]);
-    router.replace('/');
+    router.replace("/")
 }
 
 export default function LeaveGame({

@@ -4492,6 +4492,10 @@ a {
     width: 50%;
   }
 
+  .xs\:flex-row {
+    flex-direction: row;
+  }
+
   .xs\:text-3xl {
     font-size: 1.875rem;
     line-height: 2.25rem;
@@ -4575,10 +4579,6 @@ a {
 
   .md\:w-8\/12 {
     width: 66.666667%;
-  }
-
-  .md\:flex-row {
-    flex-direction: row;
   }
 
   .md\:gap-5 {
