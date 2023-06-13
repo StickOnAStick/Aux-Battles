@@ -16,21 +16,24 @@ export default function GameState({
      * Active player Id's from game server of active guests.
      */
     activePlayers: [UsersOrGuests | undefined, UsersOrGuests | undefined]
-    timer: number | undefined
+    timer: number
     
 }){
     const [active, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>(activePlayers);
-    const [time, setTime] = useState<number | undefined>(timer);
+    const [time, setTime] = useState<number>(timer);
     
     useEffect(() => {
         setActivePlayers(activePlayers);
-        if(time != undefined){
-            const timer = setInterval(()=> {
-                setTime(time-1);
-                if(time == 0) clearInterval(timer);
-            }, 1000)
-        }
         
+        if(!time) return;
+        const intervalID = setInterval(()=> {
+            setTime(time-1);
+        }, 1000);
+        
+        return () => {
+            clearInterval(intervalID);
+            setTime(0);
+        }
     },[timer, time, activePlayers])
 
 
