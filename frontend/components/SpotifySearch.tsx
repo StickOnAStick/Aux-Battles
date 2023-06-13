@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { SpotifyAccessTokenResponse } from '@/global/types/Spotify';
 import Image from 'next/image';
+import { Track } from '@/global/types/SpotifyAPI';
+import { socket } from '@/global/functions/socket';
 
 
 async function searchSpotify(query: string, accessToken: SpotifyAccessTokenResponse, setSearchResults: React.Dispatch<React.SetStateAction<any>>){
@@ -22,12 +24,20 @@ async function searchSpotify(query: string, accessToken: SpotifyAccessTokenRespo
 
 }
 
+async function sendTrackToGameServer(userId: string, gameId: string, track: Track){
+    socket.
+}
+
 export default function SpotifySearch({
     isActive,
-    accessToken
+    accessToken,
+    gameId,
+    localUserId
 }:{
     isActive: boolean,
     accessToken: SpotifyAccessTokenResponse,
+    gameId: string,
+    localUserId: string,
 }
 ){
     const [search, setSearch] = useState<string>('');
@@ -62,11 +72,20 @@ export default function SpotifySearch({
                 {/* Results */}
                 <div className='relative pt-2 mt-2 grid grid-cols-2 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[90%] max-h-[88%] scrollbar'>
                     { searchResults &&
-                    searchResults.items.map((track: any )=> {
+                    searchResults.items.map((track: Track )=> {
                         return (
-                        <button key={track.id} className='flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
+                        <button key={track.id}
+                                onClick={()=>{sendTrackToGameServer(localUserId, gameId, track)}}
+                                className='flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
+                            
+                            {/* Track album.images[1] is a larger album image than album.images[0]*/}
+                            {/* Annoying fix for type */}
+                            {(track.album.images[0].height && track.album.images[1].height && track.album.images[0].width && track.album.images[1].width ) && 
                             <Image src={track.album.images[1].url} height={screenWidth > 630 ? track.album.images[1].height : track.album.images[0].height} width={screenWidth > 630 ? track.album.images[1].width : track.album.images[0].width} alt='album cover' />
+                            }
+                            
                             <div className='flex flex-col text-xl justify-between h-full mt-2'>
+                                
                                 <span className='font-bold tracking-wide'>{track.name}</span>
                                 <span className='font-extrabold justify-end'>{track.artists[0].name}</span>
                             </div>

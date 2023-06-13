@@ -81,29 +81,29 @@ io.on('connection', (socket) => {
             //Wait for client pack animations (5s)
             setTimeout(()=> {
                 io.of("/").in(game.id).emit("Active-Players", [ids, prompt]);
-            }, 5000)
+            }, 500)
             //Wait for spin animation to complete (1.6s)
             setTimeout(()=>{
                 io.of("/").in(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
-            }, 6600)
-            
+            }, 660)
         }
     });
 
     socket.on("Song-Selected", ({
-        client,
+        clientId,
+        gameId,
         track
     }: {
-        client: Client,
+        clientId: string,
+        gameId: string,
         track: Track
     }) => {
-        if(!client.currentGame) return;
-        const game = games.get(client.currentGame);
+        const game = games.get(gameId);
         if(!game) return;
         if(!game.activePlayers) return;
 
-        if(client.id !== game.activePlayers[1] || game.activePlayers[0]) return;
-        client.id === game.activePlayers[0] ? game.queuedSongs[0] = track : game.queuedSongs[1] = track;
+        if(clientId !== game.activePlayers[1] || clientId !== game.activePlayers[0]) return;
+        clientId === game.activePlayers[0] ? game.queuedSongs[0] = track : game.queuedSongs[1] = track;
     })
 
     socket.on("Expired-Select-Timer", ({
