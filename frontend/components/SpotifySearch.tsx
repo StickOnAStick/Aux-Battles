@@ -25,7 +25,7 @@ async function searchSpotify(query: string, accessToken: SpotifyAccessTokenRespo
 }
 
 async function sendTrackToGameServer(userId: string, gameId: string, track: Track){
-    socket.
+    
 }
 
 export default function SpotifySearch({
