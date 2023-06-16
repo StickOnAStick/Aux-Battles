@@ -10,8 +10,8 @@ import { socket } from '@/global/functions/socket';
 
 async function searchSpotify(query: string, accessToken: SpotifyAccessTokenResponse, setSearchResults: React.Dispatch<React.SetStateAction<any>>){
     const encodedQuery = encodeURIComponent(query).replace(/'/g, '%27').replace(/%20/g, '+');
-    console.log("\nEncoded Query: ", encodedQuery, "\n\nAccess Token: ", accessToken.access_token);
-    const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=10`,{
+    //console.log("\nEncoded Query: ", encodedQuery, "\n\nAccess Token: ", accessToken.access_token);
+    const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=12`,{
         method: "GET",
         headers: {
             "Authorization": 'Bearer ' + accessToken.access_token
@@ -19,25 +19,29 @@ async function searchSpotify(query: string, accessToken: SpotifyAccessTokenRespo
     });
 
     const { tracks } = await searchResponse.json();
-    console.log("\nSearch Response: ", searchResponse, "\n\nTracks: ", tracks)
+    //console.log("\nSearch Response: ", searchResponse, "\n\nTracks: ", tracks)
     return setSearchResults(tracks);
 
 }
 
-async function sendTrackToGameServer(userId: string, gameId: string, track: Track){
-    
+function sendTrackToGameServer(clientId: string, gameId: string, track: Track){
+    console.log("Spotify Search.tsx: sendTrackToGameServer():\n", clientId, gameId, track);
+    const payload = {clientId, gameId, track};
+    socket.emit("Song-Selected", payload)
 }
 
 export default function SpotifySearch({
     isActive,
     accessToken,
     gameId,
-    localUserId
+    localUserId,
+    prompt
 }:{
     isActive: boolean,
     accessToken: SpotifyAccessTokenResponse,
     gameId: string,
     localUserId: string,
+    prompt: string | undefined
 }
 ){
     const [search, setSearch] = useState<string>('');
@@ -47,11 +51,11 @@ export default function SpotifySearch({
     useEffect(()=>{
         setScreenWidth(window.innerWidth)
     },[])
-
+    
 
 
     return (
-        <motion.div className={'absolute top-16 w-full flex justify-center max-h-[70%]'}
+        <motion.div className={'absolute top-16 w-full flex justify-center max-h-[75%] md:max-h-[66%]'}
             initial={{scale: 0}}
             animate={{ scale: isActive ? 1 : 0,
                        visibility: isActive ? 'visible': 'collapse' 
@@ -70,29 +74,36 @@ export default function SpotifySearch({
                     </button>
                 </div>
                 {/* Results */}
-                <div className='relative pt-2 mt-2 grid grid-cols-2 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[90%] max-h-[88%] scrollbar'>
+                <div className='relative pt-2 mt-2 grid grid-cols-3 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[80%] max-h-[82%] scrollbar mb-2'>
                     { searchResults &&
                     searchResults.items.map((track: Track )=> {
                         return (
                         <button key={track.id}
-                                onClick={()=>{sendTrackToGameServer(localUserId, gameId, track)}}
+                                onClick={()=>sendTrackToGameServer(localUserId, gameId, track)}
                                 className='flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
                             
-                            {/* Track album.images[1] is a larger album image than album.images[0]*/}
+                            {/* Track album.images[2] is 64x64px, album.images[1] is 300x300px, album.images[0] 600x600px*/}
                             {/* Annoying fix for type */}
-                            {(track.album.images[0].height && track.album.images[1].height && track.album.images[0].width && track.album.images[1].width ) && 
-                            <Image src={track.album.images[1].url} height={screenWidth > 630 ? track.album.images[1].height : track.album.images[0].height} width={screenWidth > 630 ? track.album.images[1].width : track.album.images[0].width} alt='album cover' />
+                            {(track.album.images[1].height && track.album.images[2].height && track.album.images[1].width && track.album.images[2].width ) && 
+                            <Image src={track.album.images[1].url} height={screenWidth > 630 ? track.album.images[1].height : track.album.images[2].height} width={screenWidth > 630 ? track.album.images[1].width : track.album.images[2].width} alt='album cover' />
                             }
                             
-                            <div className='flex flex-col text-xl justify-between h-full mt-2'>
+                            <div className='flex flex-col text-xs justify-between h-full mt-2'>
                                 
-                                <span className='font-bold tracking-wide'>{track.name}</span>
+                                <span className='font-bold tracking-wide sm:text-base'>{track.name}</span>
                                 <span className='font-extrabold justify-end'>{track.artists[0].name}</span>
                             </div>
                         </button>
                         );
                     })}
                 </div>
+                {prompt && 
+                <div className='border-t-2 border-primary font-bold text-center text-2xl max-h-[20%]'>
+                    <div className='bg-accent text-white rounded-lg mt-2 text-center'>
+                        {prompt}
+                    </div>
+                </div>}
+                
             </div>
         </motion.div>
     );

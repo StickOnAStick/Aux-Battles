@@ -28,9 +28,9 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
 async function getUserInfo(token: string): Promise<Guests> {
     const pb = new PocketBase('http://127.0.0.1:8091');
     try{
-    const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
-    if(!localUser.id) redirect("/");
-    return localUser;
+        const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
+        if(!localUser.id) redirect("/");
+        return localUser;
     }catch{
         return redirect("/");
     }
@@ -56,7 +56,7 @@ export default async function Game({
         return redirect('/');
     }
     const localUser = await getUserInfo(token.value);
-    
+    console.log(localUser);
     return (
 
         <div className=" min-h-screen ">

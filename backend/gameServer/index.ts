@@ -22,6 +22,7 @@ const games: Map<string, GameState> = new Map;
 io.on('connection', (socket) => {
     
     socket.on("Create-Game", (data: GameState) => {
+        
         games.set(data.id, data);
         data.clients.map((client: string) => {
             clients.set(client, {
@@ -29,6 +30,8 @@ io.on('connection', (socket) => {
                 currentGame: data.id
             } as Client)
         })
+        const game = games.get(data.id);
+        console.log("Successfully created game with id: ", data.id, "\nPlayers: ", data.clients, "\nCreated game: ", game);
     })
 
     socket.on("Client-Disconnect", ([userId, gameId]: [string, string]) => {
@@ -51,8 +54,6 @@ io.on('connection', (socket) => {
 
         //Join Game room
         await socket.join(game.id);
-        const sockets = await io.in(game.id).fetchSockets();
-        console.log(sockets)
         //Client already existed in database; potentially switching games. 
         const client: Client | undefined = clients.get(data.id);
         if(game.connectedClients.includes(data.id)) return;
@@ -68,16 +69,14 @@ io.on('connection', (socket) => {
         }
         // Push Client to game room connected
         game.connectedClients.push(data.id);
-        console.log("Client ready from: ", data.id, " Current game: ", game);
         //Display Pack, Select active players & start first round w/timer
         if(game.connectedClients.length == game.clients.length && game.currentRound == 0)  
         {
-            console.log("Emitting game start signals to game id: ", game.id);
             io.of("/").in(game.id).emit("Display-Pack");
 
             const ids: [string, string] = selectTwoIds(game.clients);
             const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
-
+            game.activePlayers = ids;
             //Wait for client pack animations (5s)
             setTimeout(()=> {
                 io.of("/").in(game.id).emit("Active-Players", [ids, prompt]);
@@ -86,48 +85,55 @@ io.on('connection', (socket) => {
             setTimeout(()=>{
                 io.of("/").in(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
             }, 660)
+        }else if(game.currentRound > 0){
+            const client: Client | undefined = clients.get(data.id);
+
         }
     });
 
-    socket.on("Song-Selected", ({
-        clientId,
-        gameId,
-        track
-    }: {
-        clientId: string,
-        gameId: string,
-        track: Track
-    }) => {
-        const game = games.get(gameId);
+    socket.on("Song-Selected", ({clientId, gameId, track}: {clientId: string, gameId: string, track: Track}) => {
+        const game = games.get(gameId as string);
         if(!game) return;
-        if(!game.activePlayers) return;
-
-        if(clientId !== game.activePlayers[1] || clientId !== game.activePlayers[0]) return;
-        clientId === game.activePlayers[0] ? game.queuedSongs[0] = track : game.queuedSongs[1] = track;
+        if(clientId !== game.activePlayers[1] && clientId !== game.activePlayers[0]) return;
+        //Faster lookup and set
+        clientId == game.activePlayers[0] ? game.queuedSongs[0] = track : game.queuedSongs[1] = track;
+        const payload = {clientId, track};
+        io.in(game.id).emit("Display-Song", payload);
     })
 
     socket.on("Expired-Select-Timer", ({
-        client,
+        clientId,
     }: {
-        client: Client,
+        clientId: string,
     }) => {
+        console.log("Expired timer hit");
+        const client = clients.get(clientId);
+        if(!client) return;
         if(client.currentGame == null) return;
 
         const game = games.get(client.currentGame);
         if(!game) return;
         if(!game.activePlayers) return;
 
+        //Count and set timer expiry signals recieved
+        game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
+
         if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
             const winnerId = game.activePlayers[0] === client.id ? game.activePlayers[1] : game.activePlayers[0]; //Select other user for round win
-            io.to(client.currentGame).emit("Display-Winner", clients.get(winnerId));
+            io.to(client.currentGame).emit("Display-Winner", winnerId);
+            game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
-            io.to(game.id).timeout(31000).emit("Song-PlayBack", game.queuedSongs[1]);
+            setTimeout(()=> {
+                io.to(game.id).timeout(31000).emit("Song-PlayBack", game.queuedSongs[1]);
+            }, 31000)
+            setTimeout(()=>{
+                io.to(game.id).emit("Round-Timer", 30);
+            })
             io.to(game.id).timeout(31000).emit("Round-Timer", 30); //30 Seconds to vote
             return;
         }
-        game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
         return;
     })
 
@@ -176,9 +182,6 @@ io.on('connection', (socket) => {
 
 server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
-    clients.forEach((client: Client) => {
-        console.log("Client: ", client);
-    })
 })
 
 

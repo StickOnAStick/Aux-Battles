@@ -7,6 +7,7 @@ import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { useState, useEffect } from 'react';
 import { Guests } from "@/global/types/Guests";
 import { socket } from "@/global/functions/socket";
+import { Track } from '@/global/types/SpotifyAPI';
 
 interface SpotifyModal {
     spotifyModal: boolean,
@@ -35,7 +36,8 @@ export default function GameWrapper({
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
     const [timer, setTimer] = useState<number>(0);
     const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
-
+    
+    console.log("LocalUser inside wrapper: ", localUser)
     useEffect(()=>{
         socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
         socket.on("Navigate-To-Home", () => {
@@ -46,7 +48,6 @@ export default function GameWrapper({
             setPackAnimation(true); 
             setTimeout(()=>{setPackAnimation(false)}, 1000);
         });
-
         socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
             const user1 = initData.expand.guests.find(g => g.id === ids[0] as string);
             const user2 = initData.expand.guests.find(g => g.id === ids[1] as string);
@@ -55,21 +56,29 @@ export default function GameWrapper({
             if(localUser.id == user1?.id || user2?.id) setSpotifyMdoal(true);
             
         });
-
         socket.on("Round-Timer", (timer: number) => {
             setTimer(timer);
-            console.log("Round timer signal recieved.\tRound timer: ", timer);
         });
-
 
     },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id])
 
-    console.log(accessToken);
+    useEffect(()=>{
+        if(timer != 0){
+            const delay = setTimeout(() =>{
+                setTimer(prevTime => prevTime - 1);
+                if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id)) {
+                    clearTimeout(delay);
+                    socket.emit("Expired-Select-Timer", localUser.id);
+                }
+            }, 1000);
+        }
+    },[timer, activePlayers, localUser.id])
+
     return (
         <>
-            <SpotifySearch isActive={spotifyModal} accessToken={accessToken} gameId={gameId} localUserId={localUser.id}/>
+            <SpotifySearch isActive={spotifyModal} accessToken={accessToken} gameId={gameId} localUserId={localUser.id} prompt={initData.expand.pack.packData.prompts[selectedPrompt]}/>
             <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt}/>
-            <GameState gameId={gameId} activePlayers={activePlayers} timer={timer}/>
+            <GameState gameId={gameId} activePlayers={activePlayers} timer={timer} localUserId={localUser.id}/>
         </>
     )
 }

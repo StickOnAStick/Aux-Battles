@@ -77,7 +77,7 @@ async function createGame(
         router.replace(`/Game/${game.id}`);
         setTimeout(()=>{
             pb.collection('lobbys').delete(data.id);
-        },1500);
+        },3000);
         return;
         
     }else{ //user
