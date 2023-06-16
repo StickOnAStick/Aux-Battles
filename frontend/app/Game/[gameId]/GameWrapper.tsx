@@ -37,7 +37,6 @@ export default function GameWrapper({
     const [timer, setTimer] = useState<number>(0);
     const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
     
-    console.log("LocalUser inside wrapper: ", localUser)
     useEffect(()=>{
         socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
         socket.on("Navigate-To-Home", () => {
@@ -68,6 +67,7 @@ export default function GameWrapper({
                 setTimer(prevTime => prevTime - 1);
                 if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id)) {
                     clearTimeout(delay);
+                    console.log("Sending expired timer signal with id: ", localUser.id);
                     socket.emit("Expired-Select-Timer", localUser.id);
                 }
             }, 1000);

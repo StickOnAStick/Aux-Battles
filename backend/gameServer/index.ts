@@ -85,7 +85,7 @@ io.on('connection', (socket) => {
             setTimeout(()=>{
                 io.of("/").in(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
             }, 660)
-        }else if(game.currentRound > 0){
+        }else if(game.currentRound > 0){ //Add rejoin functionality
             const client: Client | undefined = clients.get(data.id);
 
         }
@@ -101,29 +101,29 @@ io.on('connection', (socket) => {
         io.in(game.id).emit("Display-Song", payload);
     })
 
-    socket.on("Expired-Select-Timer", ({
-        clientId,
-    }: {
-        clientId: string,
-    }) => {
-        console.log("Expired timer hit");
+    socket.on("Expired-Select-Timer", (clientId: string) => {
+        console.log("Expired timer hit", clientId);
         const client = clients.get(clientId);
+        console.log("Client found: ", client);
         if(!client) return;
         if(client.currentGame == null) return;
 
         const game = games.get(client.currentGame);
+        console.log("Game found: ", game);
         if(!game) return;
         if(!game.activePlayers) return;
-
+        
         //Count and set timer expiry signals recieved
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
-
+        console.log("Make it to round timer checks, current round: ", game.roundTimerExpiry)
         if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
+            console.log("One player didn't select a song");
             const winnerId = game.activePlayers[0] === client.id ? game.activePlayers[1] : game.activePlayers[0]; //Select other user for round win
             io.to(client.currentGame).emit("Display-Winner", winnerId);
             game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
+            console.log("Both players selected a song")
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
             setTimeout(()=> {
                 io.to(game.id).timeout(31000).emit("Song-PlayBack", game.queuedSongs[1]);
