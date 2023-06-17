@@ -11,7 +11,7 @@ import { socket } from '@/global/functions/socket';
 async function searchSpotify(query: string, accessToken: SpotifyAccessTokenResponse, setSearchResults: React.Dispatch<React.SetStateAction<any>>){
     const encodedQuery = encodeURIComponent(query).replace(/'/g, '%27').replace(/%20/g, '+');
     //console.log("\nEncoded Query: ", encodedQuery, "\n\nAccess Token: ", accessToken.access_token);
-    const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=12`,{
+    const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=20`,{
         method: "GET",
         headers: {
             "Authorization": 'Bearer ' + accessToken.access_token
@@ -77,6 +77,7 @@ export default function SpotifySearch({
                 <div className='relative pt-2 mt-2 grid grid-cols-3 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[80%] max-h-[82%] scrollbar mb-2'>
                     { searchResults &&
                     searchResults.items.map((track: Track )=> {
+                        if(track.preview_url == null) return;
                         return (
                         <button key={track.id}
                                 onClick={()=>sendTrackToGameServer(localUserId, gameId, track)}

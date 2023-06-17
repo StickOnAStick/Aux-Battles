@@ -10,7 +10,7 @@ export default function GameState({
     gameId,
     activePlayers,
     timer,
-    localUserId
+    localUserId,
 }:{
     gameId: string,
     /**
@@ -18,7 +18,7 @@ export default function GameState({
      */
     activePlayers: [UsersOrGuests | undefined, UsersOrGuests | undefined]
     timer: number,
-    localUserId: string
+    localUserId: string,
 }){
     const [active, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>(activePlayers);
     const [tracks, setTracks] = useState<[Track | undefined, Track | undefined]>([undefined, undefined]);
@@ -80,7 +80,7 @@ export default function GameState({
                     {(selectedTracks[1] !== undefined && selectedTracks[1].album.images[1].height && selectedTracks[1].album.images[1].width) ?
                     <Image className='rounded-sm' src={selectedTracks[1].album.images[1].url} height={screenWidth > 670 ?  selectedTracks[1].album.images[1].height : selectedTracks[1].album.images[1].height} width={screenWidth > 670 ?  selectedTracks[1].album.images[1].width : selectedTracks[1].album.images[1].width} alt='album cover' />
                     :
-                    <span>{active[1] && active[1].username}</span>
+                    <span className='flex flex-col justify-center text-center'>{active[1] && active[1].username}</span>
                     }
                 </div>
             }

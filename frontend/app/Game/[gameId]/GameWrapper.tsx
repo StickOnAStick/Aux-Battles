@@ -9,10 +9,6 @@ import { Guests } from "@/global/types/Guests";
 import { socket } from "@/global/functions/socket";
 import { Track } from '@/global/types/SpotifyAPI';
 
-interface SpotifyModal {
-    spotifyModal: boolean,
-    setSpotifyModal: React.Dispatch<React.SetStateAction<boolean>>
-}
 
 export default function GameWrapper({
     accessToken,
@@ -36,7 +32,9 @@ export default function GameWrapper({
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
     const [timer, setTimer] = useState<number>(0);
     const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
-    
+    const [votingPhase, setVotingPhase] = useState<boolean>(false);
+
+
     useEffect(()=>{
         socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
         socket.on("Navigate-To-Home", () => {
@@ -58,21 +56,23 @@ export default function GameWrapper({
         socket.on("Round-Timer", (timer: number) => {
             setTimer(timer);
         });
+        
 
     },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id])
 
     useEffect(()=>{
         if(timer != 0){
             const delay = setTimeout(() =>{
-                setTimer(prevTime => prevTime - 1);
-                if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id)) {
+                setTimer(prevTime => prevTime - 1);                                                         // modal checks if in voting phase or not
+                if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id) && spotifyModal) {
                     clearTimeout(delay);
+                    setSpotifyMdoal(false);
                     console.log("Sending expired timer signal with id: ", localUser.id);
                     socket.emit("Expired-Select-Timer", localUser.id);
                 }
             }, 1000);
         }
-    },[timer, activePlayers, localUser.id])
+    },[timer, activePlayers, localUser.id, spotifyModal])
 
     return (
         <>

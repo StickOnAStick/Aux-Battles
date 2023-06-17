@@ -123,37 +123,43 @@ io.on('connection', (socket) => {
             game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
-            console.log("Both players selected a song")
+            console.log("Both players selected a song", game.queuedSongs)
+            io.to(game.id).emit("Round-Timer", 30);
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
-            setTimeout(()=> {
-                io.to(game.id).timeout(31000).emit("Song-PlayBack", game.queuedSongs[1]);
-            }, 31000)
-            setTimeout(()=>{
+            const delay1 = setTimeout(()=> {
                 io.to(game.id).emit("Round-Timer", 30);
-            })
-            io.to(game.id).timeout(31000).emit("Round-Timer", 30); //30 Seconds to vote
+                io.to(game.id).emit("Song-PlayBack", game.queuedSongs[1]);
+                clearTimeout(delay1);
+            }, 31000)
+            
+            const delay2 = setTimeout(()=>{
+                io.to(game.id).emit("Round-Timer", 30);
+                io.to(game.id).emit("Vote-Signal", game.queuedSongs);
+                clearTimeout(delay2);
+            },62000) //30 Seconds to vote after both songs are played
             return;
         }
         return;
     })
 
     socket.on("Vote", ({
-        client,
+        clientId,
         vote
     }:{
-        client: Client,
+        clientId: string,
         vote: 0 | 1
     })=> {
+        const client = clients.get(clientId);
+        if(!client) return;
         if(!client.currentGame) return;
         const game = games.get(client.currentGame);
         if(!game) return; 
-
+        //checks for repeated votes
         if(game.playerVotes[0].includes(client.id) && vote == 0) return;
         else if(game.playerVotes[1].includes(client.id) && vote == 1) return;
     
         game.playerVotes[vote].push(client.id);
         io.to(game.id).emit("Vote-Count", [game.playerVotes.length, game.playerVotes.length] as [number, number]);
-        
     })
 
 
