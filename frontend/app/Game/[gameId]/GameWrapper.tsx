@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { Guests } from "@/global/types/Guests";
 import { socket } from "@/global/functions/socket";
 import { Track } from '@/global/types/SpotifyAPI';
+import { useRouter } from "next/navigation";
 
 
 export default function GameWrapper({
@@ -32,13 +33,15 @@ export default function GameWrapper({
     const [spotifyModal, setSpotifyMdoal] = useState<boolean>(false);
     const [timer, setTimer] = useState<number>(0);
     const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
-    const [votingPhase, setVotingPhase] = useState<boolean>(false);
+    const [allowVoting, setAllowVoting] = useState<boolean>(true);
 
+    const router = useRouter();
 
     useEffect(()=>{
         socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
         socket.on("Navigate-To-Home", () => {
             console.log("Nav home")
+            router.push("/")
         }) 
         socket.on("Display-Pack", ()=>{
             console.log("Display Pack animation")
@@ -48,17 +51,19 @@ export default function GameWrapper({
         socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
             const user1 = initData.expand.guests.find(g => g.id === ids[0] as string);
             const user2 = initData.expand.guests.find(g => g.id === ids[1] as string);
+            if(localUser.id === user1?.id || localUser.id === user2?.id){
+                setAllowVoting(false);
+                setSpotifyMdoal(true);
+            }
             setActivePlayers([user1, user2]);
             setSelectedPrompt(prompt);
-            if(localUser.id == user1?.id || user2?.id) setSpotifyMdoal(true);
-            
         });
         socket.on("Round-Timer", (timer: number) => {
             setTimer(timer);
         });
         
 
-    },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id])
+    },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id, router])
 
     useEffect(()=>{
         if(timer != 0){
@@ -77,7 +82,7 @@ export default function GameWrapper({
     return (
         <>
             <SpotifySearch isActive={spotifyModal} accessToken={accessToken} gameId={gameId} localUserId={localUser.id} prompt={initData.expand.pack.packData.prompts[selectedPrompt]}/>
-            <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt}/>
+            <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt} userId={localUser.id} votingAllowed={allowVoting}/>
             <GameState gameId={gameId} activePlayers={activePlayers} timer={timer} localUserId={localUser.id}/>
         </>
     )

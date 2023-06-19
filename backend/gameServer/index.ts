@@ -50,7 +50,6 @@ io.on('connection', (socket) => {
         const game = games.get(data.currentGame);
         if(!game) return socket.emit("Navigate-To-Home");
         if(!game.clients.includes(data.id)) return socket.emit('Navigate-To-Home') //Kick if not allowed in game. 
-        
 
         //Join Game room
         await socket.join(game.id);
@@ -102,20 +101,17 @@ io.on('connection', (socket) => {
     })
 
     socket.on("Expired-Select-Timer", (clientId: string) => {
-        console.log("Expired timer hit", clientId);
+
         const client = clients.get(clientId);
-        console.log("Client found: ", client);
         if(!client) return;
         if(client.currentGame == null) return;
 
         const game = games.get(client.currentGame);
-        console.log("Game found: ", game);
         if(!game) return;
         if(!game.activePlayers) return;
         
         //Count and set timer expiry signals recieved
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
-        console.log("Make it to round timer checks, current round: ", game.roundTimerExpiry)
         if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
             console.log("One player didn't select a song");
             const winnerId = game.activePlayers[0] === client.id ? game.activePlayers[1] : game.activePlayers[0]; //Select other user for round win
@@ -123,9 +119,9 @@ io.on('connection', (socket) => {
             game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
-            console.log("Both players selected a song", game.queuedSongs)
             io.to(game.id).emit("Round-Timer", 30);
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
+            
             const delay1 = setTimeout(()=> {
                 io.to(game.id).emit("Round-Timer", 30);
                 io.to(game.id).emit("Song-PlayBack", game.queuedSongs[1]);
@@ -142,12 +138,13 @@ io.on('connection', (socket) => {
         return;
     })
 
+    type Vote = 0 | 1;
     socket.on("Vote", ({
         clientId,
         vote
     }:{
         clientId: string,
-        vote: 0 | 1
+        vote: Vote
     })=> {
         const client = clients.get(clientId);
         if(!client) return;
@@ -157,23 +154,49 @@ io.on('connection', (socket) => {
         //checks for repeated votes
         if(game.playerVotes[0].includes(client.id) && vote == 0) return;
         else if(game.playerVotes[1].includes(client.id) && vote == 1) return;
-    
+        
+        //Hack to check opposite vote
+        if (game.playerVotes[Number(!vote)].includes(client.id)) {
+            game.playerVotes[Number(!vote)] = game.playerVotes[Number(!vote)].filter(id => id !== client.id);
+        }
         game.playerVotes[vote].push(client.id);
-        io.to(game.id).emit("Vote-Count", [game.playerVotes.length, game.playerVotes.length] as [number, number]);
+        io.to(game.id).emit("Vote-Count", [game.playerVotes[0].length, game.playerVotes[1].length] as [number, number]);
     })
 
 
+    type RoundWinner = {
+            winners: [
+                id: string | undefined,
+                id: string | undefined,
+            ],
+            tracks: [
+                track: Track | undefined,
+                track: Track | undefined 
+            ]
+    }
+    
     socket.on("Expired-Vote-Timer", ({
-        client
+        clientId
     }:{
-        client: Client,
+        clientId: string,
     })=>{
+        const client = clients.get(clientId);
+        if(!client) return;
         if(client.currentGame == null) return;
         const game = games.get(client.currentGame);
         if(!game) return;
 
         if(game.voteTimerExpiry == game.clients.length-2) {
-            io.to(game.id).emit("Display-Round-Winner", game.playerVotes[0].length > game.playerVotes[1].length ? game.playerVotes[0] : game.playerVotes[1]);
+            if(game.playerVotes[0].length == game.playerVotes[1].length){
+                io.to(game.id).emit("Display-Round-Winner", {winners: game.activePlayers, tracks: game.queuedSongs} as RoundWinner)
+            }else{
+                const winnerPayload: RoundWinner = {
+                    winners: game.playerVotes[0].length > game.playerVotes[1].length ? [game.activePlayers[0], undefined] : [undefined, game.activePlayers[1]],
+                    tracks: game.playerVotes[0].length > game.playerVotes[1].length ? [game.queuedSongs[0], undefined] : [undefined, game.queuedSongs[1]]
+                };
+                io.to(game.id).emit("Display-Round-Winner", winnerPayload);
+            }
+            
             game.currentRound == game.maxRounds ? io.to(game.id).timeout(2000).emit("Game-Results", game) : newRound(game);
             return;
         }

@@ -22,7 +22,7 @@ export type GameState = {
     /**
      * Songs recieved from client for playback
      */
-    queuedSongs: [Track | null, Track | null],
+    queuedSongs: [Track | undefined, Track | undefined],
     pack: {
         id: string,
         name: string,

@@ -3629,6 +3629,10 @@ html {
   top: 0.5rem;
 }
 
+.top-\[-10rem\] {
+  top: -10rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -3643,6 +3647,10 @@ html {
 
 .z-50 {
   z-index: 50;
+}
+
+.z-\[-10rem\] {
+  z-index: -10rem;
 }
 
 .m-0 {
@@ -3794,6 +3802,14 @@ html {
   width: 100%;
 }
 
+.w-\[300px\] {
+  width: 300px;
+}
+
+.w-\[150px\] {
+  width: 150px;
+}
+
 .min-w-full {
   min-width: 100%;
 }
@@ -3844,6 +3860,10 @@ html {
 
 .flex-col {
   flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .items-end {
@@ -3900,6 +3920,10 @@ html {
 
 .overflow-y-scroll {
   overflow-y: scroll;
+}
+
+.break-words {
+  overflow-wrap: break-word;
 }
 
 .rounded {
@@ -4154,6 +4178,11 @@ html {
   line-height: 1;
 }
 
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -4174,11 +4203,6 @@ html {
   line-height: 1rem;
 }
 
-.text-base {
-  font-size: 1rem;
-  line-height: 1.5rem;
-}
-
 .font-bold {
   font-weight: 700;
 }
@@ -4193,10 +4217,6 @@ html {
 
 .font-semibold {
   font-weight: 600;
-}
-
-.font-normal {
-  font-weight: 400;
 }
 
 .font-thin {
@@ -4586,6 +4606,10 @@ a {
 
   .sm\:w-3\/12 {
     width: 25%;
+  }
+
+  .sm\:w-\[300px\] {
+    width: 300px;
   }
 
   .sm\:flex-row {
