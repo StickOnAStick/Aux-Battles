@@ -196,12 +196,16 @@ io.on('connection', (socket) => {
                 };
                 io.to(game.id).emit("Display-Round-Winner", winnerPayload);
             }
-            
-            game.currentRound == game.maxRounds ? io.to(game.id).timeout(2000).emit("Game-Results", game) : newRound(game);
+            const newRoundDelay = setTimeout(()=> {
+                game.currentRound == game.maxRounds ? io.to(game.id).emit("Game-Results", game) : newRound(game);
+                
+            })
+            clearTimeout(newRoundDelay)
             return;
-        }
+        }else{ game.voteTimerExpiry = game.voteTimerExpiry + 1; }
+        
+        return;
 
-        return game.voteTimerExpiry = game.voteTimerExpiry + 1;
     })
 
     
