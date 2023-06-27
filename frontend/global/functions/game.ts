@@ -1,4 +1,5 @@
 import { Track } from "../types/SpotifyAPI";
+import { UsersOrGuests } from "../types/Unions";
 export function selectTwoIds(ids: string[]): string[] {
     const randIndex1 = Math.floor(Math.random() * ids.length);
     let randIndex2 = Math.floor(Math.random() * ids.length);
@@ -11,11 +12,24 @@ export function selectTwoIds(ids: string[]): string[] {
 
 export type RoundWinner = {
     winners: [
-        id: string | undefined,
-        id: string | undefined,
+        string | undefined,
+        string | undefined,
     ],
     tracks: [
-        track: Track | undefined,
-        track: Track | undefined 
+        Track | undefined,
+        Track | undefined 
     ]
+     
+}
+
+export type StatefulRoundWinners = {
+    winners: [
+        UsersOrGuests | undefined,
+        UsersOrGuests | undefined
+    ],
+    tracks: [
+        Track | undefined,
+        Track | undefined
+    ]
+
 }

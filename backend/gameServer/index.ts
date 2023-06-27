@@ -19,10 +19,14 @@ const io = new Server(server, {
 const clients: Map<string, Client> = new Map;
 const games: Map<string, GameState> = new Map;
 
+const VotingTime = 30;
+const SongSelectTime = 60;
+const DisplayPack = 10;
+const DisplayWinner = 10;
+
 io.on('connection', (socket) => {
     
     socket.on("Create-Game", (data: GameState) => {
-        
         games.set(data.id, data);
         data.clients.map((client: string) => {
             clients.set(client, {
@@ -30,8 +34,6 @@ io.on('connection', (socket) => {
                 currentGame: data.id
             } as Client)
         })
-        const game = games.get(data.id);
-        console.log("Successfully created game with id: ", data.id, "\nPlayers: ", data.clients, "\nCreated game: ", game);
     })
 
     socket.on("Client-Disconnect", ([userId, gameId]: [string, string]) => {
@@ -175,18 +177,17 @@ io.on('connection', (socket) => {
             ]
     }
     
-    socket.on("Expired-Vote-Timer", ({
-        clientId
-    }:{
-        clientId: string,
-    })=>{
+    socket.on("Expired-Vote-Timer", (clientId: string)=>{
         const client = clients.get(clientId);
         if(!client) return;
         if(client.currentGame == null) return;
         const game = games.get(client.currentGame);
         if(!game) return;
 
+        game.voteTimerExpiry = game.voteTimerExpiry + 1;
+
         if(game.voteTimerExpiry == game.clients.length-2) {
+            console.log("Entered display winner outer loop.")
             if(game.playerVotes[0].length == game.playerVotes[1].length){
                 io.to(game.id).emit("Display-Round-Winner", {winners: game.activePlayers, tracks: game.queuedSongs} as RoundWinner)
             }else{
@@ -196,20 +197,26 @@ io.on('connection', (socket) => {
                 };
                 io.to(game.id).emit("Display-Round-Winner", winnerPayload);
             }
+            ++game.currentRound;
+            console.log("Current round: ", game.currentRound);
             const newRoundDelay = setTimeout(()=> {
+                console.log("New Round timeout");
                 game.currentRound == game.maxRounds ? io.to(game.id).emit("Game-Results", game) : newRound(game);
-                
-            })
-            clearTimeout(newRoundDelay)
+                clearTimeout(newRoundDelay)
+            }, 11000)
+            
             return;
-        }else{ game.voteTimerExpiry = game.voteTimerExpiry + 1; }
-        
+        }
         return;
-
     })
 
-    
-
+    function newRound(game: GameState){
+        const ids: [string, string] = selectTwoIds(game.clients);
+        console.log("Starting new round!")
+        io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
+        io.to(game.id).emit("Active-Players", ids);//Wait for client round winner animation
+        
+    }
 
 })
 
@@ -218,28 +225,23 @@ server.listen(8080, ()=> {
 })
 
 
-function newRound(game: GameState){
-    const ids: [string, string] = selectTwoIds(game.clients);
 
-    io.to(game.id).timeout(1200).emit("Active-Players", ids);//Wait for client round winner animation
-    io.to(game.id).timeout(100).emit("Round-Timer", 60); //1 Minute timer for song requests
-}
-
-
-function DisplayPack(game: GameState){
-    if(game.currentRound == 1 && (game.connectedClients.length == game.clients.length)){
-        io.in(game.id).emit("Display-Pack");
-
-        const ids: [string, string] = selectTwoIds(game.clients);
-        const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
-
-        //Wait for client pack animations
-        io.to(game.id).timeout(1200).emit("Active-Players", [ids, prompt]);
-        //Wait for spin animation to complete
-        io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
-    }
-}
 
 function removeIdFromArray(arr: string[], id: string): string[] {
     return arr.filter(item => item != id);
 }
+
+// function DisplayPack(game: GameState){
+//     if(game.currentRound == 1 && (game.connectedClients.length == game.clients.length)){
+//         io.in(game.id).emit("Display-Pack");
+
+//         const ids: [string, string] = selectTwoIds(game.clients);
+//         const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
+
+//         //Wait for client pack animations
+//         io.to(game.id).timeout(1200).emit("Active-Players", [ids, prompt]);
+//         //Wait for spin animation to complete
+//         io.to(game.id).timeout(1600).emit("Round-Timer", 60); //1 Minute timer for song requests
+//     }
+// }
+

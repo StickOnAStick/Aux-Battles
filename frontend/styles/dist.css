@@ -3629,10 +3629,6 @@ html {
   top: 0.5rem;
 }
 
-.top-\[-10rem\] {
-  top: -10rem;
-}
-
 .z-0 {
   z-index: 0;
 }
@@ -3647,10 +3643,6 @@ html {
 
 .z-50 {
   z-index: 50;
-}
-
-.z-\[-10rem\] {
-  z-index: -10rem;
 }
 
 .m-0 {
@@ -3798,16 +3790,16 @@ html {
   width: 1.5rem;
 }
 
-.w-full {
-  width: 100%;
+.w-\[150px\] {
+  width: 150px;
 }
 
 .w-\[300px\] {
   width: 300px;
 }
 
-.w-\[150px\] {
-  width: 150px;
+.w-full {
+  width: 100%;
 }
 
 .min-w-full {
@@ -3920,10 +3912,6 @@ html {
 
 .overflow-y-scroll {
   overflow-y: scroll;
-}
-
-.break-words {
-  overflow-wrap: break-word;
 }
 
 .rounded {

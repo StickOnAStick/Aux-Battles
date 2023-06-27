@@ -1,13 +1,16 @@
 'use client';
 import { socket } from "@/global/functions/socket";
 import { Guests } from "@/global/types/Guests";
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import PocketBase from 'pocketbase';
 
 async function leaveGame(
     localUser: Guests,
     gameId: string,
     router: (typeof useRouter.prototype)
 ){
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
+    const game = await pb.collection("games").delete(gameId);
     socket.emit(("Client-Disconnect"), [localUser.id, gameId]);
     router.replace("/")
 }
