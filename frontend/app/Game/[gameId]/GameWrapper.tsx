@@ -86,14 +86,19 @@ export default function GameWrapper({
     useEffect(()=>{
         if(timer != 0){
             const delay = setTimeout(() =>{
-                setTimer(prevTime => prevTime - 1);                                           // modal checks if in selection phase
+                // modal checks if in selection phase
                 if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id) && spotifyModal) {
                     setSpotifyMdoal(false);
+                    setTimer(0);
                     console.log("Sending expired timer signal with id: ", localUser.id);
                     socket.emit("Expired-Select-Timer", localUser.id);
                     clearTimeout(delay);
                 }
+                setTimer(prevTime => prevTime - 1); 
             }, 1000);
+            return () => {
+                clearTimeout(delay);
+            }
         }
     },[timer, activePlayers, localUser.id, spotifyModal, allowVoting])
 

@@ -20,9 +20,6 @@ export default function GameState({
     timer: number,
     localUserId: string,
 }){
-    const [active, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>(activePlayers);
-    const [tracks, setTracks] = useState<[Track | undefined, Track | undefined]>([undefined, undefined]);
-    const [time, setTime] = useState<number>(0);
     const [selectedTracks, setSelectedTracks] = useState<[Track | undefined, Track | undefined]>([undefined, undefined]);
     const [screenWidth, setScreenWidth] = useState<number>(0);
 
@@ -31,7 +28,6 @@ export default function GameState({
     },[])
 
     useEffect(() => {
-        setActivePlayers(activePlayers)
         
         socket.on("Display-Song", ({clientId, track}:{clientId: string, track: Track}) => {
             console.log("Display song recieved")
@@ -49,38 +45,37 @@ export default function GameState({
                 })
             }
         })
-    },[activePlayers, selectedTracks, active])
-    
-    useEffect(()=>{
-        setTime(timer);
-    },[timer])
+        socket.on("Active-Players", () => {
+            setSelectedTracks([undefined, undefined]);
+        })
+    },[activePlayers, selectedTracks])
 
     return(
         <div className="absolute bottom-5 left-0 flex justify-between w-full lg:w-9/12 px-6 md:px-24">
-            {active[0] != undefined && 
+            {activePlayers[0] != undefined && 
                 <div className={(selectedTracks[0] != undefined ? "border-success " : "border-primary ") + " bg-base-300 border-2 border-opacity-100 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
                     {(selectedTracks[0] !== undefined && selectedTracks[0].album.images[1].height && selectedTracks[0].album.images[1].width) ?
                     <Image className='rounded-sm' src={selectedTracks[0].album.images[1].url} height={selectedTracks[0].album.images[1].height} width={selectedTracks[0].album.images[1].width} alt='album cover' />
                     :
-                    <span>{active[0] && active[0].username}</span>
+                    <span>{activePlayers[0] && activePlayers[0].username}</span>
                     }
                 </div>
             }
             <div className="w-4/12 md:w-4/6 flex justify-center items-end">
-                {timer!=undefined && 
+                {timer!=undefined && //Check incase timer is -1 or unset
                     <span className="countdown font-mono text-5xl fond-bold align-bottom">
-                    {/* @ts-ignore */}
-                        <span style={{"--value":time}}></span>
+                    {/* @ts-ignore-next-line */}
+                        <span style={{"--value":timer}}></span>
                     </span>
                 }
             </div>
 
-            {active[1] != undefined && 
+            {activePlayers[1] != undefined && 
                 <div className={(selectedTracks[1] != undefined ? "border-success " : "border-primary ") + " bg-base-300 border-2 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
                     {(selectedTracks[1] !== undefined && selectedTracks[1].album.images[1].height && selectedTracks[1].album.images[1].width) ?
                     <Image className='rounded-sm' src={selectedTracks[1].album.images[1].url} height={screenWidth > 670 ?  selectedTracks[1].album.images[1].height : selectedTracks[1].album.images[1].height} width={screenWidth > 670 ?  selectedTracks[1].album.images[1].width : selectedTracks[1].album.images[1].width} alt='album cover' />
                     :
-                    <span className='flex flex-col justify-center text-center'>{active[1] && active[1].username}</span>
+                    <span className='flex flex-col justify-center text-center'>{activePlayers[1] && activePlayers[1].username}</span>
                     }
                 </div>
             }

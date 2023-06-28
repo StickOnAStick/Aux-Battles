@@ -88,6 +88,13 @@ io.on('connection', (socket) => {
             }, 660)
         }else if(game.currentRound > 0){ //Add rejoin functionality
             const client: Client | undefined = clients.get(data.id);
+            if(!client?.id) return;
+            
+            client.currentGame = game.id;
+            game.connectedClients.push(client.id);
+            //Add ability to catch up on current game state.
+            socket.emit("Active-Players", [game.activePlayers, 0]) //Using default prompt until next round
+            socket.emit("Round-Timer", 0); //Rejoined clients timer will expire immediately to not interfere with others, but still set display correctly
 
         }
     });
@@ -212,10 +219,16 @@ io.on('connection', (socket) => {
 
     function newRound(game: GameState){
         const ids: [string, string] = selectTwoIds(game.clients);
+        const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
+        //Cleanup old values and set new activeplayers
+        game.activePlayers = ids;*9+8652
+        3
+        game.playerVotes[0] = [];
+        game.playerVotes[1] = [];
+        game.queuedSongs = [ undefined, undefined];
         console.log("Starting new round!")
+        io.to(game.id).emit("Active-Players", [ids,prompt]);//Wait for client round winner animation
         io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
-        io.to(game.id).emit("Active-Players", ids);//Wait for client round winner animation
-        
     }
 
 })

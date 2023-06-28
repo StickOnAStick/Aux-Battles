@@ -50,6 +50,10 @@ export default function SpotifySearch({
 
     useEffect(()=>{
         setScreenWidth(window.innerWidth)
+        return () => {
+            setSearch('');
+            setSearchResults(null);
+        }
     },[])
     
 
@@ -90,7 +94,6 @@ export default function SpotifySearch({
                             }
                             
                             <div className='flex flex-col text-xs justify-between h-full mt-2'>
-                                
                                 <span className='font-bold tracking-wide sm:text-base'>{track.name}</span>
                                 <span className='font-extrabold justify-end'>{track.artists[0].name}</span>
                             </div>
