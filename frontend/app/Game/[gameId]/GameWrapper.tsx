@@ -7,7 +7,6 @@ import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { useState, useEffect } from 'react';
 import { Guests } from "@/global/types/Guests";
 import { socket } from "@/global/functions/socket";
-import { Track } from '@/global/types/SpotifyAPI';
 import { useRouter } from "next/navigation";
 import { RoundWinner, StatefulRoundWinners } from "@/global/functions/game";
 
@@ -54,6 +53,7 @@ export default function GameWrapper({
             setTimeout(()=>{setPackAnimation(false)}, 1000);
         });
         socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
+            console.log("Active-Players signal IDS: ", ids)
             const user1 = initData.expand.guests.find(g => g.id === ids[0] as string);
             const user2 = initData.expand.guests.find(g => g.id === ids[1] as string);
             if(localUser.id === user1?.id || localUser.id === user2?.id){
@@ -61,6 +61,7 @@ export default function GameWrapper({
                 setSpotifyMdoal(true);
             }else setAllowVoting(true);
             setActivePlayers([user1, user2]);
+            
             setSelectedPrompt(prompt);
         });
         socket.on("Round-Timer", (timer: number) => {
@@ -68,19 +69,17 @@ export default function GameWrapper({
         });
         socket.on("Display-Round-Winner", (roundWinners: RoundWinner) => {
             setAllowVoting(false);
-            console.log("hit Display Round winners")
             //If id from round winner is provided, lookup and find. Else, set to undefined indicating no winner for given tuple position.
             const winner0 = roundWinners.winners[0] ? initData.expand.guests.find(g => g.id === roundWinners.winners[0] as string) : undefined;
             const winner1 = roundWinners.winners[1] ? initData.expand.guests.find(g => g.id === roundWinners.winners[1] as string) : undefined;
             setRoundWinners({winners: [winner0, winner1], tracks: [roundWinners.tracks[0], roundWinners.tracks[1]]});
             const clearWinners = setTimeout(()=>{
+                setActivePlayers([undefined, undefined]);
                 setRoundWinners({winners: [undefined, undefined], tracks: [undefined, undefined]})
                 clearTimeout(clearWinners);
             }, 10000);
             
         });
-        
-
     },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id, router, joinedGame])
 
     useEffect(()=>{
@@ -106,7 +105,8 @@ export default function GameWrapper({
         <>
             <SpotifySearch isActive={spotifyModal} accessToken={accessToken} gameId={gameId} localUserId={localUser.id} prompt={initData.expand.pack.packData.prompts[selectedPrompt]}/>
             <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt} userId={localUser.id} votingAllowed={allowVoting} roundWinners={roundWinners}/>
-            <GameState gameId={gameId} activePlayers={activePlayers} timer={timer} localUserId={localUser.id}/>
+            {/* Conditional rendering of game state is REQUIRED, otherwise caching errors occur. Causing child to have old activeplayer values set. */}
+            {activePlayers[0] && activePlayers[1] && <GameState gameId={gameId} activePlayers={activePlayers} timer={timer} localUserId={localUser.id}/>}
         </>
     )
 }

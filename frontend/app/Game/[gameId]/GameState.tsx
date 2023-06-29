@@ -30,22 +30,17 @@ export default function GameState({
     useEffect(() => {
         
         socket.on("Display-Song", ({clientId, track}:{clientId: string, track: Track}) => {
-            console.log("Display song recieved")
+            
             if(!activePlayers[0] || !activePlayers[1]) return;
             
             const index = clientId === activePlayers[0].id ? 0 : 1;
-            if(index){ setSelectedTracks((prev: [Track | undefined, Track | undefined])=> {
-                const newTracks: [Track | undefined, Track | undefined] = [prev[0], track];
-                return newTracks;
-            });
-            }else{
-                setSelectedTracks((prev: [Track | undefined, Track | undefined])=>{
-                    const newTracks: [Track | undefined, Track | undefined] = [track, prev[1]];
-                    return newTracks;
-                })
-            }
+            console.log("Display song recieved", track, "\nClient: ", clientId, activePlayers[0].id, activePlayers[1].id, "Index: ", index);
+            setSelectedTracks((prev: [Track | undefined, Track | undefined]) => {
+                if(index) return [track, prev[1]];
+                else return [prev[0], track];
+            })
         })
-        socket.on("Active-Players", () => {
+        socket.on("Display-Round-Winner", () => {
             setSelectedTracks([undefined, undefined]);
         })
     },[activePlayers, selectedTracks])

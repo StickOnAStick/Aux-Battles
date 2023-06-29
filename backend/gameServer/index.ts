@@ -2,7 +2,7 @@ declare var require: any;
 import 'react';
 import { Server } from 'socket.io'
 import * as http from 'http';
-import { Client, GameState } from '../types';
+import { Client, GameState, Scores } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
 
@@ -79,12 +79,14 @@ io.on('connection', (socket) => {
             const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
             game.activePlayers = ids;
             //Wait for client pack animations (5s)
-            setTimeout(()=> {
+            const packAnimationDelay = setTimeout(()=> {
                 io.of("/").in(game.id).emit("Active-Players", [ids, prompt]);
+                clearTimeout(packAnimationDelay)
             }, 500)
             //Wait for spin animation to complete (1.6s)
-            setTimeout(()=>{
+            const spinAnimationDelay = setTimeout(()=>{
                 io.of("/").in(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
+                clearTimeout(spinAnimationDelay)
             }, 660)
         }else if(game.currentRound > 0){ //Add rejoin functionality
             const client: Client | undefined = clients.get(data.id);
@@ -94,7 +96,7 @@ io.on('connection', (socket) => {
             game.connectedClients.push(client.id);
             //Add ability to catch up on current game state.
             socket.emit("Active-Players", [game.activePlayers, 0]) //Using default prompt until next round
-            socket.emit("Round-Timer", 0); //Rejoined clients timer will expire immediately to not interfere with others, but still set display correctly
+            socket.emit("Round-Timer", 1); //Rejoined clients timer will expire immediately to not interfere with others, but still set display correctly
 
         }
     });
@@ -123,11 +125,17 @@ io.on('connection', (socket) => {
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
         if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
             console.log("One player didn't select a song");
-            const winnerId = game.activePlayers[0] === client.id ? game.activePlayers[1] : game.activePlayers[0]; //Select other user for round win
-            io.to(client.currentGame).emit("Display-Winner", winnerId);
+            const winnerIndex = game.queuedSongs[0] == null ? 1 : 0;
+            const winnerPayload: RoundWinner = {
+                winners: winnerIndex ? [undefined, game.activePlayers[1]] : [game.activePlayers[0], undefined],
+                tracks: winnerIndex ? [undefined, game.queuedSongs[1]] : [game.queuedSongs[0], undefined]
+            };
+            
+            io.to(client.currentGame).emit("Display-Winner", winnerPayload);
             game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
+
             io.to(game.id).emit("Round-Timer", 30);
             io.to(game.id).emit("Song-PlayBack", game.queuedSongs[0]);
             
@@ -142,6 +150,7 @@ io.on('connection', (socket) => {
                 io.to(game.id).emit("Vote-Signal", game.queuedSongs);
                 clearTimeout(delay2);
             },62000) //30 Seconds to vote after both songs are played
+            game.roundTimerExpiry = 0; //cleanup round timer expiry signal
             return;
         }
         return;
@@ -185,6 +194,7 @@ io.on('connection', (socket) => {
     }
     
     socket.on("Expired-Vote-Timer", (clientId: string)=>{
+        if(!clientId) return;
         const client = clients.get(clientId);
         if(!client) return;
         if(client.currentGame == null) return;
@@ -194,20 +204,24 @@ io.on('connection', (socket) => {
         game.voteTimerExpiry = game.voteTimerExpiry + 1;
 
         if(game.voteTimerExpiry == game.clients.length-2) {
-            console.log("Entered display winner outer loop.")
             if(game.playerVotes[0].length == game.playerVotes[1].length){
+                game.scores = incrimentScore(game.scores, game.activePlayers[0]);
+                game.scores = incrimentScore(game.scores, game.activePlayers[1]);
                 io.to(game.id).emit("Display-Round-Winner", {winners: game.activePlayers, tracks: game.queuedSongs} as RoundWinner)
             }else{
                 const winnerPayload: RoundWinner = {
                     winners: game.playerVotes[0].length > game.playerVotes[1].length ? [game.activePlayers[0], undefined] : [undefined, game.activePlayers[1]],
                     tracks: game.playerVotes[0].length > game.playerVotes[1].length ? [game.queuedSongs[0], undefined] : [undefined, game.queuedSongs[1]]
                 };
+                game.playerVotes[0].length > game.playerVotes[1].length 
+                    ? game.scores = incrimentScore(game.scores, game.activePlayers[0]) 
+                    : game.scores = incrimentScore(game.scores, game.activePlayers[1]);
+
                 io.to(game.id).emit("Display-Round-Winner", winnerPayload);
             }
             ++game.currentRound;
-            console.log("Current round: ", game.currentRound);
+            
             const newRoundDelay = setTimeout(()=> {
-                console.log("New Round timeout");
                 game.currentRound == game.maxRounds ? io.to(game.id).emit("Game-Results", game) : newRound(game);
                 clearTimeout(newRoundDelay)
             }, 11000)
@@ -221,12 +235,11 @@ io.on('connection', (socket) => {
         const ids: [string, string] = selectTwoIds(game.clients);
         const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
         //Cleanup old values and set new activeplayers
-        game.activePlayers = ids;*9+8652
-        3
-        game.playerVotes[0] = [];
-        game.playerVotes[1] = [];
+        game.activePlayers = ids;
+        game.playerVotes = [[] as string[],[] as string[]];
         game.queuedSongs = [ undefined, undefined];
-        console.log("Starting new round!")
+        game.voteTimerExpiry = 0;
+        console.log("Starting new round!", game.currentRound, "\nActive Players: ", game.activePlayers, "\n Ids: ", ids)
         io.to(game.id).emit("Active-Players", [ids,prompt]);//Wait for client round winner animation
         io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
     }
@@ -235,13 +248,28 @@ io.on('connection', (socket) => {
 
 server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
+    setInterval(()=>{
+        console.log("Number of games running: ", games.size, "Number of joined clients: ", clients.size)
+    }, 1000*60*1)
 })
-
-
-
 
 function removeIdFromArray(arr: string[], id: string): string[] {
     return arr.filter(item => item != id);
+}
+
+/**
+ * Increase the score of a given player 
+ * @param score The given games scores object
+ * @param id The ID which you want to incriment
+ * @param amount Optional amount to incriment score by
+ * @returns Updated scores object for given game.
+*/
+function incrimentScore(score: Scores, id: string, amount?: number): Scores{
+    const {ids, scores} = score;
+    const index = ids.indexOf(id);
+
+    if(index !== -1) scores[index] += 1;
+    return score;
 }
 
 // function DisplayPack(game: GameState){

@@ -25,7 +25,6 @@ async function searchSpotify(query: string, accessToken: SpotifyAccessTokenRespo
 }
 
 function sendTrackToGameServer(clientId: string, gameId: string, track: Track){
-    console.log("Spotify Search.tsx: sendTrackToGameServer():\n", clientId, gameId, track);
     const payload = {clientId, gameId, track};
     socket.emit("Song-Selected", payload)
 }
@@ -50,11 +49,15 @@ export default function SpotifySearch({
 
     useEffect(()=>{
         setScreenWidth(window.innerWidth)
+        if(!isActive){
+            setSearch('');
+            setSearchResults(null);
+        }
         return () => {
             setSearch('');
             setSearchResults(null);
         }
-    },[])
+    },[isActive])
     
 
 

@@ -37,10 +37,7 @@ export type GameState = {
     /**
      * Records **all** players scores
      */
-    scores: {
-        ids: string[],
-        scores: number[],
-    },
+    scores: Scores,
     /**
      * Incirmented on timerExpirySignal recieved from client
      */
@@ -63,4 +60,9 @@ export type GameState = {
 export type VoteCount = {
     id: string,
     score: number
+}
+
+export interface Scores {
+    ids: string[];
+    scores: number[];
 }

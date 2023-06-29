@@ -35,6 +35,7 @@ export default function Spinner({
   
 
     useEffect(()=>{
+      console.log("rednered spinner.tsx")
       socket.on("Song-PlayBack", (track: Track) => {
         console.log("Song-Playback Hit!", track);
         setSongPlayBack(track);
@@ -42,10 +43,11 @@ export default function Spinner({
       socket.on("Vote-Signal", ([track1, track2]: [Track, Track]) => {
         setVoteTracks([track1, track2]);
         setSongPlayBack(undefined);
-        setTimeout(()=>{
+        const delay = setTimeout(()=>{
             setVoteTracks([undefined, undefined]);
             console.log("Emitting Expired-Vote-Timer from spinner.tsx")
             if(votingAllowed){ socket.emit("Expired-Vote-Timer", userId); }
+            clearTimeout(delay);
         },30000);
       });
       socket.on("Vote-Count", (votes: [number, number]) => {
@@ -54,7 +56,7 @@ export default function Spinner({
       socket.on("Display-Round-Winner", () =>{
         setVotes([0,0]); //clear votes for next round
       });
-    },[votingAllowed, songPlayBack])
+    },[votingAllowed, songPlayBack, userId])
 
     return (
         <div className="flex w-full text-6xl font-extrabold justify-center items-center h-full">
