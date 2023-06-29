@@ -2,7 +2,7 @@ declare var require: any;
 import 'react';
 import { Server } from 'socket.io'
 import * as http from 'http';
-import { Client, GameState, Scores } from '../types';
+import { Client, GameState, Scores, RoundWinner } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
 
@@ -182,16 +182,7 @@ io.on('connection', (socket) => {
     })
 
 
-    type RoundWinner = {
-            winners: [
-                id: string | undefined,
-                id: string | undefined,
-            ],
-            tracks: [
-                track: Track | undefined,
-                track: Track | undefined 
-            ]
-    }
+    
     
     socket.on("Expired-Vote-Timer", (clientId: string)=>{
         if(!clientId) return;

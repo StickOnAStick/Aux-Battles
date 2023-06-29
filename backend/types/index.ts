@@ -66,3 +66,14 @@ export interface Scores {
     ids: string[];
     scores: number[];
 }
+
+export type RoundWinner = {
+    winners: [
+        id: string | undefined,
+        id: string | undefined,
+    ],
+    tracks: [
+        track: Track | undefined,
+        track: Track | undefined 
+    ]
+}
