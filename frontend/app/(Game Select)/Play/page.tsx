@@ -11,11 +11,12 @@ export default function GameSelect(){
                      transition-all md:hover:-translate-y-1 ease-in-out delay-75 focus:translate-y-1">
                         Local
                     </Link>
-                    <Link href="/Online" className="btn btn-lg bg-base-200 hover:bg-accent hover:text-primary rounded-xl w-10/12 xs:w-6/12 sm:w-3/12 p-2 border-2 hover:shadow-lg hover:shadow-base-300 hover:border-opacity-10 border-primary-content hover:border-accent-content font-bold tracking-wide
-                     transition-all md:hover:-translate-y-1 ease-in-out delay-75 focus:translate-y-1
-                    ">
-                        Online
-                    </Link>
+                    <div className="tooltip btn btn-lg bg-base-200 hover:bg-accent hover:text-primary rounded-xl w-10/12 xs:w-6/12 sm:w-3/12 p-2 border-2 hover:shadow-lg hover:shadow-base-300 hover:border-opacity-10 border-primary-content hover:border-accent-content font-bold tracking-wide
+                            transition-all md:hover:-translate-y-1 ease-in-out delay-75 focus:translate-y-1" data-tip="Coming soon!">
+                        <div className="flex flex-col justify-center h-[100%]">
+                            Online
+                        </div>
+                    </div>
                 </li>
             </div>
         </div>
