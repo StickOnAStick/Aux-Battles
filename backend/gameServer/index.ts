@@ -123,7 +123,9 @@ io.on('connection', (socket) => {
         
         //Count and set timer expiry signals recieved
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
-        if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
+        if(game.roundTimerExpiry == 2 && game.queuedSongs[0] == null && game.queuedSongs[1] == null){
+            newRound(game);
+        }else if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
             console.log("One player didn't select a song");
             const winnerIndex = game.queuedSongs[0] == null ? 1 : 0;
             const winnerPayload: RoundWinner = {
@@ -210,7 +212,6 @@ io.on('connection', (socket) => {
 
                 io.to(game.id).emit("Display-Round-Winner", winnerPayload);
             }
-            ++game.currentRound;
             
             const newRoundDelay = setTimeout(()=> {
                 game.currentRound == game.maxRounds ? io.to(game.id).emit("Game-Results", game) : newRound(game);
@@ -223,6 +224,8 @@ io.on('connection', (socket) => {
     })
 
     function newRound(game: GameState){
+        
+        ++game.currentRound;
         const ids: [string, string] = selectTwoIds(game.clients);
         const prompt: number = Math.floor(Math.random() * game.pack.data.prompts.length);
         //Cleanup old values and set new activeplayers
@@ -233,6 +236,10 @@ io.on('connection', (socket) => {
         console.log("Starting new round!", game.currentRound, "\nActive Players: ", game.activePlayers, "\n Ids: ", ids)
         io.to(game.id).emit("Active-Players", [ids,prompt]);//Wait for client round winner animation
         io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
+    }
+
+    function endGame(game: GameState){
+
     }
 
 })

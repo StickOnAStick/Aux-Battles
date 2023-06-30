@@ -65,14 +65,14 @@ export default function JoinGame ({
                     return;
                 }
                 
-                if(existingGuest?.currentGame != ""){
-                    router.push(`/Game/${existingGuest.currentGame}`);
-                    return;
-                }else if(existingGuest?.currentLobby != ""){ 
-                    router.push(`/${existingGuest.currentLobby}`);
-                    return;
-                } //Cookie hasn't expired, needs to join new lobby... Continue with process. 
-                else{
+                // if(existingGuest?.currentGame != ""){
+                //     router.push(`/Game/${existingGuest.currentGame}`);
+                //     return;
+                // }else if(existingGuest?.currentLobby != ""){ 
+                //     router.push(`/${existingGuest.currentLobby}`);
+                //     return;
+                // } //Cookie hasn't expired, needs to join new lobby... Continue with process. 
+                // else{
                     const updatedGuest = await pb.collection('guests').update(existingGuest.id, {
                         username: joinData.name,
                         currentLobby: lobby.id
@@ -84,7 +84,7 @@ export default function JoinGame ({
                         router.push(`/${res.id}`)
                     });
                     return;
-                }
+                // }
             }
             else{
                 //user join

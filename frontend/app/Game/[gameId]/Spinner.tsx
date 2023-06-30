@@ -8,6 +8,8 @@ import SongPlayBackCard from "@/components/SongPlayBackCard";
 import { UsersOrGuests } from "@/global/types/Unions";
 import { StatefulRoundWinners } from "@/global/functions/game";
 import RoundWinnerCard from "@/components/RoundWinnerCard";
+import WheelSpinner from "@/components/WheelSpinner";
+import Wheel from "@/components/Wheel";
 
 function vote(clientId: string, vote: 0 | 1, allowed: boolean){
   if(allowed) socket.emit("Vote", {clientId: clientId, vote: vote} as {clientId: string, vote: 0 | 1})
@@ -31,10 +33,15 @@ export default function Spinner({
     const [songPlayBack, setSongPlayBack] = useState<Track | undefined>(undefined);
     const [voteTracks, setVoteTracks] = useState<[Track | undefined, Track | undefined]>([undefined, undefined]);
     const [votes, setVotes] = useState<[number, number]>([0,0]);
+    const [spinWheel, setSpinWheel] = useState<boolean>(false);
     
   
 
     useEffect(()=>{
+      socket.on("Active-Players", ()=>{
+        setSpinWheel(true);
+        const wheelSpinDelay = setTimeout(()=>{ setSpinWheel(false); clearTimeout(wheelSpinDelay)},1000)
+      })
       console.log("rednered spinner.tsx")
       socket.on("Song-PlayBack", (track: Track) => {
         console.log("Song-Playback Hit!", track);
@@ -90,8 +97,12 @@ export default function Spinner({
                 songPlayBack ?  
                 <SongPlayBackCard track={songPlayBack}/>
                 :
-                <div className="text-lg text-center mx-2">
-                {prompts[selected]}
+                <div className="flex flex-col">
+                  {/* <WheelSpinner spinWheel={spinWheel} segColors={segmentColors} segments={prompts} winningSegment={prompts[selected]} onFinished={()=>console.log("Finished spin")} isOnlyOnce={false} size={280} upDuration={100} downDuration={1000} fontFamily="arial" buttonText="Spin" primaryColor="#f5f5f4" contrastColor="#f5f5f4" width={600} height={600}/> */}
+                  <Wheel options={prompts} winningIndex={selected} spin={spinWheel}/>
+                  <div className="text-lg text-center mx-2">
+                    {prompts[selected]}
+                  </div>
                 </div>
               }
               </>
@@ -101,3 +112,24 @@ export default function Spinner({
         </div>
     );
 }
+
+const segmentColors = [
+  "#ff4d4d",
+  "#1c1917",
+]
+
+const segments = [
+ 
+]
+
+/**
+ * primary: "#f5f5f4",
+          secondary: "#ffc438",
+          accent: "#ff4d4d",
+          neutral: "#1c1917",
+          "base-100": "#17191b",
+          info: "#60a5fa",
+          success: "#72cb25",
+          warning: "#f06c00",
+          error: "#F87272",
+ */

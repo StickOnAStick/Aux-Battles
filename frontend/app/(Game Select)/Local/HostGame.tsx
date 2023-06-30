@@ -25,14 +25,14 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             try{
                 const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
                 if(existingGuest?.id) {
-                    if(existingGuest?.currentGame){
-                        router.push(`/Game/${existingGuest.currentGame}`)
-                        return;
-                    }else if(existingGuest?.currentLobby){
-                        router.push(`/${existingGuest.currentLobby}`)
-                        return;
-                    }
-                    else{   
+                    // if(existingGuest?.currentGame){
+                    //     router.push(`/Game/${existingGuest.currentGame}`)
+                    //     return;
+                    // }else if(existingGuest?.currentLobby){
+                    //     router.push(`/${existingGuest.currentLobby}`)
+                    //     return;
+                    // }
+                    // else{   
                         const data: LobbyPayloadData = {
                             "chatroom": null,
                             "pass": pass,
@@ -58,7 +58,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                             return new Error(`Could not create lobby: ${e}`);
                         })
                     }
-                }
+                // }
             }
             catch(e){
                 console.log(e);

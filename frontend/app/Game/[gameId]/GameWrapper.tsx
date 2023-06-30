@@ -59,7 +59,10 @@ export default function GameWrapper({
             if(localUser.id === user1?.id || localUser.id === user2?.id){
                 setAllowVoting(false);
                 setSpotifyMdoal(true);
-            }else setAllowVoting(true);
+            }else {
+                setAllowVoting(true);
+                setSpotifyMdoal(false);
+            }
             setActivePlayers([user1, user2]);
             
             setSelectedPrompt(prompt);

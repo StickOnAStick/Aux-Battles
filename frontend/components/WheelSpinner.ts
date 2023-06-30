@@ -22,6 +22,7 @@ export default function WheelSpinner(
         fontFamily,
         width,
         height,
+        spinWheel
     }:{
         segments: string[],
         segColors: string[],
@@ -37,6 +38,7 @@ export default function WheelSpinner(
         fontFamily: string,
         width: number,
         height: number,
+        spinWheel: boolean
 }) {
     var currentSegment = '';
     var isStarted = false;
@@ -57,7 +59,9 @@ export default function WheelSpinner(
     var centerY = 300;
 
     useEffect(() => {
+
         wheelInit();
+        if(spinStart) spin();
         //Optional for positioning
         // setTimeout( () => {
         //     window.scrollTo(0,1);
@@ -83,8 +87,6 @@ export default function WheelSpinner(
             canvas.setAttribute('id', 'canvas');
             document.getElementById('wheel')?.appendChild(canvas);
         }
-
-        canvas?.addEventListener('click', spin, false);
         canvasContext = canvas.getContext('2d');
     };
 
@@ -93,7 +95,7 @@ export default function WheelSpinner(
 
         if(timerHandle === 0){
             spinStart = new Date().getTime();
-            maxSpeed = Math.PI / segments.length;
+            maxSpeed = Math.PI / segments.length / 120;
             frames = 0;
             timerHandle = setInterval(onTimerTick, timerDelay);
         }
@@ -164,14 +166,14 @@ export default function WheelSpinner(
             ctx.arc(centerX, centerY, size, lastAngle, angle, false);
             ctx.lineTo(centerX, centerY);
             ctx.closePath();
-            ctx.fillStyle = segColors[key];
+            ctx.fillStyle = segColors[1];
             ctx.fill();
             ctx.stroke();
             ctx.save();
             ctx.translate(centerX, centerY);
             ctx.rotate((lastAngle + angle) / 2);
             ctx.fillStyle = contrastColor;
-            ctx.font = 'bold 1em ' + fontFamily;
+            ctx.font = 'bold 1rem ' + fontFamily;
             ctx.fillText(value.substr(0, 21), size / 2 + 20, 0);
             ctx.restore();
         }
@@ -187,7 +189,7 @@ export default function WheelSpinner(
             ctx.strokeStyle = primaryColor;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
-            ctx.font = '1em ' + fontFamily;
+            ctx.font = '1rem ' + fontFamily;
         }
         for (var i = 1; i <= len; i++) {
           var angle = PI2 * (i / len) + angleCurrent;
@@ -198,19 +200,19 @@ export default function WheelSpinner(
             ctx.beginPath();
             ctx.arc(centerX, centerY, 50, 0, PI2, false);
             ctx.closePath();
-            ctx.fillStyle = primaryColor;
-            ctx.lineWidth = 10;
+            ctx.fillStyle = "#17191b";
+            ctx.lineWidth = 8;
             ctx.strokeStyle = contrastColor;
             ctx.fill();
-            ctx.font = 'bold 1em ' + fontFamily;
+            ctx.font = 'bold 1rem ' + fontFamily;
             ctx.fillStyle = contrastColor;
             ctx.textAlign = 'center';
-            ctx.fillText(buttonText, centerX, centerY + 3);
+            ctx.fillText(buttonText, centerX, centerY);
             ctx.stroke();
             ctx.beginPath();
             ctx.arc(centerX, centerY, size, 0, PI2, false);
             ctx.closePath();
-            ctx.lineWidth = 10;
+            ctx.lineWidth = 5;
             ctx.strokeStyle = primaryColor;
             ctx.stroke();
         }
