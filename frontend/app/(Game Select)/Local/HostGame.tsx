@@ -11,8 +11,8 @@ import { Guests, GuestsPayload } from '@/global/types/Guests';
 
                                 
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
-    
-    const pb = new PocketBase(process.env.POCKETBASE_URL);
+    console.log(process.env.POCKETBASE_URL)
+    const pb = new PocketBase(process.env.POCKETBASE_URL as string);
     const model = pb.authStore.model;
     const pass = generateLocalPassword();
 

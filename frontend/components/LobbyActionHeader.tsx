@@ -50,7 +50,7 @@ async function createGame(
         if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
 
-        const socket = io('http://45.79.103.196:8080');
+        const socket = io('http://localhost:8080');
         
         socket.emit("Create-Game", {
             id: game.id,

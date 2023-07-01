@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 async function getLobbyData (lobbyId: string): Promise<ExpandedLobbyData> {
    
-    const record = await fetch(`http://127.0.0.1:8091/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
+    const record = await fetch(`${process.env.POCKETBASE_URL}/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
         cache: 'no-store',
     });
     if(!record.ok) redirect("/")
