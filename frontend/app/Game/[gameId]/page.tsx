@@ -10,7 +10,7 @@ import GameWrapper from "./GameWrapper";
 
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
-    const pb = new PocketBase('http://127.0.0.1:8091');
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
     const data: ExpandedGameData = await pb.collection('games').getOne(gameId, {
         expand: "guests,players,pack",
     });
@@ -26,7 +26,7 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
 }
 
 async function getUserInfo(token: string): Promise<Guests> {
-    const pb = new PocketBase('http://127.0.0.1:8091');
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
     try{
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         if(!localUser.id) redirect("/");

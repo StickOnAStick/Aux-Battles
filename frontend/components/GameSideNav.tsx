@@ -28,7 +28,7 @@ export default function GameSideNav({
             setScores(scores);
         })
 
-        const pb = new PocketBase('http://127.0.0.1:8091');
+        const pb = new PocketBase(process.env.POCKETBASE_URL);
 
         const unsub = pb.collection('games').subscribe(gameId, 
             function(rec: RecordSubscription<GameData>) {

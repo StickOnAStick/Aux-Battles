@@ -12,7 +12,7 @@ async function leaveLobby(
     ){
     if(!token) return router.push('/');
 
-    const pb = new PocketBase('http://127.0.0.1:8091');
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
     try{
     if(!pb.authStore.model){
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);

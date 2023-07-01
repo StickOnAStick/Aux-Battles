@@ -23,7 +23,7 @@ export default function LobbyPlayerList({
 
     useEffect( () => {
          
-        const pb = new PocketBase('http://127.0.0.1:8091');
+        const pb = new PocketBase(process.env.POCKETBASE_URL);
          //init & subscribe
         const unsubscribe = pb.collection('lobbys').subscribe(initalState.id, 
             function (e: RecordSubscription<LobbyData>) {

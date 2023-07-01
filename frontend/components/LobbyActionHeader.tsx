@@ -18,7 +18,7 @@ async function createGame(
 {
     if(!token) return setError(new Error("Please Enable cookies to continue"));
 
-    const pb = new PocketBase("http://127.0.0.1:8091");
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
     const updatedLobby: LobbyData = await pb.collection('lobbys').getOne(data.id);
     if((updatedLobby.guests.length + updatedLobby.players.length) < 2) return setError(new Error("Invite players to play"));
     
@@ -50,7 +50,7 @@ async function createGame(
         if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
 
-        const socket = io("http://localhost:8080");
+        const socket = io('http://45.79.103.196:8080');
         
         socket.emit("Create-Game", {
             id: game.id,

@@ -11,7 +11,7 @@ export default function JoinGame ({
     localToken: string | undefined
 }) {
     
-    const pb = new PocketBase('http://127.0.0.1:8091'); 
+    const pb = new PocketBase(process.env.POCKETBASE_URL); 
     const router = useRouter();
 
     const [error, setError] = useState<Error | null>(null);
