@@ -7,12 +7,14 @@ export default function ActionCard ({
     typeData,
     host,
     isGame,
-    active
+    active,
+    score
 }:{
     typeData: Users | Guests | null,
     host: boolean,
     isGame?: boolean,
     active?: boolean, 
+    score?:number
 }){
 
     if(!typeData){
@@ -31,9 +33,9 @@ export default function ActionCard ({
             {/* lobby functionality */}
             {!isGame && 
                 <div className='flex flex-col justify-center gap-3'>
-                    {!host &&
-                        <button className="btn btn-md btn-primary font-bold text-accent ">Kick</button>
-                    }
+                    {/* {!host &&
+                        <button className="btn btn-md btn-primary font-bold text-accent">Kick</button>
+                    } */}
                     {/* Ready state will be for Final launch, and only on competitive gamemode  */}
                     {/* {!isGame &&
                         <button className="btn btn-sm xs:btn-md btn-accent font-bold text-primary">Ready</button>
@@ -43,7 +45,7 @@ export default function ActionCard ({
             {/* Game Functionality */}
             {isGame && 
                 <div className="font-extrabold text-2xl">
-                    5
+                    {score}
                 </div>
             }
         </div>

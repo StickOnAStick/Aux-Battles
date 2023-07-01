@@ -6,6 +6,7 @@ import { Client, GameState, Scores, RoundWinner } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
 
+
 const express = require('express')
 const app = express()
 const server = http.createServer(app)
@@ -37,6 +38,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on("Client-Disconnect", ([userId, gameId]: [string, string]) => {
+        if(!userId || !gameId) return;
         const game = games.get(gameId);
         const client = clients.get(userId);
         if(!client) return;
@@ -102,6 +104,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on("Song-Selected", ({clientId, gameId, track}: {clientId: string, gameId: string, track: Track}) => {
+        if(!clientId || !gameId || !track) return;
         const game = games.get(gameId as string);
         if(!game) return;
         if(clientId !== game.activePlayers[1] && clientId !== game.activePlayers[0]) return;
@@ -124,16 +127,23 @@ io.on('connection', (socket) => {
         //Count and set timer expiry signals recieved
         game.roundTimerExpiry == 0 ? game.roundTimerExpiry = 1 : game.roundTimerExpiry = 2; 
         if(game.roundTimerExpiry == 2 && game.queuedSongs[0] == null && game.queuedSongs[1] == null){
-            newRound(game);
+            if(game.currentRound >= game.maxRounds) return endGame(game);
+            return newRound(game);
         }else if(game.roundTimerExpiry == 2 && (game.queuedSongs[0] == null || game.queuedSongs[1] == null )){
-            console.log("One player didn't select a song");
             const winnerIndex = game.queuedSongs[0] == null ? 1 : 0;
             const winnerPayload: RoundWinner = {
                 winners: winnerIndex ? [undefined, game.activePlayers[1]] : [game.activePlayers[0], undefined],
                 tracks: winnerIndex ? [undefined, game.queuedSongs[1]] : [game.queuedSongs[0], undefined]
             };
+            game.queuedSongs[0] == null ? 
+                game.scores = incrimentScore(game.scores, game.activePlayers[1])
+                : game.scores = incrimentScore(game.scores, game.activePlayers[0]);
             
-            io.to(client.currentGame).emit("Display-Winner", winnerPayload);
+            io.to(client.currentGame).emit("Display-Round-Winner", winnerPayload);
+            const displayWinnerDelay = setTimeout(()=>{
+                game.currentRound >= game.maxRounds ? endGame(game) : newRound(game);
+                clearTimeout(displayWinnerDelay);
+            },11000)
             game.roundTimerExpiry = 0;
             return;
         }else if (game.roundTimerExpiry == 2){
@@ -214,7 +224,7 @@ io.on('connection', (socket) => {
             }
             
             const newRoundDelay = setTimeout(()=> {
-                game.currentRound == game.maxRounds ? io.to(game.id).emit("Game-Results", game) : newRound(game);
+                game.currentRound >= game.maxRounds ? endGame(game) : newRound(game);
                 clearTimeout(newRoundDelay)
             }, 11000)
             
@@ -233,13 +243,38 @@ io.on('connection', (socket) => {
         game.playerVotes = [[] as string[],[] as string[]];
         game.queuedSongs = [ undefined, undefined];
         game.voteTimerExpiry = 0;
-        console.log("Starting new round!", game.currentRound, "\nActive Players: ", game.activePlayers, "\n Ids: ", ids)
+        io.to(game.id).emit("Score-Update", [game.scores.ids, game.scores.scores] as [string[], number[]]);
         io.to(game.id).emit("Active-Players", [ids,prompt]);//Wait for client round winner animation
         io.to(game.id).emit("Round-Timer", 60); //1 Minute timer for song requests
     }
 
     function endGame(game: GameState){
+        for(const clientId in game.clients){
+            clients.delete(clientId);
+        }
+        const winnerIndex = game.scores.scores.indexOf(Math.max(...game.scores.scores));
+        if(winnerIndex == -1){ () => {
+            // const pb = new PocketBase('http://127.0.0.1:8091');
+            // try{
+            // await pb.collection('games').delete(game.id);
+            // }catch(e){console.log("Failed to delete game: ", e)}
+            games.delete(game.id);
+            io.to(game.id).emit("Navigate-To-Home");
+            return;
+        }}
 
+        const winnerId = game.scores.ids[winnerIndex];
+        io.to(game.id).emit("Game-Winner", [winnerId, game.scores.scores[winnerIndex]] as [string, number]);
+        
+        const endGameDelay = setTimeout(async ()=>{
+            io.to(game.id).emit("Navigate-To-Home");
+            // const pb = new PocketBase('http://127.0.0.1:8091');
+            // try{
+            //     await pb.collection('games').delete(game.id);
+            // }catch(e){console.log("Failed to delete game: ", e)}
+            games.delete(game.id);
+            clearTimeout(endGameDelay);
+        },10000)
     }
 
 })
@@ -247,7 +282,8 @@ io.on('connection', (socket) => {
 server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
     setInterval(()=>{
-        console.log("Number of games running: ", games.size, "Number of joined clients: ", clients.size)
+        const dateTime = new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+        console.log("Number of games running: ", games.size, "Number of joined clients: ", clients.size, "\nTime: ", dateTime);
     }, 1000*60*1)
 })
 

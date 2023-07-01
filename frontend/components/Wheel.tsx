@@ -31,7 +31,7 @@ const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   const screenSize = screenWidth > 550 ? '600px' : '350px'
   const innerCircleSize = screenWidth > 550 ? ' w-20 h-20 ' : ' w-12 h-12 ';
   const arrowSize = screenWidth > 550 ? ' w-12 h-8 ' : ' w-8 h-6 ';
-  const arrowPosition = screenWidth > 550 ? ' translate-x-[3rem] translate-y-[1.25rem] ' : ' translate-x-[1.5rem] translate-y-[0.4rem] '
+  const arrowPosition = screenWidth > 550 ? ' translate-x-[3rem] translate-y-[1.275rem] ' : ' translate-x-[1.5rem] translate-y-[0.5rem] '
 
   const wheelStyles: CSSProperties = {
     width: screenSize,
@@ -54,8 +54,8 @@ const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   };
   const centerStyles: CSSProperties = {
     position: 'absolute',
-    bottom: '44%',
-    left: '43.5%',
+    bottom: '43%',
+    left: '43%',
     transformOrigin: '0 100%',
   }
 
@@ -66,10 +66,11 @@ const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
   return (
     <>
-        <div style={centerStyles} className={innerCircleSize + ' bg-base-300 rounded-full border-4 border-primary'}>
+        
+        <div style={wheelStyles} className='-z-40'>
+        <div style={centerStyles} className={innerCircleSize + ' bg-base-300 rounded-full border-4 border-primary z-40'}>
             <div style={arrowStyle} className={ arrowSize + arrowPosition + ' bg-base-300 absolute border-r-4 border-primary'}></div>
         </div>
-        <div style={wheelStyles} className='-z-40'>
         <div style={sliceContainerStyles}>
             {options.map((option, index) => {
             const numberOfSlices = options.length;

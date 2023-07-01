@@ -71,7 +71,7 @@ async function createGame(
             roundTimerExpiry: 0,
             voteTimerExpiry: 0,
             currentRound: 0, // Start at round 0 for display pack to work
-            maxRounds: 4,
+            maxRounds: 12,
         } as GameState);
 
         router.replace(`/Game/${game.id}`);

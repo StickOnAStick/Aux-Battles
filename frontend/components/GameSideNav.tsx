@@ -8,6 +8,7 @@ import { Suspense, useEffect, useState } from "react"
 import PocketBase, { RecordSubscription, UnsubscribeFunc } from 'pocketbase';
 import { GameData } from "@/global/types/GameData";
 import { useRouter } from "next/navigation";
+import { socket } from "@/global/functions/socket";
 
 export default function GameSideNav({
     playerList,
@@ -19,21 +20,13 @@ export default function GameSideNav({
     
     const [players, setPlayers] = useState<UsersOrGuests[]>(playerList);
     const [active, setActive] = useState<string[]>([]);
+    const [scores, setScores] = useState<number[]>([]);
     const router = useRouter();
 
     useEffect(() => {
-
-
-
-
-
-
-
-
-
-
-
-
+        socket.on("Score-Update", ([ids, scores]: [string[], number[]])=>{
+            setScores(scores);
+        })
 
         const pb = new PocketBase('http://127.0.0.1:8091');
 
@@ -70,9 +63,9 @@ export default function GameSideNav({
             <ul className="menu gap-2 p-2 bg-base-200 bg-opacity-90 lg:bg-opacity-0 w-2/3 md:w-1/3 lg:w-auto">
                 <Suspense fallback={<ActionCardSuspense isGame={true}/>}>
                     {
-                        players.map((player: UsersOrGuests) => {
+                        players.map((player: UsersOrGuests, index: number) => {
                             if(player.avatar) return (<ActionCard typeData={player as Users} host={false} key={player.id} active={player.id === active[0] || player.id === active[1]} isGame={true}/>)
-                            return <ActionCard typeData={player as Guests} host={false} key={player.id} active={player.id === active[0] || player.id === active[1]} isGame={true}/>
+                            return <ActionCard score={scores[index]} typeData={player as Guests} host={false} key={player.id} active={player.id === active[0] || player.id === active[1]} isGame={true}/>
                         })
                     }
                 </Suspense> 

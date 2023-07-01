@@ -9,7 +9,7 @@ export function middleware(req: NextRequest, res: NextResponse) {
     if(!existingCookie?.value) {
         const token: string = generateToken(40);
         const expiry = new Date();
-        expiry.setTime(expiry.getTime()+(2 * 24 * 60 * 60 * 1000))
+        expiry.setTime(expiry.getTime()+(20 * 24 * 60 * 60 * 1000))
         response.cookies.set('token', token, {expires: expiry});
     }
     return response;

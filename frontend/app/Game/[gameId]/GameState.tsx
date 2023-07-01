@@ -48,7 +48,7 @@ export default function GameState({
     return(
         <div className="absolute bottom-5 left-0 flex justify-between w-full lg:w-9/12 px-6 md:px-24">
             {activePlayers[0] != undefined && 
-                <div className={(selectedTracks[0] != undefined ? "border-success " : "border-primary ") + " bg-base-300 border-2 border-opacity-100 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
+                <div className={(selectedTracks[0] != undefined ? "border-success " : "border-primary ") + " -z-20 bg-base-300 border-2 border-opacity-100 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
                     {(selectedTracks[0] !== undefined && selectedTracks[0].album.images[1].height && selectedTracks[0].album.images[1].width) ?
                     <Image className='rounded-sm' src={selectedTracks[0].album.images[1].url} height={selectedTracks[0].album.images[1].height} width={selectedTracks[0].album.images[1].width} alt='album cover' />
                     :
@@ -66,7 +66,7 @@ export default function GameState({
             </div>
 
             {activePlayers[1] != undefined && 
-                <div className={(selectedTracks[1] != undefined ? "border-success " : "border-primary ") + " bg-base-300 border-2 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
+                <div className={(selectedTracks[1] != undefined ? "border-success " : "border-primary ") + " -z-20 bg-base-300 border-2 rounded-lg w-5/12 md:w-1/6 text-center align-middle text-lg sm:text-xl font-bold overflow-hidden "}>
                     {(selectedTracks[1] !== undefined && selectedTracks[1].album.images[1].height && selectedTracks[1].album.images[1].width) ?
                     <Image className='rounded-sm' src={selectedTracks[1].album.images[1].url} height={screenWidth > 670 ?  selectedTracks[1].album.images[1].height : selectedTracks[1].album.images[1].height} width={screenWidth > 670 ?  selectedTracks[1].album.images[1].width : selectedTracks[1].album.images[1].width} alt='album cover' />
                     :

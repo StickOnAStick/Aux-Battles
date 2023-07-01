@@ -35,6 +35,7 @@ export default function GameWrapper({
     const [activePlayers, setActivePlayers] = useState<[UsersOrGuests | undefined, UsersOrGuests | undefined]>([undefined, undefined]);
     const [allowVoting, setAllowVoting] = useState<boolean>(false);
     const [roundWinners, setRoundWinners] = useState<StatefulRoundWinners>({winners: [undefined, undefined], tracks: [undefined, undefined]})
+    const [gameWinner, setGameWinner] = useState<[UsersOrGuests | undefined, number]>([undefined, 0])
 
     const router = useRouter();
 
@@ -44,16 +45,13 @@ export default function GameWrapper({
             socket.emit("Client-Ready", {id: localUser.id, currentGame: gameId});
         }
         socket.on("Navigate-To-Home", () => {
-            console.log("Nav home")
             router.push("/")
         }) 
         socket.on("Display-Pack", ()=>{
-            console.log("Display Pack animation")
             setPackAnimation(true); 
             setTimeout(()=>{setPackAnimation(false)}, 1000);
         });
         socket.on("Active-Players", ([ids, prompt]: [[string, string], number]) => {
-            console.log("Active-Players signal IDS: ", ids)
             const user1 = initData.expand.guests.find(g => g.id === ids[0] as string);
             const user2 = initData.expand.guests.find(g => g.id === ids[1] as string);
             if(localUser.id === user1?.id || localUser.id === user2?.id){
@@ -83,6 +81,10 @@ export default function GameWrapper({
             }, 10000);
             
         });
+        socket.on("Game-Winner", ([id, score]: [string, number]) => {
+            const winner = initData.expand.guests.find(g => g.id === id);
+            setGameWinner([winner, score]);
+        })
     },[initData.expand.guests, activePlayers, timer, selectedPrompt, gameId, initData, localUser.id, router, joinedGame])
 
     useEffect(()=>{
@@ -107,7 +109,7 @@ export default function GameWrapper({
     return (
         <>
             <SpotifySearch isActive={spotifyModal} accessToken={accessToken} gameId={gameId} localUserId={localUser.id} prompt={initData.expand.pack.packData.prompts[selectedPrompt]}/>
-            <Spinner prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt} userId={localUser.id} votingAllowed={allowVoting} roundWinners={roundWinners}/>
+            <Spinner gameWinner={gameWinner} prompts={initData.expand.pack.packData.prompts} selected={selectedPrompt} userId={localUser.id} votingAllowed={allowVoting} roundWinners={roundWinners}/>
             {/* Conditional rendering of game state is REQUIRED, otherwise caching errors occur. Causing child to have old activeplayer values set. */}
             {activePlayers[0] && activePlayers[1] && <GameState gameId={gameId} activePlayers={activePlayers} timer={timer} localUserId={localUser.id}/>}
         </>
