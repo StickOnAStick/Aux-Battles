@@ -7,9 +7,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8091',
+        protocol: 'https',
+        hostname: 'aux-battles.app',
+        port: '443',
         pathname: '/api/files/**'
       },
       {
