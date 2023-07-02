@@ -26,7 +26,7 @@ export default function ActionCard ({
         <div className="flex justify-between">
             <div className='flex gap-4 mx-3 my-2 font-extrabold tracking-wide'>
                 {typeData?.avatar && 
-                    <Image src={`https://${process.env.POCKETBASE_URL}/api/files/users/${typeData.id}/${typeData.avatar}`} width={50} height={50} alt="User Img" className='rounded' style={{width: 'auto', height: '100%'}} priority={false}/>
+                    <Image src={`${process.env.POCKETBASE_URL}/api/files/users/${typeData.id}/${typeData.avatar}`} width={50} height={50} alt="User Img" className='rounded' style={{width: 'auto', height: '100%'}} priority={false}/>
                 }
                 {typeData.username}
             </div>
