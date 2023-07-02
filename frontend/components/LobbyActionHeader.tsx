@@ -6,8 +6,8 @@ import {  GameDataPayload } from "@/global/types/GameData";
 import { Guests } from "@/global/types/Guests";
 import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
-import { io } from 'socket.io-client';
 import { GameState } from '@/global/types/GameSocket';
+import { socket } from '@/global/functions/socket';
 
 async function createGame(
     data: LobbyData,
@@ -49,8 +49,6 @@ async function createGame(
         const game = await pb.collection('games').create(gameData);
         if(!game.id) return setError(new Error("Could not create game"));
         await pb.collection('lobbys').update(game.id, {gameStart: true});
-
-        const socket = io('http://localhost:8080');
         
         socket.emit("Create-Game", {
             id: game.id,
