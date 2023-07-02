@@ -8,7 +8,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'aux-battles.app',
+        hostname: 'api.aux-battles.app',
         port: '443',
         pathname: '/api/files/**'
       },
