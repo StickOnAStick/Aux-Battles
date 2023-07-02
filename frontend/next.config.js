@@ -24,7 +24,8 @@ const nextConfig = {
     POCKETBASE_URL: process.env.POCKETBASE_URL,
     SOCKET_IO_URL: process.env.SOCKET_IO_URL,
     SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
-    SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET, 
+    SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
+    VERCEL_URL: process.env.VERCEL_URL
   }
 }
 

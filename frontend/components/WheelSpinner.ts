@@ -77,7 +77,6 @@ export default function WheelSpinner(
 
     function initCanvas() {
         var canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-        console.log(navigator);
 
         //Checks for MS internet explorer
         if(navigator.userAgent.indexOf('MSIE') !== -1){
