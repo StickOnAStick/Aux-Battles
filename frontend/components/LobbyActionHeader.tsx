@@ -107,7 +107,7 @@ export default function LobbyActionHeader({
     return (
         <div className=" flex flex-col xs:flex-row justify-between border-b-2 border-primary-content pb-4 border-opacity-80">
             <div className="flex gap-3 items-center">
-                    <Image src={`http://127.0.0.1:8091/api/files/packs/${data?.expand.packs.at(0).id as string}/${data?.expand.packs.at(0).image as string}`} 
+                    <Image src={`https://${process.env.POCKETBASE_URL}/api/files/packs/${data?.expand.packs.at(0).id as string}/${data?.expand.packs.at(0).image as string}`} 
                             width={screenWidth >= 500 ? 100 : 60} height={screenWidth >= 500 ? 100 : 60} alt="Pack Image" 
                             className='rounded-md' style={{width: 'auto', height: '100%'}} />
                 <h1 className='font-bold xs:text-3xl text-3xl text-center'>{data.expand.packs.at(0).name}</h1>
