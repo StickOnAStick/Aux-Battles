@@ -40,9 +40,8 @@ export default function Spinner({
         setSpinWheel(true);
         const wheelSpinDelay = setTimeout(()=>{ setSpinWheel(false); clearTimeout(wheelSpinDelay)},1000)
       })
-      console.log("rednered spinner.tsx")
+      
       socket.on("Song-PlayBack", (track: Track) => {
-        console.log("Song-Playback Hit!", track);
         setSongPlayBack(track);
       });
       socket.on("Vote-Signal", ([track1, track2]: [Track, Track]) => {
@@ -50,7 +49,6 @@ export default function Spinner({
         setSongPlayBack(undefined);
         const delay = setTimeout(()=>{
             setVoteTracks([undefined, undefined]);
-            console.log("Emitting Expired-Vote-Timer from spinner.tsx")
             if(votingAllowed){ socket.emit("Expired-Vote-Timer", userId); }
             clearTimeout(delay);
         },30000);

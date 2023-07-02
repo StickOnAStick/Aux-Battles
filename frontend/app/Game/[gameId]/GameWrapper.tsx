@@ -94,7 +94,6 @@ export default function GameWrapper({
                 if(timer - 1 == 0 && (localUser.id == activePlayers[0]?.id || localUser.id == activePlayers[1]?.id) && spotifyModal) {
                     setSpotifyMdoal(false);
                     setTimer(0);
-                    console.log("Sending expired timer signal with id: ", localUser.id);
                     socket.emit("Expired-Select-Timer", localUser.id);
                     clearTimeout(delay);
                 }

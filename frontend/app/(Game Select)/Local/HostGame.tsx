@@ -11,7 +11,7 @@ import { Guests, GuestsPayload } from '@/global/types/Guests';
 
                                 
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
-    console.log(process.env.POCKETBASE_URL)
+ 
     const pb = new PocketBase(process.env.POCKETBASE_URL as string);
     const model = pb.authStore.model;
     const pass = generateLocalPassword();
@@ -118,7 +118,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 }
 
                 await pb.collection('users').update(user.id, payload)
-                .then((response)=>console.log("Updated user: ", response))
+                .then((response)=>{})
                 .catch((error)=>console.error("Error updating user: ", error));
                 router.push(`/${response.id}`)
             })

@@ -1,24 +1,19 @@
 declare var require: any;
 import 'react';
 import { Server } from 'socket.io'
-import * as https from 'https';
-import * as fs from 'fs';
-import express from 'express';
+import * as http from 'http';
 import { Client, GameState, Scores, RoundWinner } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
 
-const app = express()
 
-const httpsOptions  = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/api.aux-battles.app/fullchain.pem', 'utf-8'),
-    key: fs.readFileSync('/etc/letsencrypt/live/api.aux-battles.app/privkey.pem', 'utf-8'),
-}
-const server = https.createServer(httpsOptions)
+const express = require('express')
+const app = express()
+const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://api.aux-battles.app",
+        origin: "*",
     },
 })
 
