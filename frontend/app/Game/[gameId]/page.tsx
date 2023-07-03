@@ -19,7 +19,6 @@ async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
 }
 
 async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
-    console.log("Spotify URL: ", `${process.env.AUXBATTLES_URL}/api/Spotify/accessToken`)
     const res = await fetch(`${process.env.AUXBATTLES_URL}/api/Spotify/accessToken`, {
         cache: 'no-cache',
     });
