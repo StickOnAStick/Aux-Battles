@@ -22,7 +22,7 @@ export default function VoteCard({
             <span className="text-lg text-center">{track.name}</span>
             <span className="text-base text-center font-thin">{track.artists[0].name}</span>
             </div>
-            <span className=" font-bold text-lg flex justify-center">{voteCount}</span>
+            <span className=" font-bold text-lg flex justify-center w-full">{voteCount}</span>
             {
                 winner?.id && <span className="fond-bold text-xl"></span>
             }

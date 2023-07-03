@@ -38,7 +38,6 @@ export default function GameWrapper({
     const [gameWinner, setGameWinner] = useState<[UsersOrGuests | undefined, number]>([undefined, 0])
 
     const router = useRouter();
-    console.log(accessToken)
     
     useEffect(()=>{
         if(!joinedGame){
