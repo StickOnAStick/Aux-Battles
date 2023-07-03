@@ -11,7 +11,7 @@ export const metadata = {
     icon: '/FinalRed.png'
   },
   other: {
-    robots: "index, nofollow"
+    robots: "index, follow"
   }
 }
 
