@@ -4,7 +4,14 @@ import '../styles/dist.css';
 
 export const metadata = {
   title: 'Aux-Battles',
-  description: 'Prompt based music game',
+  description: 'Aux-Battles the music battle game. Battle your friends for Aux, and compete by responding to unique prompts with your song choices.',
+  icons: {
+    rel: 'icon',
+    icon: '/FinalRed.png'
+  },
+  other: {
+    robots: "index, nofollow"
+  }
 }
 
 export default async function RootLayout({
