@@ -22,9 +22,8 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
     const res = await fetch(`${process.env.VERCEL_URL}/api/Spotify/accessToken`, {
         cache: 'no-cache',
     });
-    if(!res.ok){
-        throw new Error("Failed to obtain spotify access key");
-    }
+    if(!res.ok) throw new Error("Failed to obtain spotify access key");
+       
     return res.json();
 }
 
