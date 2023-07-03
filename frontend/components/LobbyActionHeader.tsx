@@ -20,7 +20,7 @@ async function createGame(
 
     const pb = new PocketBase(process.env.POCKETBASE_URL);
     const updatedLobby: LobbyData = await pb.collection('lobbys').getOne(data.id);
-    if((updatedLobby.guests.length + updatedLobby.players.length) < 2) return setError(new Error("Invite players to play"));
+    if((updatedLobby.guests.length + updatedLobby.players.length) <= 2) return setError(new Error("Invite players to play"));
     
     const model = pb.authStore.model;
     if(!model){ //guest -> Move to api route to prevent API Key leaking
