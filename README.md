@@ -18,7 +18,7 @@ yarn build
 
 yarn dev
 ```
-* NOTE: You **MUST** use yarn for this project to prevent 
+* NOTE: You **MUST** use yarn for this project to prevent package manager contaminations
 
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
