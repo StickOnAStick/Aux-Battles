@@ -23,7 +23,7 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
         cache: 'no-cache',
     });
     if(!res.ok) throw new Error("Failed to obtain spotify access key");
-       
+    console.log(res.json());
     return res.json();
 }
 

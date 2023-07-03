@@ -39,6 +39,7 @@ export default function GameWrapper({
 
     const router = useRouter();
     console.log(accessToken)
+    
     useEffect(()=>{
         if(!joinedGame){
             setJoinedGame(true);
