@@ -34,7 +34,6 @@ export default function GameState({
             if(!activePlayers[0] || !activePlayers[1]) return;
             
             const index = clientId === activePlayers[0].id ? 0 : 1;
-            console.log("Display song recieved", track, "\nClient: ", clientId, activePlayers[0].id, activePlayers[1].id, "Index: ", index);
             setSelectedTracks((prev: [Track | undefined, Track | undefined]) => {
                 if(index) return [track, prev[1]];
                 else return [prev[0], track];
