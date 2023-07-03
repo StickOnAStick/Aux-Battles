@@ -91,7 +91,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
             .catch((e)=> console.log("Error creating guest lobby... \n", e));
             
         } catch(e){
-            console.error(e);
+            console.log("Error creating lobby: ", e);
         }
 
     }else{
@@ -119,10 +119,10 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
 
                 await pb.collection('users').update(user.id, payload)
                 .then((response)=>{})
-                .catch((error)=>console.error("Error updating user: ", error));
+                .catch((error)=>console.log("Error updating user: ", error));
                 router.push(`/${response.id}`)
             })
-            .catch((error)=>console.error("Error creating lobby: ",error));
+            .catch((error)=>console.log("Error creating lobby: ",error));
         }catch(error){
             console.log(error);
         }        

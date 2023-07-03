@@ -43,7 +43,7 @@ async function leaveLobby(
                 await pb.collection('lobbys').update(lobbyId, updatedData);
                 router.push('/');
             }catch(e){
-                console.error(e);
+                console.log("Error leaving lobby: ", e);
             }
         }
     }else{

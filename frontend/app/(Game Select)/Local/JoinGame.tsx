@@ -61,7 +61,7 @@ export default function JoinGame ({
                         router.push(`/${response.id}`);
                         
                     })
-                    .catch((error)=>console.error(error));
+                    .catch((error)=>console.log("Error joinging game", error));
                     return;
                 }
                 
