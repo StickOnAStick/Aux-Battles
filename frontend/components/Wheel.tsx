@@ -54,65 +54,64 @@ const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   };
   const centerStyles: CSSProperties = {
     position: 'absolute',
-    bottom: '43%',
+    bottom: '43.2%',
     left: '43%',
-    transformOrigin: '0 100%',
+    transition: 'transform 1.2s ease-out',
+    transform: `rotate(-${rotation}deg)`,
   }
 
   const arrowStyle: CSSProperties = {
     clipPath: 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%',
-    
   }
 
   return (
     <>
-        
         <div style={wheelStyles} className='-z-40'>
-        <div style={centerStyles} className={innerCircleSize + ' bg-base-300 rounded-full border-4 border-primary z-40'}>
-            <div style={arrowStyle} className={ arrowSize + arrowPosition + ' bg-base-300 absolute border-r-4 border-primary'}></div>
-        </div>
-        <div style={sliceContainerStyles}>
-            {options.map((option, index) => {
-            const numberOfSlices = options.length;
-            const degreesPerSlice = 360 / numberOfSlices;
-            const rotation = index * degreesPerSlice;
-            const sliceStyles: CSSProperties = {
-                position: 'absolute',
-                width: '0',
-                height: '0',
-                borderTop: '250px solid transparent',
-                borderBottom: '250px solid transparent',
-                borderLeft: `125px solid ${index % 2 === 0 ? "#ff4d4d" : "#17191b"}`,
-                transform: `rotate(${rotation}deg)`,
-                transformOrigin: '0% 100%',
-                left: '50%',
-                bottom: '50%',
-            };
-            return (
-                <div key={index} style={sliceStyles}></div>
-            );
-            })}
-        </div>
-        {options.map((option, index) => {
-            const numberOfSlices = options.length;
-            const degreesPerSlice = 360 / numberOfSlices;
-            const rotation = index * degreesPerSlice;
-            const textStyles: CSSProperties = {
-            position: 'absolute',
-            bottom: '50%',
-            left: '50%',
-            width: screenWidth > 550 ? '170px' : '50px',
-            textAlign: 'end',
-            transform: `rotate(${rotation + degreesPerSlice/2}deg) translateX(100px)`,
-            transformOrigin: '0 100%',
-            color: 'white',
-            fontSize: screenWidth > 550 ? '1rem':'0.55rem',
-            };
-            return (
-            <div key={index} style={textStyles}>{option}</div>
-            );
-        })}
-        
+          <div style={centerStyles} className={innerCircleSize + ' bg-base-300 rounded-full border-4 border-primary z-40'}>
+              <div style={arrowStyle} className={ arrowSize + arrowPosition + ' bg-base-300 border-r-4 border-primary'}></div>
+          </div>
+          <div style={sliceContainerStyles}>
+              {options.map((option, index) => {
+              const numberOfSlices = options.length;
+              const degreesPerSlice = 360 / numberOfSlices;
+              const rotation = index * degreesPerSlice;
+              const sliceStyles: CSSProperties = {
+                  position: 'absolute',
+                  width: '0',
+                  height: '0',
+                  borderTop: '250px solid transparent',
+                  borderBottom: '250px solid transparent',
+                  borderLeft: `125px solid ${index % 2 === 0 ? "#ff4d4d" : "#17191b"}`,
+                  transform: `rotate(${rotation}deg)`,
+                  transformOrigin: '0% 100%',
+                  left: '50%',
+                  bottom: '50%',
+              };
+              return (
+                  <div key={index} style={sliceStyles}></div>
+              );
+              })}
+          </div>
+          {options.map((option, index) => {
+              const numberOfSlices = options.length;
+              const degreesPerSlice = 360 / numberOfSlices;
+              const rotation = index * degreesPerSlice;
+              const textStyles: CSSProperties = {
+              position: 'absolute',
+              bottom: '50%',
+              left: '50%',
+              width: screenWidth > 550 ? '170px' : '50px',
+              textAlign: 'end',
+              transform: `rotate(${rotation + degreesPerSlice/2}deg) translateX(100px)`,
+              transformOrigin: '0 100%',
+              color: 'white',
+              fontSize: screenWidth > 550 ? '1rem':'0.55rem',
+              };
+              return (
+              <div key={index} style={textStyles}>{option}</div>
+              );
+          })}
+          
         </div>
     </>
   );

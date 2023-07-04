@@ -5,6 +5,7 @@ const nextConfig = {
     serverActions: true,
   },
   images: {
+    domains: ["api.aux-battles.app"],
     remotePatterns: [
       {
         protocol: 'https',

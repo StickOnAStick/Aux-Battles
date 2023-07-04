@@ -18,7 +18,7 @@ export default function VoteCard({
     <button onClick={() => voteFunc()} className="flex flex-col justify-between bg-base-300 border border-primary rounded-lg w-[150px] sm:w-[300px] align-middle">
         
             <Image className="rounded-md" src={track.album.images[1].url} height={300} width={300} alt="album cover"/>
-            <div className="flex flex-col flex-wrap justify-center py-1 text-center">
+            <div className="flex flex-col flex-wrap justify-center py-1 text-center w-full">
                 <span className="text-lg text-center">{track.name}</span>
                 <span className="text-base text-center font-thin">{track.artists[0].name}</span>
             </div>

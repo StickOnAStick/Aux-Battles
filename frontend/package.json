@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"next dev \" \"tailwindcss -i styles/globals.css -o styles/dist.css -w\"",
-    "build": "tailwindcss -m -i styles/globals.css -o styles/dist.css && next build",
+    "build": "tailwindcss -m -i styles/globals.css -o styles/dist.css --minify && next build",
     "start": "next start",
     "lint": "next lint"
   },
