@@ -13,7 +13,7 @@ export default function Home() {
             <Link href="/Play" className="btn btn-accent font-bold text-xl text-primary animate-bounce">Play</Link>
           </div>
         </div>
-        {/* <DashBoardSwitch className="absolute bottom-[2rem]"/> */}
+        <DashBoardSwitch className="absolute bottom-[2rem]"/> 
       </div>
     </main>
   )

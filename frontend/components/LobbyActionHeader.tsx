@@ -34,7 +34,7 @@ async function createGame(
         const gameData: GameDataPayload = { 
             id: data.id,
             type: "Local",
-            pack: "w4oudqe45it58g9", //Change to selected pack when feature is added
+            pack: "81lq23qhz63z0w0", //Change to selected pack when feature is added
             round: 1,
             players: updatedLobby.players,
             guests: updatedLobby.guests,
@@ -43,7 +43,7 @@ async function createGame(
                     ids: clientIdList,
                     scores: new Array<number>(updatedLobby.guests.length + updatedLobby.players.length)
                 },
-            host: localUser.id
+            host: localUser.id,
         }
 
         const game = await pb.collection('games').create(gameData);
@@ -69,7 +69,7 @@ async function createGame(
             roundTimerExpiry: 0,
             voteTimerExpiry: 0,
             currentRound: 0, // Start at round 0 for display pack to work
-            maxRounds: 12,
+            maxRounds: 15,
         } as GameState);
 
         router.replace(`/Game/${game.id}`);
@@ -97,6 +97,7 @@ export default function LobbyActionHeader({
 
     const [error, setError] = useState<Error | null>(null);
     const [screenWidth, setScreenWidth] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(()=>{
         setScreenWidth(window.innerWidth);
@@ -114,8 +115,13 @@ export default function LobbyActionHeader({
             </div>
             <div className='flex flex-col items-center'>
                 <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 w-f rounded-md my-1 text-white font-bold tracking-wide'
-                    onClick={()=> createGame(data, localToken, setError, router) }>
-                    Start
+                    onClick={()=>{ createGame(data, localToken, setError, router); setLoading(true); const delay = setTimeout(()=>setLoading(false),1500); clearTimeout(delay)}}>
+                    {
+                        loading ? 
+                        <span className='loading loading-bars loading-lg'></span>
+                        :
+                        <span>Start</span>
+                    }
                 </button>
                 { error && 
                     <div className="btn btn-warning btn-sm xs:btn-md font-bold tracking-wide text-md xs:text-lg" onClick={()=>setError(null)}>{error.message}</div>

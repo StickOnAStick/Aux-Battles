@@ -16,7 +16,7 @@ export default function LobbyActionWrapper({
 
     return (
         <div className={className + " flex justify-center mt-5 text-primary h-full flex-grow"}>
-            <div className=" bg-base-300 border-2 border-primary-content rounded-lg w-full sm:w-10/12 md:w-2/3 p-5 flex flex-col justify-between">
+            <div className=" bg-base-200 border-2 border-primary-content rounded-lg w-full sm:w-10/12 md:w-2/3 p-5 flex flex-col justify-between">
                 <div>
                     {/* Game Info */}
                     <LobbyActionHeader data={data} localToken={localToken}/>

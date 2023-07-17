@@ -1,21 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../store/store';
+import { Users } from '../types/Users';
+import { Admin } from 'pocketbase';
 
 interface AuthState {
-    auth: boolean,
+    model: Users | Admin | null
 }
 
 const initialState: AuthState = {
-    auth: false
+    model: null
 };
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setAuth: (state, action: PayloadAction<boolean>) => {
-            state.auth = action.payload;
+        setAuth: (state, action: PayloadAction<AuthState>) => {
+            state.model = action.payload.model
         },
     },
 })

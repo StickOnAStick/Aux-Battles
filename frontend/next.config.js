@@ -5,11 +5,11 @@ const nextConfig = {
     serverActions: true,
   },
   images: {
-    domains: ["api.aux-battles.app"],
+    domains: ["api.aux-battles.app", "localhost", "127.0.0.1"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'api.aux-battles.app',
+        protocol: 'http',
+        hostname: '127.0.0.1',
         port: '443',
         pathname: '/api/files/**'
       },

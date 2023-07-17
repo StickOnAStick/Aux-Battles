@@ -99,6 +99,7 @@ export default function SpotifySearch({
                             <div className='flex flex-col text-xs justify-between h-full mt-2'>
                                 <span className='font-bold tracking-wide sm:text-base'>{track.name}</span>
                                 <span className='font-extrabold justify-end'>{track.artists[0].name}</span>
+                                <Image src={"./frontend/public/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>
                             </div>
                         </button>
                         );

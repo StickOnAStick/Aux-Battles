@@ -10,12 +10,12 @@ const DashBoardSwitch = ({className }: {className?: string}) => {
 
     function handleRoutes(){
         path == "/" ? 
-          router.replace("/dashboard")
+          router.replace("/Dashboard")
           : router.replace("/");
     }
 
     return (
-        <button type="button" onClick={()=> handleRoutes()} className={className + " btn bg-base-200 text-primary semi-bold text-xl hover:bg-accent border-primary border-opacity-50" + (path == "/" ? " " : " border-t-0 ")}>
+        <button type="button" onClick={()=> handleRoutes()} className={className + " btn bg-base-200 text-primary semi-bold text-xl hover:bg-accent border-primary border-opacity-50 w-48 my-4"}>
                 {path == "/" ? "DashBoard" : "Play" }
         </button>
     );

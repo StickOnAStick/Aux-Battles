@@ -24,6 +24,4 @@ export const guestSlice = createSlice({
 
 export const { setGuest } = guestSlice.actions;
 
-export const selectGuest = (state: RootState) => state.pocketbase;
-
 export default guestSlice.reducer;

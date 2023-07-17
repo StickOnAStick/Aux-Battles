@@ -59,7 +59,7 @@ export default function GameSideNav({
 
     return (
         <div className="drawer-side flex flex-col">
-            <label htmlFor="RHSDrawer" className="drawer-overlay"/>
+            <label htmlFor="RHSDrawer" className="drawer-side"/>
             <ul className="menu gap-2 p-2 bg-base-200 bg-opacity-90 lg:bg-opacity-0 w-2/3 md:w-1/3 lg:w-auto">
                 <Suspense fallback={<ActionCardSuspense isGame={true}/>}>
                     {

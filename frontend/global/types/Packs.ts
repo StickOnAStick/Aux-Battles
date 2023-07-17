@@ -8,6 +8,7 @@ export interface Packs extends Record{
     reviews?: string[], //Add relation type
     packData: PackData,
     image: string,
+    creator: string
 }
 
 export interface PackData {
