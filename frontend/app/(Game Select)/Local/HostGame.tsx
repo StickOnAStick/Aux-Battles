@@ -2,7 +2,7 @@
 
 import { RxKeyboard } from 'react-icons/rx';
 
-import PocketBase from 'pocketbase';
+import PocketBase, {Record} from 'pocketbase';
 import generateLocalPassword from '@/global/functions/generateLocalPass';
 import { LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
@@ -20,10 +20,13 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
     if(!token) return new Error("Please enable cookies to continue");
     console.log(model, token);
     if(!model){
-        try{
             //Check existing guest
+            const existingGuest: Record | void  = await pb.collection('guests').getFirstListItem(`token="${token}"`)
+            .catch((e)=>{
+                //console.log("No existing guest found: ", e)
+            })
+           
             try{
-                const existingGuest: Guests | null = await pb.collection('guests').getFirstListItem(`token="${token}"`)
                 if(existingGuest?.id) {
                     // if(existingGuest?.currentGame){
                     //     router.push(`/Game/${existingGuest.currentGame}`)
@@ -57,42 +60,40 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                         .catch((e)=>{
                             return new Error(`Could not create lobby: ${e}`);
                         })
+                        
+                    }else{
+                        //Create new Guest
+                        const guest: Guests = await pb.collection('guests').create({username: userName, token: token});
+                        
+                        const data: LobbyPayloadData = {
+                            "chatroom": null,
+                            "pass": pass,
+                            "players": [""],
+                            "gameType": false,
+                            "packs": ["81lq23qhz63z0w0"], //Update when more packs are available
+                            "host": guest.id,
+                            "guests": [guest.id],
+                        };
+
+                        const localLobby = await pb.collection('lobbys').create(data)
+                        .then(async (res)=>{
+                            console.log("Updating lobby")
+                            const data: GuestsPayload = {
+                                username: userName,
+                                token: token,
+                                currentLobby: res.id,
+                            }
+                            await pb.collection('guests').update(guest.id, data)
+                            .catch((e)=>console.log("Error updating guest... ", e)); //Update guests current lobby
+                            return router.push(`/${res.id}`)
+                        })
+                        .catch((e)=> console.log("Error creating guest lobby... \n", e));
                     }
                 // }
             }
             catch(e){
                 console.log("Error creating for existing guest: ", e);
             }
-            //Create new Guest
-            const guest: Guests = await pb.collection('guests').create({username: userName, token: token});
-            
-            const data: LobbyPayloadData = {
-                "chatroom": null,
-                "pass": pass,
-                "players": [""],
-                "gameType": false,
-                "packs": ["81lq23qhz63z0w0"], //Update when more packs are available
-                "host": guest.id,
-                "guests": [guest.id],
-            };
-
-            const localLobby = await pb.collection('lobbys').create(data)
-            .then(async (res)=>{
-                console.log("Updating lobby")
-                const data: GuestsPayload = {
-                    username: userName,
-                    token: token,
-                    currentLobby: res.id,
-                }
-                await pb.collection('guests').update(guest.id, data)
-                .catch((e)=>console.log("Error updating guest... ", e)); //Update guests current lobby
-                return router.push(`/${res.id}`)
-            })
-            .catch((e)=> console.log("Error creating guest lobby... \n", e));
-            
-        } catch(e){
-            console.log("Error creating lobby: ", e);
-        }
     
     }else{
         try {

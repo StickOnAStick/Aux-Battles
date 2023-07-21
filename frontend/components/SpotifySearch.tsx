@@ -85,10 +85,11 @@ export default function SpotifySearch({
                     { searchResults &&
                     searchResults.items.map((track: Track )=> {
                         if(track.preview_url == null) return;
+                        
                         return (
                         <button key={track.id}
                                 onClick={()=>sendTrackToGameServer(localUserId, gameId, track)}
-                                className='flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
+                                className='relative flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
                             
                             {/* Track album.images[2] is 64x64px, album.images[1] is 300x300px, album.images[0] 600x600px*/}
                             {/* Annoying fix for type */}
@@ -99,11 +100,25 @@ export default function SpotifySearch({
                             <div className='flex flex-col text-xs justify-between h-full mt-2'>
                                 <span className='font-bold tracking-wide sm:text-base'>{track.name}</span>
                                 <span className='font-extrabold justify-end'>{track.artists[0].name}</span>
-                                <Image src={"./frontend/public/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>
+                            </div>
+
+                            <div className='absolute bottom-2 right-2'>
+                                <Image src={"/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>                                
                             </div>
                         </button>
                         );
                     })}
+                    <button className='relative flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
+                        <Image src={'/spotify-icons-logos/logos/01_RGB/02_PNG/Spotify_Logo_RGB_Green.png'} height={40} width={100} alt='album cover' />
+                    
+                        <div className='flex flex-col text-xs justify-between h-full mt-2'>
+                            <span className='font-bold tracking-wide sm:text-base'>Spotify</span>
+                        </div>
+
+                        <div className='absolute bottom-2 right-2'>
+                            <Image src={"/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>                                
+                        </div>
+                    </button>
                 </div>
                 {prompt && 
                 <div className='border-t-2 border-primary font-bold text-center text-2xl max-h-[20%]'>

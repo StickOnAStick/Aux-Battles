@@ -3964,6 +3964,10 @@ details.collapse summary::-webkit-details-marker {
   top: 0.5rem;
 }
 
+.bottom-2 {
+  bottom: 0.5rem;
+}
+
 .-z-20 {
   z-index: -20;
 }
@@ -4202,6 +4206,10 @@ details.collapse summary::-webkit-details-marker {
   width: 66.666667%;
 }
 
+.w-80 {
+  width: 20rem;
+}
+
 .w-\[150px\] {
   width: 150px;
 }
@@ -4220,10 +4228,6 @@ details.collapse summary::-webkit-details-marker {
 
 .w-screen {
   width: 100vw;
-}
-
-.w-80 {
-  width: 20rem;
 }
 
 .min-w-full {

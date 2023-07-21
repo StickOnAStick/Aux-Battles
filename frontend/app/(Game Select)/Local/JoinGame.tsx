@@ -38,7 +38,7 @@ export default function JoinGame ({
             
             const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
             if(!lobby.id) return new Error("Could not find lobby");
-
+            console.log("Lobby: ", lobby);
             const model = pb.authStore.model;
         
             if(!model){
@@ -54,12 +54,12 @@ export default function JoinGame ({
                         token: localToken
                     };
                     const createGuest: Guests = await pb.collection('guests').create(guestData);
+                    
                     lobby.guests.push(createGuest.id);
 
                     await pb.collection('lobbys').update(lobby.id, lobby)
                     .then(async (response) => {
                         router.push(`/${response.id}`);
-                        
                     })
                     .catch((error)=>console.log("Error joinging game", error));
                     return;
@@ -79,6 +79,7 @@ export default function JoinGame ({
                     })
                     //@ts-ignore
                     lobby.guests.push(updatedGuest.id);
+                    console.log(lobby);
                     const updateLobby = await pb.collection('lobbys').update(lobby.id, lobby)
                     .then((res)=>{
                         router.push(`/${res.id}`)
