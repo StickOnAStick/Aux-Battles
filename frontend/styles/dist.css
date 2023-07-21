@@ -4138,6 +4138,18 @@ details.collapse summary::-webkit-details-marker {
   max-height: 82%;
 }
 
+.max-h-\[85\%\] {
+  max-height: 85%;
+}
+
+.max-h-\[90\%\] {
+  max-height: 90%;
+}
+
+.max-h-\[80\%\] {
+  max-height: 80%;
+}
+
 .min-h-\[2\.5rem\] {
   min-height: 2.5rem;
 }
@@ -4540,6 +4552,11 @@ details.collapse summary::-webkit-details-marker {
 .bg-warning {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--wa) / var(--tw-bg-opacity));
+}
+
+.bg-red-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 226 226 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-0 {
@@ -5327,6 +5344,10 @@ a {
     max-height: 80%;
   }
 
+  .sm\:max-h-\[84\%\] {
+    max-height: 84%;
+  }
+
   .sm\:w-10\/12 {
     width: 83.333333%;
   }
@@ -5384,6 +5405,14 @@ a {
 
   .md\:max-h-\[66\%\] {
     max-height: 66%;
+  }
+
+  .md\:max-h-\[70\%\] {
+    max-height: 70%;
+  }
+
+  .md\:max-h-\[75\%\] {
+    max-height: 75%;
   }
 
   .md\:w-1\/12 {

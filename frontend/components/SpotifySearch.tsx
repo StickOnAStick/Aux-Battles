@@ -62,7 +62,7 @@ export default function SpotifySearch({
 
 
     return (
-        <motion.div className={'absolute top-16 w-full flex justify-center max-h-[75%] md:max-h-[66%]'}
+        <motion.div className={'absolute top-16 w-full flex justify-center max-h-[90%] md:max-h-[75%]'}
             initial={{scale: 0}}
             animate={{ scale: isActive ? 1 : 0,
                        visibility: isActive ? 'visible': 'collapse' 
@@ -81,7 +81,7 @@ export default function SpotifySearch({
                     </button>
                 </div>
                 {/* Results */}
-                <div className='relative pt-2 mt-2 grid grid-cols-3 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[80%] max-h-[82%] scrollbar mb-2'>
+                <div className='relative pt-2 mt-2 grid grid-cols-3 lg:grid-cols-3 gap-2 overflow-y-scroll overflow-x-hidden sm:max-h-[84%] max-h-[90%] scrollbar mb-2'>
                     { searchResults &&
                     searchResults.items.map((track: Track )=> {
                         if(track.preview_url == null) return;
@@ -103,15 +103,16 @@ export default function SpotifySearch({
                             </div>
 
                             <div className='absolute bottom-2 right-2'>
-                                <Image src={"/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>                                
+                                <Image src={"/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={ screenWidth < 420 ? 10 : 20} height={screenWidth < 420 ? 10 : 20} alt='Spotify'/>                                
                             </div>
                         </button>
                         );
                     })}
-                    <button className='relative flex flex-col items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
+                    {searchResults && 
+                    <button className='relative flex flex-col justify-center items-center bg-base-200 hover:bg-primary hover:bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-2 text-center '>
                         <Image src={'/spotify-icons-logos/logos/01_RGB/02_PNG/Spotify_Logo_RGB_Green.png'} height={40} width={100} alt='album cover' />
                     
-                        <div className='flex flex-col text-xs justify-between h-full mt-2'>
+                        <div className='flex flex-col justify-center text-xs h-full mt-2'>
                             <span className='font-bold tracking-wide sm:text-base'>Spotify</span>
                         </div>
 
@@ -119,6 +120,8 @@ export default function SpotifySearch({
                             <Image src={"/spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_Green.png"} width={20} height={20} alt='Spotify'/>                                
                         </div>
                     </button>
+                    }
+                    
                 </div>
                 {prompt && 
                 <div className='border-t-2 border-primary font-bold text-center text-2xl max-h-[20%]'>
