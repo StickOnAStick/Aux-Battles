@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
 import { GameState } from '@/global/types/GameSocket';
 import { socket } from '@/global/functions/socket';
+import LoadingSpinner from './LoadingSpinner';
 
 async function createGame(
     data: LobbyData,
@@ -118,7 +119,7 @@ export default function LobbyActionHeader({
                     onClick={()=>{ createGame(data, localToken, setError, router); setLoading(true); const delay = setTimeout(()=>setLoading(false),1500); clearTimeout(delay)}}>
                     {
                         loading ? 
-                        <span className='loading loading-bars loading-lg'></span>
+                        <LoadingSpinner/>
                         :
                         <span>Start</span>
                     }

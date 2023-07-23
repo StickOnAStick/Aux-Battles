@@ -46,7 +46,7 @@ export default function PackCard({
 
     return(
         <div>
-            <label htmlFor={`pack_${pack.id}`} className="h-28 md:h-40 flex justify-between bg-base-300 border-2 border-primary-content hover:border-primary hover:border-opacity-70 rounded-xl gap-2 z-20 hover:scale-95 duration-200" >
+            <label htmlFor={`pack_${pack.id}`} className="h-28 md:h-40 flex justify-between bg-base-300 border-2 border-primary-content hover:border-primary hover:shadow-2xl shadow-amber-50 hover:border-opacity-70 rounded-xl gap-2 z-20 hover:scale-95 duration-200" >
                 <div className="flex gap-5 w-10/12">
                     <figure><Image alt="Pack Image" src={`${process.env.POCKETBASE_URL}/api/files/packs/${pack.id}/${pack.image}`} width={160} height={160} className="h-full w-auto rounded-xl" priority={false}/></figure>
                     <div className="flex flex-col gap-2 w-7/12 p-2">

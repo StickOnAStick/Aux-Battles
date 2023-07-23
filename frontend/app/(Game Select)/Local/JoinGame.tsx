@@ -4,6 +4,7 @@ import { LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
 import PocketBase from 'pocketbase';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function JoinGame ({
     localToken
@@ -14,6 +15,7 @@ export default function JoinGame ({
     const pb = new PocketBase(process.env.POCKETBASE_URL); 
     const router = useRouter();
 
+    const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
     const [joinData, setJoinData ] = useState({
         name: "",
@@ -21,6 +23,7 @@ export default function JoinGame ({
     });
 
     useEffect(()=>{
+        setLoading(false);
         return setError(null); //clean up error state on deconstruct
     }, []);
     
@@ -31,8 +34,8 @@ export default function JoinGame ({
 
     const handleJoinGame = async (): Promise<Error | void> => {
         //Check for valid input
-        if(joinData.name == "" || joinData.code == "") return setError(new Error("Please enter username or game code!"));
-        if(!localToken) return setError(new Error("Please enable cookies to continue"));
+        if(joinData.name == "" || joinData.code == "") {setLoading(false); return setError(new Error("Please enter username or game code!"));}
+        if(!localToken) {setLoading(false); return setError(new Error("Please enable cookies to continue"));}
         
         try{
             
@@ -113,9 +116,12 @@ export default function JoinGame ({
                         <input type="text" name="code" placeholder="Game ID" onChange={handleInputChange} value={joinData.code} className="rounded px-2 py-1 text-lg border-2 bg-opacity-40 border-primary-content"></input>
                     </ul>
                     <ul className='flex flex-col gap-2'>
-                        
-                        <button onClick={() => handleJoinGame()}  className="btn btn-accent rounded-lg ease-in delay-0 hover:scale-105  min-w-full text-white font-extrabold text-2xl tracking-wide mt-2">
-                            Join
+                        <button onClick={() => {handleJoinGame(); setLoading(true)}}  className="btn btn-accent rounded-lg ease-in delay-0 hover:scale-105  min-w-full text-white font-extrabold text-2xl tracking-wide mt-2">
+                        {loading ? 
+                            <LoadingSpinner/>
+                        :
+                            <>Join</>
+                        }
                         </button>
                         { error &&
                         <div className="alert alert-warning shadow-lg rounded-lg">

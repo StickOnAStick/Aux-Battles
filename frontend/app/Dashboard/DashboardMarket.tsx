@@ -71,9 +71,9 @@ export default function DashboardMarket(){
             })}
         </div>
         <div className="join w-full flex justify-center my-4 ">
-            <button onClick={()=>{if(page>1) setPage(page-1)}} className="join-item btn btn-lg bg-base-300 border border-primary border-opacity-20">«</button>
-            <button className="join-item btn btn-lg bg-base-300 border border-primary border-opacity-20">Page {page}</button>
-            <button onClick={()=> {if(page<maxPage)setPage(prevPage => prevPage + 1)}} className="join-item btn btn-lg bg-base-300 border border-primary border-opacity-20">»</button>
+            <button onClick={()=>{if(page>1) setPage(page-1)}} className="join-item btn bg-base-300 border-none">«</button>
+            <span className="join-item bg-base-300 border-none align-bottom flex flex-col justify-center">Page {page}</span>
+            <button onClick={()=> {if(page<maxPage)setPage(prevPage => prevPage + 1)}} className="join-item btn bg-base-300 border-none">»</button>
         </div>
         </>
     );

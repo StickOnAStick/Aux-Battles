@@ -8,6 +8,7 @@ import { LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useState } from 'react';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
                                 
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
@@ -161,7 +162,7 @@ export default function HostGame ({
                     <div className="modal-action">
                             <button className="btn btn-error font-semibold" onClick={()=> {createLocalLobby(router, userName, localToken); setLoading(true); const reset = setTimeout(()=>setLoading(false), 1000); clearTimeout(reset);}}>
                                 { loading ? 
-                                    <span className='loading loading-bars loading-lg'></span>    
+                                    <LoadingSpinner/>
                                     :
                                     <span>Create Lobby</span>
                                 }
