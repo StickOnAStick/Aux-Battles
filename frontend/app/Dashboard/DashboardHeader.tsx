@@ -1,12 +1,17 @@
 'use client';
 import { useState, ChangeEvent, useEffect } from 'react';
-import {Admin, Record} from 'pocketbase';
+import {Admin, Record, RecordAuthResponse} from 'pocketbase';
 import Link from 'next/link';
 import Image from 'next/image';
 import Pocketbase from 'pocketbase';
 import { Users } from '@/global/types/Users';
 import ProfileStats from './ProfileStats';
 import { FaGear } from 'react-icons/fa6'
+import { useAppDispatch, useAppSelector } from '@/global/hooks/reduxHooks';
+import { setAuth } from '@/global/store/authSlice';
+import { selectAuth } from '@/global/store/authSlice';
+
+
 
 export default function DashboardHeader({
 }:{ 
@@ -18,6 +23,7 @@ export default function DashboardHeader({
         email: "",
         pass: ""
     })
+    const dispatch = useAppDispatch();
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
         const {name, value} = event.target;
@@ -27,6 +33,7 @@ export default function DashboardHeader({
     function SignOut(){
         const pb = new Pocketbase(process.env.POCKETBASE_URL);
         pb.authStore.clear();
+        dispatch(setAuth({isAuth: false}))
         setUserModel(null);   
     }
 
@@ -39,10 +46,10 @@ export default function DashboardHeader({
             return setError(emailError);
         }
         const pb = new Pocketbase(process.env.POCKETBASE_URL);
-        await pb.collection('users').authWithPassword(signInData.email.toLowerCase(), signInData.pass)
-        .then((rec)=>{
+        await pb.collection('users').authWithPassword<Users>(signInData.email.toLowerCase(), signInData.pass)
+        .then((rec: RecordAuthResponse<Users>)=>{
             pb.authStore.save(rec.token, rec.record);
-            pb.collection('users').authRefresh;
+            dispatch(setAuth({isAuth: true}))
             setUserModel(pb.authStore.model as Users);
         })
         .catch((e)=>{
@@ -70,9 +77,9 @@ export default function DashboardHeader({
                 <div className="flex gap-4 w-full">
                     <div className="avatar w-20 md:w-24 rounded-xl">
                         {userModel.avatar !== "" ? 
-                        <Image className='rounded-xl' src={`${process.env.POCKETBASE_URL}/api/files/users/${userModel.id}/${userModel.avatar}`} width={80} height={80} alt="profile" priority={true}/>
+                        <Image className='rounded-xl' src={`${process.env.POCKETBASE_URL}/api/files/users/${userModel.id}/${userModel.avatar}`} width={90} height={90} alt="profile" priority={true}/>
                         :
-                        <Image className='bg-primary p-1 rounded-xl w-auto' src="/DefaultProfile.png" width={80} height={80} alt="alt image" priority={true}/>    
+                        <Image className='bg-primary p-1 rounded-xl aspect-square' src="/DefaultProfile.png" width={80} height={80} alt="alt image" priority={true}/>    
                         }
                     </div>
                     <ProfileStats userModel={userModel}/>

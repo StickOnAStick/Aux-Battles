@@ -1,5 +1,6 @@
 import '../styles/dist.css';
 import { Analytics } from '@vercel/analytics/react'
+import Providers from './providers';
 //Redux provider: import Providers from './providers';
 //Needed for persistant redux store: import eventsource from 'eventsource';
 
@@ -24,8 +25,10 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme="mytheme">
       <body>
+        <Providers>
           {children}
           <Analytics />
+        </Providers>
       </body>
     </html>
   )

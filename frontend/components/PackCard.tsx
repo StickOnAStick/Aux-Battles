@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from 'next/image';
 import { Users } from "@/global/types/Users";
 import Pocketbase, { Admin } from "pocketbase";
+import { FaPlus } from "react-icons/fa6";
 
 export default function PackCard({
     pack,
@@ -47,17 +48,16 @@ export default function PackCard({
     return(
         <div>
             <label htmlFor={`pack_${pack.id}`} className="h-28 md:h-40 flex justify-between bg-base-300 border-2 border-primary-content hover:border-primary hover:shadow-2xl shadow-amber-50 hover:border-opacity-70 rounded-xl gap-2 z-20 hover:scale-95 duration-200" >
-                <div className="flex gap-5 w-10/12">
+                <div className="flex gap-2 w-10/12">
                     <figure><Image alt="Pack Image" src={`${process.env.POCKETBASE_URL}/api/files/packs/${pack.id}/${pack.image}`} width={160} height={160} className="h-full w-auto rounded-xl" priority={false}/></figure>
                     <div className="flex flex-col gap-2 w-7/12 p-2">
-                        <h1 className="text-xl md:text-4xl font-bold">{pack.name}</h1>
-                        <p className="text-sm sm:text-base overflow-hidden">{pack.desc}</p>
+                        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">{pack.name}</h1>
+                        <p className="text-sm md:text-base overflow-hidden bg-base-200 border border-primary border-opacity-25 rounded-lg w-full h-full p-1">{pack.desc}</p>
                     </div>
                 </div>
-                <div className="flex flex-col w-1/6 justify-between rounded-xl p-2 h-full">
-                    
-                    <div className="btn btn-accent p-2 font-bold tracking-wider">
-                        Add Pack
+                <div className="flex flex-col justify-between rounded-xl p-2 h-full">
+                    <div className="btn btn-accent font-bold tracking-wider">
+                        <FaPlus/>
                     </div>
                 </div>
             </label>

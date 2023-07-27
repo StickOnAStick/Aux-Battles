@@ -5,11 +5,11 @@ import { Users } from '../types/Users';
 import { Admin } from 'pocketbase';
 
 interface AuthState {
-    model: Users | Admin | null
+    isAuth: boolean
 }
 
 const initialState: AuthState = {
-    model: null
+    isAuth: false
 };
 
 export const authSlice = createSlice({
@@ -17,7 +17,7 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         setAuth: (state, action: PayloadAction<AuthState>) => {
-            state.model = action.payload.model
+            state.isAuth = action.payload.isAuth
         },
     },
 })
