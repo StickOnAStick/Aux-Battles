@@ -5,14 +5,27 @@ import { FaPlus } from 'react-icons/fa'
 import { useState, ChangeEvent, useEffect } from 'react';
 import Image from 'next/image';
 import Pocketbase from 'pocketbase';
-import { PackData } from '@/global/types/Packs';
+import { PackData, Packs } from '@/global/types/Packs';
 
 
-async function submitPack(userModel: Users | Admin | null, title: string, prompts: string[], setError: React.Dispatch<React.SetStateAction<Error | null>>){
+async function submitPack(
+    userModel: Users | Admin | null, 
+    title: string, 
+    prompts: string[], 
+    image: string | null,  
+    setError: React.Dispatch<React.SetStateAction<Error | null>>
+    ){
     if(!userModel){
         const error = new Error;
         error.name = "NotSigned";
         error.message = "Sign In to create pack"
+        setError(error);
+        return;
+    }
+    if(!image){
+        const error = new Error;
+        error.name = "image";
+        error.message = "Add an image to your pack!"
         setError(error);
         return;
     }
@@ -23,8 +36,7 @@ async function submitPack(userModel: Users | Admin | null, title: string, prompt
         setError(error);
         return;
     }
-
-    prompts.filter(function(prompt){ return /\s/.test(prompt);})
+    prompts = prompts.filter(function(prompt){ return !(/\s/.test(prompt));})
     if(prompts.length < 6) {
         const error = new Error;
         error.name = "empty";
@@ -33,8 +45,16 @@ async function submitPack(userModel: Users | Admin | null, title: string, prompt
         return;
     }
     
-    const pb = new Pocketbase(process.env.POCKETBASE_URL)
-
+    const pb = new Pocketbase(process.env.POCKETBASE_URL);
+    const data: Packs = {
+        name: title,
+        desc: "",
+        price: 2.99,
+        rating: 0,
+        packData: prompts,
+        image: image,
+        creator: userModel.username,
+    }
 }
 
 
@@ -113,18 +133,24 @@ export default function CreatePackButton({
                                 {
                                     Array.from({length: promptList.length}, (_, index) => {
                                         return (
-                                            <input onChange={(e) => setPromptList(prev => {prev[index] = e.target.value; return prev})} type="text" placeholder={`Prompt ${index+1}..`} key={index} className="input w-10/12" />
+                                            <input onChange={(e) => setPromptList(prev => {prev[index] = e.target.value; console.log("prev: ", prev, "\nValue: ", e.target.value); return prev})} type="text" placeholder={`Prompt ${index+1}..`} key={index} className="input w-10/12" />
                                         )
                                     })
                                 }
                                 <button onClick={()=>{if(promptList.length<=19){setPromptList(prev => incrimentArr(prev))}}} className='btn bg-base-100 border border-primary border-opacity-30 w-10/12 mt-2'>Add Prompt</button>
                                 <button onClick={()=>{if(promptList.length>6){setPromptList(prev => decrimentArr(prev))}}} className='btn bg-base-100 border border-primary border-opacity-30 w-10/12'>Remove Prompt</button>
+                                {
+                                    error && 
+                                    <div className='bg-warning rounded-lg py-2 w-10/12 font-bold tracking-wide'>
+                                        {error.message}
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className='w-full flex justify-center'>
                             <div className='flex justify-between items-end gap-2 w-10/12'>
                                 <label htmlFor="CreatePack" className="btn btn-accent mt-4 w-5/12">Close</label>
-                                <button className='btn btn-primary text-accent font-bold w-5/12' onClick={async () => await submitPack(userModel, title, promptList, setError)}>Create Pack</button>
+                                <button className='btn btn-primary text-accent font-bold w-5/12' onClick={async () => await submitPack(userModel, title, promptList, selectedImage, setError)}>Create Pack</button>
                             </div>
                         </div>
                     </div>
