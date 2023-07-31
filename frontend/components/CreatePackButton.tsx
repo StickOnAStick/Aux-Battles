@@ -137,6 +137,8 @@ export default function CreatePackButton({
         return () => {
             setSelectedImage(null);
             setPromptList(new Array<string>(6));
+            setDescription('');
+            setTitle('');
         }
     },[])
 
@@ -169,7 +171,7 @@ export default function CreatePackButton({
                                     <textarea 
                                         placeholder='Description' 
                                         maxLength={140} 
-                                        className='input w-10/12 font-bold h-24 py-2' 
+                                        className='input w-10/12 font-bold h-20 py-2' 
                                         onChange={(e) => setDescription(e.target.value)}
                                         rows={4}
                                         >
