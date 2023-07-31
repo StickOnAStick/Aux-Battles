@@ -2,18 +2,23 @@
 import { Users } from '@/global/types/Users';
 import { Admin } from 'pocketbase';
 import { FaPlus } from 'react-icons/fa'
-import { useState, ChangeEvent, useEffect } from 'react';
+import { useState, ChangeEvent, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Pocketbase from 'pocketbase';
-import { PackData, Packs } from '@/global/types/Packs';
+import { PackData, Packs, PacksPayload } from '@/global/types/Packs';
+import LoadingSpinner from './LoadingSpinner';
 
 
 async function submitPack(
     userModel: Users | Admin | null, 
     title: string, 
     prompts: string[], 
-    image: string | null,  
-    setError: React.Dispatch<React.SetStateAction<Error | null>>
+    image: File | null,  
+    description: string,
+    setError: React.Dispatch<React.SetStateAction<Error | null>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    closeModalRef: React.RefObject<HTMLLabelElement>,
+    setSuccess: React.Dispatch<React.SetStateAction<string | null>>
     ){
     if(!userModel){
         const error = new Error;
@@ -36,7 +41,10 @@ async function submitPack(
         setError(error);
         return;
     }
-    prompts = prompts.filter(function(prompt){ return !(/\s/.test(prompt));})
+
+    
+    console.log(image)
+    prompts = prompts.filter(prompt => prompt.trim() !== '');
     if(prompts.length < 6) {
         const error = new Error;
         error.name = "empty";
@@ -44,17 +52,35 @@ async function submitPack(
         setError(error);
         return;
     }
-    
+    let formData: FormData = new FormData();
+    //data -- Annoying method for uploading images
+    formData.append("image", image);
+    formData.append("name", title);
+    formData.append('desc', description);
+    formData.append("price", '2.99');
+    formData.append('rating', '0');
+    formData.append('packData', JSON.stringify({prompts: prompts}));
+    formData.append('creator', userModel.id);
     const pb = new Pocketbase(process.env.POCKETBASE_URL);
-    const data: Packs = {
+    const data: PacksPayload = {
         name: title,
-        desc: "",
+        desc: description,
         price: 2.99,
         rating: 0,
-        packData: prompts,
-        image: image,
-        creator: userModel.username,
+        packData: {prompts: prompts},
+        creator: userModel.id,
     }
+
+    const pack = await pb.collection('packs').create(formData)
+    .catch(e => setError(new Error("Failed to create pack", {cause: "packCreation"})))
+    // await pb.collection('packs').update(pack.id, formData)
+    // .catch((e) => console.log("Error uploading image: ", e));
+    setLoading(false);
+    setSuccess("Pack Created!");
+    setTimeout(()=>{
+        setSuccess(null);
+        closeModalRef.current?.click();
+    },800)
 }
 
 
@@ -63,15 +89,25 @@ export default function CreatePackButton({
 }:{
     userModel: Users | Admin | null;
 }){
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [title, setTitle] = useState<string>('');
     const [promptList, setPromptList] = useState<string[]>(new Array<string>(6));
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [error, setError] = useState<Error | null>(null);
+    const [description, setDescription] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [success, setSuccess] = useState<string | null>(null);
+
+    const closeModalRef = useRef<HTMLLabelElement>(null);
 
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files && event.target.files[0]
-        if(!file) return setSelectedImage(null);
-        
+        if(!file){
+            setSelectedImage(null);
+            setImageFile(null);
+            return;
+        } 
+        setImageFile(file);
         const reader = new FileReader();
 
         reader.onloadend = () => setSelectedImage(reader.result as string);
@@ -128,12 +164,22 @@ export default function CreatePackButton({
                             </div>
                             
                             <div className="w-full flex flex-col gap-2 items-center">
-                                <input type='text' placeholder='Give a title!' className='input w-10/12 font-bold' onChange={(e) => setTitle(e.target.value)}/>
+                                <div className='flex flex-col gap-3 w-full items-center'>
+                                    <input type='text' placeholder='Give a title!' maxLength={40} className='input w-10/12 font-bold' onChange={(e) => setTitle(e.target.value)}/>
+                                    <textarea 
+                                        placeholder='Description' 
+                                        maxLength={140} 
+                                        className='input w-10/12 font-bold h-24 py-2' 
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        rows={4}
+                                        >
+                                    </textarea>
+                                </div>
                                 <div className='border-b-[0.1px] sm:border-b-[0.25px] my-2 border-opacity-5 w-10/12'></div>
                                 {
                                     Array.from({length: promptList.length}, (_, index) => {
                                         return (
-                                            <input onChange={(e) => setPromptList(prev => {prev[index] = e.target.value; console.log("prev: ", prev, "\nValue: ", e.target.value); return prev})} type="text" placeholder={`Prompt ${index+1}..`} key={index} className="input w-10/12" />
+                                            <input maxLength={40} onChange={(e) => setPromptList(prev => {prev[index] = e.target.value; console.log("prev: ", prev, "\nValue: ", e.target.value); return prev})} type="text" placeholder={`Prompt ${index+1}..`} key={index} className="input w-10/12" />
                                         )
                                     })
                                 }
@@ -145,13 +191,27 @@ export default function CreatePackButton({
                                         {error.message}
                                     </div>
                                 }
+                                {
+                                success &&
+                                <div className='rounded-lg bg-success p-2 w-10/12 font-bold tracking-wide text-base-300'>
+                                    {success}
+                                </div>
+                                }
                             </div>
                         </div>
                         <div className='w-full flex justify-center'>
                             <div className='flex justify-between items-end gap-2 w-10/12'>
-                                <label htmlFor="CreatePack" className="btn btn-accent mt-4 w-5/12">Close</label>
-                                <button className='btn btn-primary text-accent font-bold w-5/12' onClick={async () => await submitPack(userModel, title, promptList, selectedImage, setError)}>Create Pack</button>
+                                <label ref={closeModalRef} htmlFor="CreatePack" className="btn btn-accent mt-4 w-5/12">Close</label>
+                                
+                                <button className='btn btn-primary text-accent font-bold w-5/12' onClick={async () => {setLoading(true); await submitPack(userModel, title, promptList, imageFile, description, setError, setLoading, closeModalRef, setSuccess)}}>
+                                    {loading ?
+                                    <LoadingSpinner/>
+                                    :
+                                    <>Create Pack</>                             
+                                    }
+                                </button>
                             </div>
+                            
                         </div>
                     </div>
                 </div>

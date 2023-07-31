@@ -11,6 +11,17 @@ export interface Packs extends Record{
     creator: string
 }
 
+export interface PacksPayload {
+    name: string,
+    desc: string,
+    price: number,
+    rating?: number,
+    reviews?: string[], //relation type
+    packData: PackData,
+    image?: FormData,
+    creator: string
+}
+
 export interface PackData {
     prompts: string[]
 }
