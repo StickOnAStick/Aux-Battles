@@ -87,8 +87,8 @@ export default function SignUp(){
         formData.append('email', cred.email.toLowerCase());
         formData.append('password', cred.pass);
         formData.append('passwordConfirm', cred.confirmPass);
-        formData.append('packs', JSON.stringify(["81lq23qhz63z0w0"]));
-        formData.append('image', imageFile)
+        formData.append('packs', "81lq23qhz63z0w0");
+        formData.append('avatar', imageFile)
         
         const record = await pb.collection('users').create(formData)
         .then(async()=>{
