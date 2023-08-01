@@ -4038,6 +4038,10 @@ html {
   height: 5rem;
 }
 
+.h-24 {
+  height: 6rem;
+}
+
 .h-28 {
   height: 7rem;
 }
@@ -4060,10 +4064,6 @@ html {
 
 .h-screen {
   height: 100vh;
-}
-
-.h-24 {
-  height: 6rem;
 }
 
 .max-h-\[20\%\] {
@@ -4483,14 +4483,14 @@ html {
   background-color: hsl(var(--p) / var(--tw-bg-opacity));
 }
 
-.bg-warning {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--wa) / var(--tw-bg-opacity));
-}
-
 .bg-success {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--su) / var(--tw-bg-opacity));
+}
+
+.bg-warning {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--wa) / var(--tw-bg-opacity));
 }
 
 .bg-opacity-0 {
@@ -4694,6 +4694,11 @@ html {
   color: hsl(var(--a) / var(--tw-text-opacity));
 }
 
+.text-base-300 {
+  --tw-text-opacity: 1;
+  color: hsl(var(--b3, var(--b2)) / var(--tw-text-opacity));
+}
+
 .text-base-content {
   --tw-text-opacity: 1;
   color: hsl(var(--bc) / var(--tw-text-opacity));
@@ -4707,11 +4712,6 @@ html {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.text-base-300 {
-  --tw-text-opacity: 1;
-  color: hsl(var(--b3, var(--b2)) / var(--tw-text-opacity));
 }
 
 .underline {
@@ -5440,6 +5440,11 @@ a {
   .md\:text-lg {
     font-size: 1.125rem;
     line-height: 1.75rem;
+  }
+
+  .md\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
 
   .md\:hover\:-translate-y-1:hover {
