@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { ChangeEvent, useState } from 'react';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Users } from '@/global/types/Users';
 
                                 
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
@@ -139,6 +140,8 @@ export default function HostGame ({
     const [userName, setUserName] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
+    const userModel = pb.authStore.model;
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setUserName(event.target.value);
     }
@@ -150,23 +153,23 @@ export default function HostGame ({
             className="btn text-base-content pb-1 bg-base-200 rounded-lg border-2 border-primary-content min-w-full h-full hover:btn-accent hover:border-primary-focus hover:border-opacity-5 hover:shadow-md hover:shadow-base-300 hover:text-white hover:-translate-y-1">
                 <div className="flex flex-col min-h-full gap-[0.125rem] font-extrabold tracking-wide text-xl justify-center ">
                     <RxKeyboard size={64} className="w-full"/>
-                    <h1 >Host</h1>
+                    <h1>Host</h1>
                 </div>
             </label>
         {/* Modal */}
             <input type="checkbox" id="HostBtn" className='modal-toggle'/>
             <label className="modal bg-base-200 bg-opacity-5" htmlFor='HostBtn'>
                 <label className="modal-box relative modal-bottom sm:modal-middle bg-base-300 border-primary-content border ">
-                    <h3 className="font-bold text-lg">Enter your username!</h3>
-                    <input className="py-4 px-4 rounded-lg mt-2 font-bold text-xl" type="text" name="name" placeholder='Username' onChange={handleInputChange} value={userName}></input>
-                    <div className="modal-action">
-                            <button className="btn btn-error font-semibold" onClick={()=> {createLocalLobby(router, userName, localToken); setLoading(true); const reset = setTimeout(()=>setLoading(false), 1000); clearTimeout(reset);}}>
-                                { loading ? 
-                                    <LoadingSpinner/>
-                                    :
-                                    <span>Create Lobby</span>
-                                }
-                            </button>
+                    <h3 className="font-bold text-lg">{"Enter your username!"}</h3>
+                    <input className="py-4 px-4 rounded-lg mt-2 font-bold text-xl" type="text" name="name" placeholder={userModel ? userModel.username : 'Username'} onChange={handleInputChange} value={userName}></input>
+                    <div className="modal-action w-full">
+                        <button className="btn btn-error font-semibold" onClick={()=> {createLocalLobby(router, userName, localToken); setLoading(true); const reset = setTimeout(()=>setLoading(false), 1000); clearTimeout(reset);}}>
+                            { loading ? 
+                                <LoadingSpinner/>
+                                :
+                                <span className='w-full'>Create Lobby</span>
+                            }
+                        </button>
                     </div>
                 </label>
             </label>
