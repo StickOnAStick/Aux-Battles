@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { LobbyData } from "@/global/types/LobbyData";
 import { GameState } from '@/global/types/GameSocket';
 import { socket } from '@/global/functions/socket';
+import { Packs } from '@/global/types/Packs';
 import LoadingSpinner from './LoadingSpinner';
 
 async function createGame(
@@ -99,6 +100,7 @@ export default function LobbyActionHeader({
     const [error, setError] = useState<Error | null>(null);
     const [screenWidth, setScreenWidth] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
+    const [packSelection, setPackSelection] = useState<Packs | null>(null)
 
     useEffect(()=>{
         setScreenWidth(window.innerWidth);
@@ -107,15 +109,15 @@ export default function LobbyActionHeader({
 
 
     return (
-        <div className=" flex flex-col xs:flex-row justify-between border-b-2 border-primary-content pb-4 border-opacity-80">
+        <div className=" flex flex-row justify-between border-b-2 border-primary-content pb-4 border-opacity-80">
             <div className="flex gap-3 items-center">
                     <Image src={`${process.env.POCKETBASE_URL}/api/files/packs/${data?.expand.packs.at(0).id as string}/${data?.expand.packs.at(0).image as string}`} 
                             width={screenWidth >= 500 ? 100 : 60} height={screenWidth >= 500 ? 100 : 60} alt="Pack Image" 
                             className='rounded-md' style={{width: 'auto', height: '100%'}} />
-                <h1 className='font-bold xs:text-3xl text-3xl text-center'>{data.expand.packs.at(0).name}</h1>
+                <h1 className='font-bold xs:text-3xl text-2xl text-center'>{data.expand.packs.at(0).name}</h1>
             </div>
-            <div className='flex flex-col items-center'>
-                <button className='btn btn-success btn-md xs:btn-lg bg-opacity-70 w-f rounded-md my-1 text-white font-bold tracking-wide'
+            <div className='flex flex-col gap-1 items-center w-28'>
+                <button className='btn btn-success btn-md w-full xs:btn-lg bg-opacity-70 rounded-md my-1 text-white font-bold tracking-wide'
                     onClick={()=>{ createGame(data, localToken, setError, router); setLoading(true); const delay = setTimeout(()=>setLoading(false),1500); clearTimeout(delay)}}>
                     {
                         loading ? 
@@ -123,6 +125,9 @@ export default function LobbyActionHeader({
                         :
                         <span>Start</span>
                     }
+                </button>
+                <button className='btn btn-sm btn-primary rounded-md text-accent font-bold tracking-wide'>
+                    Change pack
                 </button>
                 { error && 
                     <div className="btn btn-warning btn-sm xs:btn-md font-bold tracking-wide text-md xs:text-lg" onClick={()=>setError(null)}>{error.message}</div>
