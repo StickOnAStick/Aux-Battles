@@ -3,6 +3,7 @@ import {useState, ChangeEvent} from 'react'
 import Link from 'next/link';
 import Pocketbase from 'pocketbase'
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'
 
 interface signInData {
     user: string,
@@ -23,11 +24,27 @@ export default function SignUp(){
         email: "",
         pass: "",
         confirmPass: ''
-    })
+    });
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
         const {name, value} = event.target;
         setSignInData((prev)=> ({...prev, [name]: value}))
+    }
+
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files && event.target.files[0]
+        if(!file){
+            setSelectedImage(null);
+            setImageFile(null);
+            return;
+        } 
+        setImageFile(file);
+        const reader = new FileReader();
+
+        reader.onloadend = () => setSelectedImage(reader.result as string);
+        reader.readAsDataURL(file);
     }
 
     async function Register(cred: signInData){
@@ -49,6 +66,12 @@ export default function SignUp(){
             passError.message = "Passwords must be 8 or more characters";
             return setError(passError);
         }
+        if(!imageFile){
+            const passError = new Error;
+            passError.name = 'record';
+            passError.message = "Chose a profile picture";
+            return setError(passError);
+        }
 
         const pb = new Pocketbase(process.env.POCKETBASE_URL);
         const data = {
@@ -58,8 +81,16 @@ export default function SignUp(){
             passwordConfirm: cred.confirmPass,
             packs: ["w4oudqe45it58g9"],
         }
+
+        let formData = new FormData();
+        formData.append('username', cred.user);
+        formData.append('email', cred.email.toLowerCase());
+        formData.append('password', cred.pass);
+        formData.append('passwordConfirm', cred.confirmPass);
+        formData.append('packs', "81lq23qhz63z0w0");
+        formData.append('avatar', imageFile)
         
-        const record = await pb.collection('users').create(data)
+        const record = await pb.collection('users').create(formData)
         .then(async()=>{
             //Mail verification for mid-Aug update
             // await pb.collection('users').requestVerification(cred.email);
@@ -81,7 +112,7 @@ export default function SignUp(){
             console.log(e);
             const creationError = new Error;
             creationError.name = 'record';
-            creationError.message = "Username already taken. Please change your username or sign in."
+            creationError.message = "Email or username already taken. Please change your username or sign in."
             setError(creationError);
         });   
     }
@@ -120,6 +151,19 @@ export default function SignUp(){
                     {error && error.name === "Pass" &&
                         <div className='bg-warning rounded-lg font-bold p-1 text-center'>{error.message}</div>
                     }
+                    <div className="form-control w-full">
+                        <div data-tip=".jpg .png .svg .gif .webp" className='tooltip tooltip-bottom flex flex-col items-center'>
+                            <label htmlFor="fileUpload" className='cursor-pointer border rounded-xl border-opacity-60 w-1/3 aspect-square bg-base-300 flex flex-col text-justify justify-center'>
+                                {
+                                    selectedImage ?
+                                    <Image className='w-full h-full rounded-xl' src={selectedImage} width={100} height={100} alt="Selected image" />
+                                    :
+                                    <span className='mr-2 text-xs text-center md:text-sm font-bold'>Chose a cover image</span>
+                                }
+                                <input onChange={handleImageChange} accept="image/png, image/jpg, image/svg, image/gif, image/webp" id="fileUpload" type="file" placeholder='Chose a cover image' className="hidden"/>
+                            </label>
+                        </div>
+                    </div>
                     <input type="text" name="user" onChange={handleInputChange} placeholder="Username" className={" p-2 rounded-lg font-semibold text-lg "}/>
                     <input type="text" name="email" onChange={handleInputChange} placeholder="E-mail" className="p-2 rounded-lg font-semibold text-lg"/>
                     <input type="password" name="pass" onChange={handleInputChange} placeholder="Password" className="p-2 rounded-lg font-semibold text-lg"/>
