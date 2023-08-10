@@ -32,6 +32,7 @@ a {
 .scrollbar::-webkit-scrollbar-track {
   border-radius: 100vh;
   background: #17191b;
+  width: '100%';
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
@@ -41,4 +42,8 @@ a {
 
 .scrollbar::-webkit-scrollbar-thumb:hover {
   background: #f5f5f437;
+}
+
+.scrollbar::-webkit-scrollbar-corner {
+  background: #17191b; /* Same as track background */
 }

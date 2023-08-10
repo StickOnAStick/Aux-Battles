@@ -3,10 +3,11 @@ import LeaveLobby from "./LeaveLobby";
 import { cookies } from "next/headers";
 import { ExpandedLobbyData } from "@/global/types/Unions";
 import { redirect } from "next/navigation";
+import { socket } from "@/global/functions/socket";
 
 async function getLobbyData (lobbyId: string): Promise<ExpandedLobbyData> {
    
-    const record = await fetch(`${process.env.POCKETBASE_URL}/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs`, {
+    const record = await fetch(`${process.env.POCKETBASE_URL}/api/collections/lobbys/records/${lobbyId}?expand=guests,players,packs,selectedPack`, {
         cache: 'no-store',
     });
     if(!record.ok) redirect("/")
@@ -32,7 +33,7 @@ export default async function Lobby({
     if(!token) return redirect("/");
 
     const data = await getLobbyData(params.lobbyId);
-    
+
     return (
         <div className="flex flex-col min-h-screen">
             <LeaveLobby token={token?.value} host={data.host} lobbyId={params.lobbyId}/>     

@@ -1,8 +1,10 @@
 import LobbyActionHeader from './LobbyActionHeader';
 import LobbyPlayerList from './LobbyPlayerList';
 import { ExpandedLobbyData } from '@/global/types/Unions';
+import { Guests } from '@/global/types/Guests';
+import PocketBase from 'pocketbase'
 
-export default function LobbyActionWrapper({
+export default async function LobbyActionWrapper({
     lobbyId,
     data, //inital state
     className,

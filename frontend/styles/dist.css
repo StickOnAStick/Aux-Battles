@@ -1934,6 +1934,21 @@ html {
   content: attr(data-title);
 }
 
+.carousel-item {
+  box-sizing: content-box;
+  display: flex;
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.carousel-center .carousel-item {
+  scroll-snap-align: center;
+}
+
+.carousel-end .carousel-item {
+  scroll-snap-align: end;
+}
+
 .checkbox {
   flex-shrink: 0;
   --chkbg: var(--bc);
@@ -3645,6 +3660,10 @@ html {
   bottom: auto;
 }
 
+.rounded-box {
+  border-radius: var(--rounded-box, 1rem);
+}
+
 .btm-nav-xs>*:where(.active) {
   border-top-width: 1px;
 }
@@ -3659,14 +3678,6 @@ html {
 
 .btm-nav-lg>*:where(.active) {
   border-top-width: 4px;
-}
-
-.btn-xs {
-  height: 1.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  min-height: 1.5rem;
-  font-size: 0.75rem;
 }
 
 .btn-sm {
@@ -3714,13 +3725,6 @@ html {
 .btn-square:where(.btn-lg) {
   height: 4rem;
   width: 4rem;
-  padding: 0px;
-}
-
-.btn-circle:where(.btn-xs) {
-  height: 1.5rem;
-  width: 1.5rem;
-  border-radius: 9999px;
   padding: 0px;
 }
 
@@ -4053,10 +4057,6 @@ html {
   height: 5rem;
 }
 
-.h-24 {
-  height: 6rem;
-}
-
 .h-28 {
   height: 7rem;
 }
@@ -4125,6 +4125,10 @@ html {
   width: 5rem;
 }
 
+.w-28 {
+  width: 7rem;
+}
+
 .w-4\/12 {
   width: 33.333333%;
 }
@@ -4171,30 +4175,6 @@ html {
 
 .w-screen {
   width: 100vw;
-}
-
-.w-10 {
-  width: 2.5rem;
-}
-
-.w-40 {
-  width: 10rem;
-}
-
-.w-24 {
-  width: 6rem;
-}
-
-.w-28 {
-  width: 7rem;
-}
-
-.w-32 {
-  width: 8rem;
-}
-
-.w-16 {
-  width: 4rem;
 }
 
 .min-w-full {
@@ -4307,6 +4287,10 @@ html {
   align-items: center;
 }
 
+.justify-start {
+  justify-content: flex-start;
+}
+
 .justify-end {
   justify-content: flex-end;
 }
@@ -4347,6 +4331,12 @@ html {
   gap: 0.125rem;
 }
 
+.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .justify-self-end {
   justify-self: end;
 }
@@ -4355,12 +4345,24 @@ html {
   overflow: hidden;
 }
 
+.overflow-clip {
+  overflow: clip;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
 .overflow-x-hidden {
   overflow-x: hidden;
 }
 
 .overflow-y-scroll {
   overflow-y: scroll;
+}
+
+.scroll-smooth {
+  scroll-behavior: smooth;
 }
 
 .rounded {
@@ -4534,11 +4536,6 @@ html {
 .bg-warning {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--wa) / var(--tw-bg-opacity));
-}
-
-.bg-red-50 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 242 242 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-0 {
@@ -4855,6 +4852,7 @@ a {
 .scrollbar::-webkit-scrollbar-track {
   border-radius: 100vh;
   background: #17191b;
+  width: '100%';
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
@@ -4864,6 +4862,11 @@ a {
 
 .scrollbar::-webkit-scrollbar-thumb:hover {
   background: #f5f5f437;
+}
+
+.scrollbar::-webkit-scrollbar-corner {
+  background: #17191b;
+  /* Same as track background */
 }
 
 .hover\:btn-accent:hover.btn-outline .badge {
@@ -5119,16 +5122,6 @@ a {
     width: 0.75rem;
   }
 
-  .sm\:btn-sm.btn.loading:before {
-    height: 0.75rem;
-    width: 0.75rem;
-  }
-
-  .sm\:btn.loading.btn-sm:before,.sm\:btn.loading.btn-xs:before {
-    height: 0.75rem;
-    width: 0.75rem;
-  }
-
   .btn-group > input.sm\:btn[type="radio"]:checked {
     --tw-border-opacity: 1;
     border-color: hsl(var(--p) / var(--tw-border-opacity));
@@ -5140,27 +5133,6 @@ a {
 
   .btn-group > input.sm\:btn[type="radio"]:checked:focus-visible {
     outline: 2px solid hsl(var(--p));
-  }
-
-  .sm\:btn-sm {
-    height: 2rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    min-height: 2rem;
-    font-size: 0.875rem;
-  }
-
-  .btn-square:where(.sm\:btn-sm) {
-    height: 2rem;
-    width: 2rem;
-    padding: 0px;
-  }
-
-  .btn-circle:where(.sm\:btn-sm) {
-    height: 2rem;
-    width: 2rem;
-    border-radius: 9999px;
-    padding: 0px;
   }
 
   .sm\:modal-middle {
@@ -5238,29 +5210,6 @@ a {
     transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     border-bottom-left-radius: var(--rounded-box, 1rem);
     border-bottom-right-radius: var(--rounded-box, 1rem);
-  }
-}
-
-@media (min-width: 768px) {
-  .md\:btn-md {
-    height: 3rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    min-height: 3rem;
-    font-size: 0.875rem;
-  }
-
-  .btn-square:where(.md\:btn-md) {
-    height: 3rem;
-    width: 3rem;
-    padding: 0px;
-  }
-
-  .btn-circle:where(.md\:btn-md) {
-    height: 3rem;
-    width: 3rem;
-    border-radius: 9999px;
-    padding: 0px;
   }
 }
 
@@ -5387,10 +5336,6 @@ a {
     width: 50%;
   }
 
-  .xs\:flex-row {
-    flex-direction: row;
-  }
-
   .xs\:text-3xl {
     font-size: 1.875rem;
     line-height: 2.25rem;
@@ -5404,11 +5349,6 @@ a {
   .xs\:text-lg {
     font-size: 1.125rem;
     line-height: 1.75rem;
-  }
-
-  .xs\:text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
   }
 }
 

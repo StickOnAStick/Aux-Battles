@@ -11,7 +11,8 @@ export interface LobbyData extends Record {
         host: string,
         players: string[],
         guests: string[],
-        gameStart: boolean
+        gameStart: boolean,
+        selectedPack: string,
 }
 
 export interface LobbyPayloadData {
@@ -23,6 +24,7 @@ export interface LobbyPayloadData {
         packs?: string[],
         host?: string,
         guests: string[],
-        gameStart?: boolean
+        gameStart?: boolean,
+        selectedPack: string,
 }
 

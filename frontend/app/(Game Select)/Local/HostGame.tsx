@@ -4,24 +4,26 @@ import { RxKeyboard } from 'react-icons/rx';
 
 import PocketBase, {Record} from 'pocketbase';
 import generateLocalPassword from '@/global/functions/generateLocalPass';
-import { LobbyPayloadData } from '@/global/types/LobbyData';
+import { LobbyData, LobbyPayloadData } from '@/global/types/LobbyData';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useState } from 'react';
 import { Guests, GuestsPayload } from '@/global/types/Guests';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Users } from '@/global/types/Users';
+import { socket } from '@/global/functions/socket';
 
-                                
+
 async function createLocalLobby(router: typeof useRouter.prototype, userName: string, token: string | undefined) {
  
     const pb = new PocketBase(process.env.POCKETBASE_URL as string);
     const model = pb.authStore.model;
     const pass = generateLocalPassword();
 
-    if(userName == "") return new Error("Please enter a username");
+    
     if(!token) return new Error("Please enable cookies to continue");
     console.log(model, token);
     if(!model){
+            if(userName == "") return new Error("Please enter a username");
             //Check existing guest
             const existingGuest: Record | void  = await pb.collection('guests').getFirstListItem(`token="${token}"`)
             .catch((e)=>{
@@ -46,6 +48,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                             "packs": ["81lq23qhz63z0w0"], //Update when more packs are available
                             "host": existingGuest.id,
                             "guests": [existingGuest.id],
+                            "selectedPack": "81lq23qhz63z0w0",
                             gameStart: false,
                         };
 
@@ -75,11 +78,13 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                             "packs": ["81lq23qhz63z0w0"], //Update when more packs are available
                             "host": guest.id,
                             "guests": [guest.id],
+                            selectedPack: "81lq23qhz63z0w0"
                         };
 
                         const localLobby = await pb.collection('lobbys').create(data)
                         .then(async (res)=>{
-                            console.log("Updating lobby")
+                            console.log("Updating lobby");
+                            socket.emit("Lobby-Create", {id: res.id, packId: res.packs.at(0)})
                             const data: GuestsPayload = {
                                 username: userName,
                                 token: token,
@@ -111,6 +116,7 @@ async function createLocalLobby(router: typeof useRouter.prototype, userName: st
                 "packs": user.packs,
                 "host": user.id,
                 guests: [],
+                selectedPack: "81lq23qhz63z0w0",
             };
 
             const localLobby = await pb.collection('lobbys').create(data)

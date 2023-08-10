@@ -1,4 +1,5 @@
 import { Track } from "./SpotifyAPI"
+import { Packs } from "./frontend/Pack"
 
 export type Client = {
     id: string,
@@ -56,6 +57,13 @@ export type GameState = {
     maxRounds: number,
 
 }
+
+export type Lobby = {
+    id: string,
+    players: Client,
+    pack: Packs
+}
+
 
 export type VoteCount = {
     id: string,

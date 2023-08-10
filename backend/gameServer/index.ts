@@ -2,7 +2,7 @@ declare var require: any;
 import 'react';
 import { Server } from 'socket.io'
 import * as http from 'http';
-import { Client, GameState, Scores, RoundWinner } from '../types';
+import { Client, GameState, Scores, RoundWinner, Lobby } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
 
@@ -19,6 +19,8 @@ const io = new Server(server, {
 
 const clients: Map<string, Client> = new Map;
 const games: Map<string, GameState> = new Map;
+                //id    , packId
+const lobbys: Map<string, string> = new Map;
 
 const VotingTime = 30;
 const SongSelectTime = 60;
@@ -27,6 +29,29 @@ const DisplayWinner = 10;
 
 io.on('connection', (socket) => {
     
+    socket.on("Lobby-Create", async ({id, packId}: {id: string, packId: string}) => {
+        const lobbyPayload = {
+            id: id,
+            packId: packId
+        };
+        lobbys.set(id, packId);
+        await socket.join(id);
+    })
+    
+    socket.on("Lobby-Join", async (id: string) => {
+        await socket.join(id);
+        const lobby = lobbys.get(id);
+        
+    })
+
+    socket.on("Lobby-Set-Pack", ({id, packId}: {id: string,packId: string}) => {
+        io.to(id).emit("Lobby-Set-Pack", packId);
+    })
+
+    socket.on("Lobby-Delete", (id: string) => {
+        lobbys.delete(id);
+    })
+
     socket.on("Create-Game", (data: GameState) => {
         games.set(data.id, data);
         data.clients.map((client: string) => {
@@ -193,9 +218,6 @@ io.on('connection', (socket) => {
         io.to(game.id).emit("Vote-Count", [game.playerVotes[0].length, game.playerVotes[1].length] as [number, number]);
     })
 
-
-    
-    
     socket.on("Expired-Vote-Timer", (clientId: string)=>{
         if(!clientId) return;
         const client = clients.get(clientId);
