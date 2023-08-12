@@ -127,6 +127,16 @@ export default function LobbyActionHeader({
         return () => { setError(null) }
     },[router, data, localToken]);
 
+    useEffect(()=>{
+        const pb = new PocketBase(process.env.POCKETBASE_URL);
+
+        const unsubscribe = pb.collection('lobbys').subscribe(data.id, 
+            function (e: RecordSubscription<LobbyData>){
+                
+        })
+
+    })
+
 
     return (
         <div className=" flex flex-row justify-between border-b-2 border-primary-content pb-4 border-opacity-80">
