@@ -77,7 +77,7 @@ export default function DashboardHeader({
                 <div className="flex gap-4 w-full">
                     <div className="avatar w-20 md:w-24 rounded-xl">
                         {userModel.avatar !== "" ? 
-                        <Image className='rounded-xl' src={`${process.env.POCKETBASE_URL}/api/files/users/${userModel.id}/${userModel.avatar}`} width={90} height={90} alt="profile" priority={true}/>
+                        <Image className='rounded-xl aspect-square overflow-clip w-full h-full' src={`${process.env.POCKETBASE_URL}/api/files/users/${userModel.id}/${userModel.avatar}`} width={200} height={200} alt="profile" priority={true}/>
                         :
                         <Image className='bg-primary p-1 rounded-xl aspect-square' src="/DefaultProfile.png" width={80} height={80} alt="alt image" priority={true}/>    
                         }

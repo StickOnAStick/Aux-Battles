@@ -79,35 +79,35 @@ export default function LobbyPlayerList({
     }, [playerList, initalState, router, localToken])
 
     return(
-        <div className='font-bold text-2xl flex flex-col gap-4 mt-3 mb-5'>
-            <span className="flex justify-between">
-                Players
-                <h1>{playerCount}/20</h1>
-            </span>
-            <ul className=' font-medium rounded-md p-3 text-xl flex flex-col gap-5'>
-                    {
-                        playerList?.map((user: Users | Guests) => {
-                            if(user.avatar){
-                                return <ActionCard typeData={user as Users} key={user.id} host={ user.id === initalState.host }/> 
-                            }
-                            return <ActionCard typeData={user as Guests} key={user.id} host={ user.id === initalState.host}/>
-                        })
-                    }
-                    {/* Users */}
-                    {!playerList && initalState?.expand.players?.map((user: Users) => {
-                        return (
-                            <ActionCard typeData={user} key={user.id} host={ user.id === initalState.host }/>
-                        );
-                    })} 
-                    {/**Guests */}
-                    {!playerList && initalState?.expand.guests?.map((guest: Guests) => {
-                        return (
-                            <ActionCard typeData={guest} key={guest.id} host={ guest.id === initalState.host }/>
-                        );
-                    })}
-                    
-                
-            </ul>
+        <div className='font-bold text-2xl flex justify-center gap-4 mt-3 mb-5 w-full'>
+            <div className="flex flex-col sm:w-1/2 w-full gap-4">
+                <span className="flex justify-between w-full">
+                    Players
+                    <h1>{playerCount}/20</h1>
+                </span>
+                <ul className=' font-medium rounded-md text-xl flex flex-col items-center gap-5'>
+                        { //For joining players
+                            playerList?.map((user: Users | Guests) => {
+                                if(user.avatar){
+                                    return <ActionCard typeData={user as Users} key={user.id} host={ user.id === initalState.host }/> 
+                                }
+                                return <ActionCard typeData={user as Guests} key={user.id} host={ user.id === initalState.host}/>
+                            })
+                        }
+                        {/* Users */}
+                        {!playerList && initalState?.expand.players?.map((user: Users) => {
+                            return (
+                                <ActionCard typeData={user} key={user.id} host={ user.id === initalState.host }/>
+                            );
+                        })} 
+                        {/**Guests */}
+                        {!playerList && initalState?.expand.guests?.map((guest: Guests) => {
+                            return (
+                                <ActionCard typeData={guest} key={guest.id} host={ guest.id === initalState.host }/>
+                            );
+                        })}
+                </ul>
+            </div>
         </div>
     );
 

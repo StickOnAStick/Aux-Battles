@@ -12,8 +12,9 @@ export default function JoinGame ({
     localToken: string | undefined
 }) {
     
-    const pb = new PocketBase(process.env.POCKETBASE_URL); 
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
     const router = useRouter();
+    const model = pb.authStore.model;
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
@@ -24,7 +25,10 @@ export default function JoinGame ({
 
     useEffect(()=>{
         setLoading(false);
-        return setError(null); //clean up error state on deconstruct
+        return () => {
+            setError(null); //clean up error state on deconstruct
+            setLoading(false);
+        }
     }, []);
     
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -33,8 +37,10 @@ export default function JoinGame ({
     }
 
     const handleJoinGame = async (): Promise<Error | void> => {
+        
         //Check for valid input
-        if(joinData.name == "" || joinData.code == "") {setLoading(false); return setError(new Error("Please enter username or game code!"));}
+        console.log(model, ((model == null) && (joinData.name == "" || joinData.code == "")));
+        if(model == null && (joinData.name == "" || joinData.code == "")) {setLoading(false); return setError(new Error("Please enter username or game code!"));}
         if(!localToken) {setLoading(false); return setError(new Error("Please enable cookies to continue"));}
         
         try{
@@ -42,8 +48,7 @@ export default function JoinGame ({
             const lobby: LobbyPayloadData = await pb.collection('lobbys').getFirstListItem(`pass="${joinData.code}"`);
             if(!lobby.id) return new Error("Could not find lobby");
             console.log("Lobby: ", lobby);
-            const model = pb.authStore.model;
-        
+    
             if(!model){
                 //Check if existing lobby 
                 const existingGuest = await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
@@ -92,7 +97,11 @@ export default function JoinGame ({
             }
             else{
                 //user join
-                console.log("TBD feature")
+                lobby.players.push(model.id);
+                const updatedLobby = await pb.collection('lobbys').update(lobby.id, lobby);
+                if(!updatedLobby) return setError(new Error("Could not find lobby!"));
+                router.push(`/${updatedLobby.id}`);
+                return;
             }
         }catch(e){
             //@ts-ignore
@@ -109,7 +118,7 @@ export default function JoinGame ({
                 <li className="flex flex-col font-bold tracking-wider gap-4 text-base-content">
                     <ul>
                         <h2 className="text-2xl mb-2">Guest:</h2>
-                        <input type="text" name="name" placeholder="Name" onChange={handleInputChange} value={joinData.name} className="rounded px-2 py-1 text-lg border-2 bg-opacity-40 border-primary-content"></input>
+                        <input type="text" name="name" placeholder={model!=null ? model.username : "Name"} onChange={handleInputChange} value={joinData.name} disabled={model!=null ? true : false} className="rounded px-2 py-1 text-lg border-2 bg-opacity-40 border-primary-content"></input>
                     </ul>
                     <ul>
                         <h2 className="text-2xl mb-2">Code:</h2>

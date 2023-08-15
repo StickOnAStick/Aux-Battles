@@ -6,6 +6,8 @@ export default function ProfileStats({
 }:{
     userModel: Users | Admin | null
 }){
+
+    if(userModel){
     return(
         <div className="flex justify-between w-full gap-5">
             <div className="text-xs sm:text-lg flex flex-col justify-between w-1/3">
@@ -19,4 +21,6 @@ export default function ProfileStats({
             </div> */}
         </div>
     )
+        }
+        else return (<></>);
 }

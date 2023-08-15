@@ -156,11 +156,11 @@ export default function SignUp(){
                             <label htmlFor="fileUpload" className='cursor-pointer border rounded-xl border-opacity-60 w-1/3 aspect-square bg-base-300 flex flex-col text-justify justify-center'>
                                 {
                                     selectedImage ?
-                                    <Image className='w-full h-full rounded-xl' src={selectedImage} width={100} height={100} alt="Selected image" />
+                                    <Image className='w-full h-full rounded-xl aspect-square' src={selectedImage} width={100} height={100} alt="Selected image" />
                                     :
-                                    <span className='mr-2 text-xs text-center md:text-sm font-bold'>Chose a cover image</span>
+                                    <span className='mr-2 text-lg md:text-lg text-center text-ellipsis font-bold'>Profile Picture</span>
                                 }
-                                <input onChange={handleImageChange} accept="image/png, image/jpg, image/svg, image/gif, image/webp" id="fileUpload" type="file" placeholder='Chose a cover image' className="hidden"/>
+                                <input onChange={handleImageChange} accept="image/png, image/jpg, image/svg, image/gif, image/webp, image/jpeg" id="fileUpload" type="file" placeholder='Chose a cover image' className="hidden"/>
                             </label>
                         </div>
                     </div>

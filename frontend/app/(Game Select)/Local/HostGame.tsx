@@ -167,7 +167,7 @@ export default function HostGame ({
             <label className="modal bg-base-200 bg-opacity-5" htmlFor='HostBtn'>
                 <label className="modal-box relative modal-bottom sm:modal-middle bg-base-300 border-primary-content border ">
                     <h3 className="font-bold text-lg">{"Enter your username!"}</h3>
-                    <input className="py-4 px-4 rounded-lg mt-2 font-bold text-xl" type="text" name="name" placeholder={userModel ? userModel.username : 'Username'} onChange={handleInputChange} value={userName}></input>
+                    <input className="py-4 px-4 rounded-lg mt-2 font-bold text-xl" type="text" name="name" placeholder={userModel ? userModel.username : 'Username'} disabled={userModel ? true : false} onChange={handleInputChange} value={userName}></input>
                     <div className="modal-action w-full">
                         <button className="btn btn-error font-semibold" onClick={()=> {createLocalLobby(router, userName, localToken); setLoading(true); const reset = setTimeout(()=>setLoading(false), 1000); clearTimeout(reset);}}>
                             { loading ? 
