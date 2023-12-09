@@ -2,11 +2,12 @@ import LeaveGame from "./LeaveGame";
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import GameSideNav from "@/components/GameSideNav";
-import PocketBase from 'pocketbase';
+import PocketBase, { Admin, Record } from 'pocketbase';
 import { ExpandedGameData, UsersOrGuests } from "@/global/types/Unions";
 import { Guests } from "@/global/types/Guests";
 import { SpotifyAccessTokenResponse } from "@/global/types/Spotify";
 import GameWrapper from "./GameWrapper";
+import { Users } from "@/global/types/Users";
 
 
 async function fetchGameData(gameId: string): Promise<ExpandedGameData> {
@@ -26,14 +27,25 @@ async function getSpotifyAccessToken(): Promise<SpotifyAccessTokenResponse> {
     return res.json();
 }
 
-async function getUserInfo(token: string): Promise<Guests> {
+async function getUserInfo(token: string, model: Record | Admin | null): Promise<Guests | Users> {
     const pb = new PocketBase(process.env.POCKETBASE_URL);
+    if(!model){
     try{
         const localUser: Guests = await pb.collection('guests').getFirstListItem(`token="${token}"`);
         if(!localUser.id) redirect("/");
         return localUser;
     }catch{
         return redirect("/");
+    }
+    }
+
+    try{
+        const user: Users = await pb.collection('users').getOne(model.id);
+        if(!user.id) redirect('/');
+        return user;
+    }
+    catch{
+        return redirect('/');
     }
 }
 
@@ -49,8 +61,6 @@ export default async function Game({
         getSpotifyAccessToken()
     ]);
     
-    
-
     const playerList: UsersOrGuests[] = [...(data.expand?.players ?? []), ...(data.expand?.guests ?? [])]
     const cookieStore = cookies();
     const token = cookieStore.get('token');
@@ -58,10 +68,10 @@ export default async function Game({
         new Error('Please enable cookies to continue');
         return redirect('/');
     }
-    const localUser = await getUserInfo(token.value);
-    
-    
+    const pb = new PocketBase(process.env.POCKETBASE_URL);
 
+    const localUser = await getUserInfo(token.value, pb.authStore.model);
+    
     return (
         <div className=" min-h-screen ">
         {/* Player Drawer */}

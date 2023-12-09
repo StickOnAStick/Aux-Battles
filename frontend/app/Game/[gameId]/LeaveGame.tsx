@@ -1,10 +1,11 @@
 'use client';
 import { socket } from "@/global/functions/socket";
 import { Guests } from "@/global/types/Guests";
+import { Users } from "@/global/types/Users";
 import { useRouter } from 'next/navigation';
 
 async function leaveGame(
-    localUser: Guests,
+    localUser: Guests | Users,
     gameId: string,
     router: (typeof useRouter.prototype)
 ){
@@ -16,7 +17,7 @@ export default function LeaveGame({
     localUser,
     gameId
 }:{
-    localUser: Guests,
+    localUser: Guests | Users,
     gameId: string
 }){
     const router = useRouter();

@@ -5,6 +5,7 @@ import * as http from 'http';
 import { Client, GameState, Scores, RoundWinner, Lobby } from '../types';
 import { selectTwoIds } from '../functions/selectTwoIds';
 import { Track } from '../types/SpotifyAPI';
+const PocketBase = require('pocketbase/cjs')
 
 
 const express = require('express')
@@ -21,6 +22,7 @@ const clients: Map<string, Client> = new Map;
 const games: Map<string, GameState> = new Map;
                 //id    , packId
 const lobbys: Map<string, string> = new Map;
+const lobbyTrashBin: string[] = []
 
 const VotingTime = 30;
 const SongSelectTime = 60;
@@ -29,35 +31,13 @@ const DisplayWinner = 10;
 
 io.on('connection', (socket) => {
     
-    socket.on("Lobby-Create", async ({id, packId}: {id: string, packId: string}) => {
-        const lobbyPayload = {
-            id: id,
-            packId: packId
-        };
-        lobbys.set(id, packId);
-        await socket.join(id);
-    })
-    
-    socket.on("Lobby-Join", async (id: string) => {
-        await socket.join(id);
-        const lobby = lobbys.get(id);
-        
-    })
-
-    socket.on("Lobby-Set-Pack", ({id, packId}: {id: string,packId: string}) => {
-        io.to(id).emit("Lobby-Set-Pack", packId);
-    })
-
-    socket.on("Lobby-Delete", (id: string) => {
-        lobbys.delete(id);
-    })
-
     socket.on("Create-Game", (data: GameState) => {
         games.set(data.id, data);
         data.clients.map((client: string) => {
             clients.set(client, {
                 id: client,
-                currentGame: data.id
+                currentGame: data.id,
+                lastJoined: new Date()
             } as Client)
         })
     })
@@ -79,7 +59,7 @@ io.on('connection', (socket) => {
         const game = games.get(data.currentGame);
         if(!game) return socket.emit("Navigate-To-Home");
         if(!game.clients.includes(data.id)) return socket.emit('Navigate-To-Home') //Kick if not allowed in game. 
-
+        
         //Join Game room
         await socket.join(game.id);
         //Client already existed in database; potentially switching games. 
@@ -92,14 +72,18 @@ io.on('connection', (socket) => {
             const newClient: Client = {
                 id: data.id,
                 currentGame: data.currentGame,
+                lastJoined: new Date()
             }
             clients.set(newClient.id, newClient); //Add new client
         }
         // Push Client to game room connected
         game.connectedClients.push(data.id);
+        socket.emit("ConnectToGame");
         //Display Pack, Select active players & start first round w/timer
         if(game.connectedClients.length == game.clients.length && game.currentRound == 0)  
-        {
+        {   
+            lobbyTrashBin.push(data.currentGame);          
+            
             io.of("/").in(game.id).emit("Display-Pack");
 
             const ids: [string, string] = selectTwoIds(game.clients);
@@ -301,12 +285,32 @@ io.on('connection', (socket) => {
 
 })
 
+function isOneWeekDifference(date1: Date, date2: Date): boolean {
+    const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
+    const differenceInMilliseconds = Math.abs(date1.getTime() - date2.getTime());
+    return differenceInMilliseconds >= millisecondsInAWeek;
+}
+
 server.listen(8080, ()=> {
     console.log("Game Server listening on 8080");
-    setInterval(()=>{
+    setInterval(async ()=>{
         const dateTime = new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
-        console.log("Number of games running: ", games.size, "Number of joined clients: ", clients.size, "\nTime: ", dateTime);
-    }, 1000*60*1)
+        const pb = new PocketBase('http://127.0.0.1:443');
+        const admin = await pb.admins.authWithPassword('auxbattles.dev@gmail.com', "$D3wsh1n3$<>");
+
+        for(const lobbyId in lobbyTrashBin) {
+            try{
+                await pb.collection('lobbys').delete(lobbyId)
+            }
+            catch(e){ console.log("Failed to remove record: ", `\n ${lobbyId}\n`, e)}
+        }
+    }, 1000*60*5) //5 minutes
+    setInterval(()=>{
+        const now = new Date();
+        clients.forEach((client: Client) => {
+            if(isOneWeekDifference(now, client.lastJoined)) clients.delete(client.id) 
+        })
+    }, 604800 * 1000) //one week
 })
 
 function removeIdFromArray(arr: string[], id: string): string[] {

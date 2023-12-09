@@ -9,6 +9,8 @@ import { UsersOrGuests } from "@/global/types/Unions";
 import PocketBase, { RecordSubscription, UnsubscribeFunc } from 'pocketbase';
 import { ExpandedLobbyData } from "@/global/types/Unions";
 import { useRouter } from 'next/navigation';
+import { socket } from "@/global/functions/socket";
+import Lobby from "@/app/(Game Select)/[lobbyId]/page";
 
 export default function LobbyPlayerList({
     initalState,
@@ -42,26 +44,9 @@ export default function LobbyPlayerList({
             await pb.collection('lobbys').getOne(data.id, {
                 expand: "guests,players,packs"
             }).then( async (res) => {
-                
-                if(res.gameStart){
-                    const checkIfGame = await pb.collection('games').getOne(res.id);
-                    if(!checkIfGame.id) {
-                        router.replace('/');
-                        return;
-                    }
-                    //Update Local Guest
-                    await pb.collection('guests').getFirstListItem(`token="${localToken}"`)
-                    .then(async (res) => {
-                        const data: GuestsPayload = {
-                            currentGame: checkIfGame.id,
-                            currentLobby: ""
-                        };
-                        await pb.collection('guests').update(res.id, data)
-                        .catch((e)=>console.log(e));
-                    })
-                    router.replace(`/Game/${checkIfGame.id}`);
-                    return;
-                }
+                socket.on("ConnectToGame", () => {
+                    router.replace(`/Game/${data.id}`)
+                })
                 //@ts-ignore
                 const combined: UsersOrGuests[] = [...(res.expand?.players ?? []), ...(res.expand?.guests ?? [])]
                 setPlayerList(combined);

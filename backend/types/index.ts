@@ -4,6 +4,7 @@ import { Packs } from "./frontend/Pack"
 export type Client = {
     id: string,
     currentGame: string | null,
+    lastJoined: Date
 }
 
 export type GameState = {

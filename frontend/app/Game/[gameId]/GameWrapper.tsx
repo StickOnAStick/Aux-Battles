@@ -9,6 +9,7 @@ import { Guests } from "@/global/types/Guests";
 import { socket } from "@/global/functions/socket";
 import { useRouter } from "next/navigation";
 import { RoundWinner, StatefulRoundWinners } from "@/global/functions/game";
+import { Users } from "@/global/types/Users";
 
 
 export default function GameWrapper({
@@ -25,7 +26,7 @@ export default function GameWrapper({
     gameId: string,
     initData: ExpandedGameData,
     userToken: string,
-    localUser: Guests
+    localUser: Guests | Users
 }){
     const [joinedGame, setJoinedGame] = useState<boolean>(false);
     const [selectedPrompt, setSelectedPrompt] = useState<number>(0);
